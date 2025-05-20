@@ -128,15 +128,74 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Get Started Button - Now inside the demo box */}
+            {/* Enhanced Get Started Button */}
             <div className="mt-8 text-center">
               <motion.button
-                className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 text-lg shadow-lg shadow-[#00FFFF]/20"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="relative group bg-gradient-to-r from-[#00FFFF] to-[#00FFFF] px-10 py-4 rounded-lg text-lg font-bold text-[#1A1A1A] transition-all duration-300 overflow-hidden"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 0 25px 5px rgba(0, 255, 255, 0.25)" 
+                }}
+                whileTap={{ scale: 0.98 }}
               >
-                Get Started
+                {/* Gradient overlay on hover */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                />
+                
+                {/* Button text */}
+                <span className="relative z-10">Get Started</span>
+                
+                {/* Animated particles for button */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+                  {[...Array(5)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 rounded-full bg-white"
+                      style={{
+                        x: Math.random() * 100 + "%",
+                        y: Math.random() * 100 + "%",
+                      }}
+                      animate={{
+                        scale: [0, 1.5, 0],
+                        opacity: [0, 0.8, 0],
+                        x: [
+                          `${Math.random() * 100}%`, 
+                          `${Math.random() * 100}%`
+                        ],
+                        y: [
+                          `${Math.random() * 100}%`, 
+                          `${Math.random() * 100}%`
+                        ],
+                      }}
+                      transition={{
+                        duration: 2 + Math.random() * 3,
+                        repeat: Infinity,
+                        delay: Math.random() * 5,
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Button glow effect */}
+                <motion.div 
+                  className="absolute -inset-1 rounded-lg blur-md group-hover:blur-xl opacity-40 group-hover:opacity-70 transition-all duration-500 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] -z-10"
+                  animate={{
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                />
               </motion.button>
+              
+              <p className="mt-4 text-sm text-gray-400">
+                No credit card required · 14-day free trial
+              </p>
             </div>
           </div>
         </motion.div>
