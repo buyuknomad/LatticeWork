@@ -142,7 +142,7 @@ const Hero = () => {
                 
                 {/* Button itself */}
                 <motion.button
-                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
+                  className="relative bg-[#252525] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
