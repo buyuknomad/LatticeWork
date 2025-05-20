@@ -2,7 +2,6 @@ import React from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
-import Testimonials from './components/Testimonials';
 import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 import BackgroundAnimation from './components/BackgroundAnimation';
@@ -16,7 +15,6 @@ function App() {
         <main>
           <Hero />
           <Features />
-          <Testimonials />
           <CallToAction />
         </main>
         <Footer />
@@ -26,11 +24,3 @@ function App() {
 }
 
 export default App;
-
-// Note: This keeps the same structure but you could optionally remove some sections
-// to further reduce competing elements. For example:
-// <main>
-//   <Hero />
-//   <Features />
-//   <CallToAction />
-// </main>
