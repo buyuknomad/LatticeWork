@@ -154,7 +154,10 @@ const Hero = () => {
                 >
                   Get Started
                 </motion.button>
-             
+              </div>
+              
+          
+            </div>
           </div>
         </motion.div>
       </div>
