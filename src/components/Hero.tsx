@@ -132,7 +132,7 @@ const Hero = () => {
             <div className="mt-8 text-center">
               <div className="relative inline-block group">
                 {/* Button background with gradient border */}
-          div 
+                <div 
       className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B] to-[#FFD166] rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition-opacity duration-300"
       style={{
         animation: 'glow-travel 4s linear infinite',
