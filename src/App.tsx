@@ -26,3 +26,11 @@ function App() {
 }
 
 export default App;
+
+// Note: This keeps the same structure but you could optionally remove some sections
+// to further reduce competing elements. For example:
+// <main>
+//   <Hero />
+//   <Features />
+//   <CallToAction />
+// </main>
