@@ -129,7 +129,7 @@ const Hero = () => {
             />
             
             {/* Inline Styles Traveling Glow Button */}
-        <div className="mt-8 text-center">
+            <div className="mt-8 text-center">
   <div className="relative inline-block group">
     {/* Button background with NEW gradient border colors */}
     <div 
