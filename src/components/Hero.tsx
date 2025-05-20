@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import InteractiveDemo from './InteractiveDemo'; // Assuming this exists
+import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
 const EXAMPLES_LIST = [
@@ -74,86 +74,83 @@ const Hero = () => {
     }
     setQuestion(e.target.value);
   };
-  
-  // handleExampleClick is removed as the buttons are removed.
 
   const handleTryClick = () => {
     console.log("Processing query:", question);
   };
 
   return (
-    <section className="pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden" id="hero">
+    <section className="pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden" id="hero">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="flex flex-col lg:flex-row items-center lg:space-x-12">
-          {/* Left side: Title, Description, Get Started Button */}
-          <motion.div 
-            className="lg:w-1/2 mb-12 lg:mb-0"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+        {/* Hero Headline and Description - Full Width */}
+        <motion.div 
+          className="text-center max-w-4xl mx-auto mb-14"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            Elevate Your Thinking with{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+              Mental Models
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+            Discover frameworks to make better decisions and solve complex problems.
+            Transform chaotic thoughts into structured, actionable insights.
+          </p>
+          <motion.button
+            className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 text-lg shadow-lg shadow-[#00FFFF]/20"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Elevate Your Thinking with{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-                Mental Models
-              </span>
-            </h1>
-            <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
-              Discover frameworks to make better decisions and solve complex problems.
-              Transform chaotic thoughts into structured, actionable insights.
-            </p>
-            <motion.button
-              className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started
-            </motion.button>
-          </motion.div>
+            Get Started
+          </motion.button>
+        </motion.div>
 
-          {/* Right side: Try It Now box */}
-          <motion.div 
-            className="lg:w-1/2"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="bg-[#252525] p-6 rounded-xl shadow-lg border border-[#333333]">
-              <h3 className="text-xl font-semibold mb-4 text-center">Try It Now</h3>
-              <div className="relative mb-6"> {/* Input and Try It button */}
-                <input
-                  id="hero-question-input"
-                  type="text"
-                  value={question}
-                  onChange={handleInputChange}
-                  onFocus={handleInputFocus}
-                  placeholder={!isTypingAnimationActive ? "What deserves clearer thinking today?" : ""}
-                  className="w-full bg-[#333333] border border-[#444444] text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300"
-                />
-                {!isTypingAnimationActive && question.length > 0 && (
-                  <motion.button 
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#00FFFF] text-[#1A1A1A] px-4 py-1 rounded-md font-medium"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
-                    onClick={handleTryClick}
-                  >
-                    Try it
-                  </motion.button>
-                )}
-              </div>
-              
-              {/* The section for displaying example buttons has been removed.
-                <div className="mb-6"> ... </div> 
-              */}
-
-              <InteractiveDemo 
-                isTyping={!isTypingAnimationActive && question.length > 0} 
-                category={getCategoryFromQuestion(question)}
+        {/* Interactive Demo Container - Full Width */}
+        <motion.div 
+          className="max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <div className="bg-[#252525] p-8 rounded-xl shadow-lg border border-[#333333] relative">
+            {/* Glowing corner accents for visual interest */}
+            <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-tl-xl"></div>
+            <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[#8B5CF6]/20 to-transparent rounded-br-xl"></div>
+            
+            {/* Input Field */}
+            <div className="relative mb-8">
+              <input
+                id="hero-question-input"
+                type="text"
+                value={question}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                placeholder={!isTypingAnimationActive ? "What deserves clearer thinking today?" : ""}
+                className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-lg"
               />
+              {!isTypingAnimationActive && question.length > 0 && (
+                <motion.button 
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#00FFFF] text-[#1A1A1A] px-5 py-2 rounded-md font-medium"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={handleTryClick}
+                >
+                  Try it
+                </motion.button>
+              )}
             </div>
-          </motion.div>
-        </div>
+            
+            {/* Interactive Visualization */}
+            <InteractiveDemo 
+              isTyping={!isTypingAnimationActive && question.length > 0} 
+              category={getCategoryFromQuestion(question)}
+            />
+          </div>
+        </motion.div>
       </div>
     </section>
   );
