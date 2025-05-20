@@ -133,16 +133,16 @@ const Hero = () => {
               <div className="relative inline-block group">
                 {/* Button background with gradient border */}
                 <div 
-      className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B] to-[#FFD166] rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition-opacity duration-300"
-      style={{
-        animation: 'glow-travel 4s linear infinite',
-        backgroundSize: '400% 400%'
-      }}
-    ></div>
+                  className="absolute -inset-0.5 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    animation: 'glow-travel 4s linear infinite',
+                    backgroundSize: '400% 400%'
+                  }}
+                ></div>
                 
                 {/* Button itself */}
                 <motion.button
-                  className="relative bg-[#00FFFF] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
+                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -150,7 +150,9 @@ const Hero = () => {
                 </motion.button>
               </div>
               
-           
+              <p className="mt-4 text-sm text-gray-400">
+                No credit card required · 14-day free trial
+              </p>
             </div>
           </div>
         </motion.div>
