@@ -15,6 +15,9 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Updated navigation items with Biases & Fallacies
+  const navItems = ['Features', 'Biases & Fallacies', 'Benefits', 'Pricing'];
+
   return (
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 py-4 transition-colors duration-300 ${
@@ -36,10 +39,10 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {['Features', 'Benefits', 'Pricing'].map((item) => (
+            {navItems.map((item) => (
               <motion.a
                 key={item}
-                href={`#${item.toLowerCase()}`}
+                href={`#${item.toLowerCase().replace(/\s+&\s+/g, '-')}`}
                 className="text-white hover:text-[#00FFFF] transition-colors duration-300"
                 whileHover={{ scale: 1.1 }}
               >
@@ -75,10 +78,10 @@ const Header = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="flex flex-col space-y-4">
-              {['Features', 'Benefits', 'Pricing'].map((item) => (
+              {navItems.map((item) => (
                 <a
                   key={item}
-                  href={`#${item.toLowerCase()}`}
+                  href={`#${item.toLowerCase().replace(/\s+&\s+/g, '-')}`}
                   className="text-white hover:text-[#00FFFF] py-2 transition-colors duration-300"
                   onClick={() => setIsMenuOpen(false)}
                 >
