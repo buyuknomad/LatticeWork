@@ -130,30 +130,25 @@ const Hero = () => {
             
             {/* Inline Styles Traveling Glow Button */}
             <div className="mt-8 text-center">
-  <div className="relative inline-block group">
-    {/* Button background with NEW gradient border colors */}
-    <div 
+              <div className="relative inline-block group">
+                {/* Button background with gradient border */}
+          div 
       className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B] to-[#FFD166] rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition-opacity duration-300"
       style={{
         animation: 'glow-travel 4s linear infinite',
         backgroundSize: '400% 400%'
       }}
     ></div>
-    
-    {/* Button matching CTA section style */}
-    <motion.button
-      className="relative bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg z-10 shadow-lg shadow-[#00FFFF]/20"
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      Get Started
-    </motion.button>
-  </div>
-  
-  <p className="mt-4 text-sm text-gray-400">
-    No credit card required · 14-day free trial
-  </p>
-</div>
+                
+                {/* Button itself */}
+                <motion.button
+                  className="relative bg-[#1E2A35] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Get Started
+                </motion.button>
+              </div>
               
            
             </div>
