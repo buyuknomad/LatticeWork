@@ -14,7 +14,7 @@ function App() {
         <Header />
         <main>
           <Hero />
-          <Features /> {/* This now contains Features, Biases & Fallacies, and Benefits sections */}
+          <Features />
           <CallToAction />
         </main>
         <Footer />
