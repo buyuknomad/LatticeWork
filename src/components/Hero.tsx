@@ -128,65 +128,42 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Button with traveling glow */}
+            {/* Border Glow Button */}
             <div className="mt-8 text-center">
-              <div className="relative inline-block">
-                {/* Main button */}
+              <div className="relative inline-block overflow-hidden rounded-lg p-[2px]">
+                {/* Border glow effect container */}
+                <div className="absolute inset-0 overflow-hidden rounded-lg">
+                  {/* The moving gradient - we use multiple layers for a more complex effect */}
+                  <div 
+                    className="absolute -inset-[100%] animate-[spin_8s_linear_infinite] opacity-90"
+                    style={{
+                      background: 'conic-gradient(from 0deg, transparent, #00FFFF, #8B5CF6, transparent)'
+                    }}
+                  />
+                  <div 
+                    className="absolute -inset-[100%] animate-[spin_12s_linear_infinite_reverse] opacity-70"
+                    style={{
+                      background: 'conic-gradient(from 180deg, transparent, #8B5CF6, #00FFFF, transparent)'
+                    }}
+                  />
+                </div>
+                
+                {/* Button itself with gradient background */}
                 <motion.button
-                  className="relative bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg border-2 border-[#00FFFF] overflow-visible z-10"
+                  className="relative py-4 px-10 rounded-lg font-bold text-lg text-white z-10 w-full"
+                  style={{
+                    background: 'linear-gradient(to right, rgba(0, 255, 255, 0.15), rgba(139, 92, 246, 0.15))'
+                  }}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
+                  {/* Add a subtle inner shadow/border */}
+                  <div className="absolute inset-0 rounded-lg" 
+                    style={{
+                      boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)'
+                    }} 
+                  />
                   Get Started
-                  
-                  {/* The traveling glow dot */}
-                  <div className="absolute h-full w-full left-0 top-0">
-                    {/* This is a special trick to get a dot to move around the perimeter of a rectangle */}
-                    <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
-                      {/* Define the path that goes around the button */}
-                      <rect 
-                        width="100%" 
-                        height="100%" 
-                        rx="8" 
-                        ry="8" 
-                        fill="none" 
-                        id="button-path" 
-                      />
-                      
-                      {/* Moving glow dot */}
-                      <circle r="4" fill="#FFFFFF">
-                        <animateMotion
-                          dur="3s"
-                          repeatCount="indefinite"
-                          rotate="auto"
-                        >
-                          <mpath xlinkHref="#button-path" />
-                        </animateMotion>
-                      </circle>
-                      
-                      {/* Larger, blurred glow following the same path */}
-                      <circle r="10" fill="#FFFFFF" filter="blur(8px)" opacity="0.6">
-                        <animateMotion
-                          dur="3s"
-                          repeatCount="indefinite"
-                          rotate="auto"
-                        >
-                          <mpath xlinkHref="#button-path" />
-                        </animateMotion>
-                      </circle>
-                      
-                      {/* Even larger, more blurred secondary glow */}
-                      <circle r="15" fill="#00FFFF" filter="blur(12px)" opacity="0.4">
-                        <animateMotion
-                          dur="3s"
-                          repeatCount="indefinite"
-                          rotate="auto"
-                        >
-                          <mpath xlinkHref="#button-path" />
-                        </animateMotion>
-                      </circle>
-                    </svg>
-                  </div>
                 </motion.button>
               </div>
               
@@ -214,5 +191,11 @@ const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'a
   }
   return 'default';
 };
+
+// Add this to global CSS or use inline style with keyframes
+// @keyframes spin {
+//   from { transform: rotate(0deg); }
+//   to { transform: rotate(360deg); }
+// }
 
 export default Hero;
