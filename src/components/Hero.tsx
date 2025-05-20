@@ -128,41 +128,30 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Border Glow Button */}
+            {/* Clean Glowing Button */}
             <div className="mt-8 text-center">
-              <div className="relative inline-block overflow-hidden rounded-lg p-[2px]">
-                {/* Border glow effect container */}
-                <div className="absolute inset-0 overflow-hidden rounded-lg">
-                  {/* The moving gradient - we use multiple layers for a more complex effect */}
-                  <div 
-                    className="absolute -inset-[100%] animate-[spin_8s_linear_infinite] opacity-90"
-                    style={{
-                      background: 'conic-gradient(from 0deg, transparent, #00FFFF, #8B5CF6, transparent)'
-                    }}
-                  />
-                  <div 
-                    className="absolute -inset-[100%] animate-[spin_12s_linear_infinite_reverse] opacity-70"
-                    style={{
-                      background: 'conic-gradient(from 180deg, transparent, #8B5CF6, #00FFFF, transparent)'
-                    }}
-                  />
-                </div>
-                
-                {/* Button itself with gradient background */}
-                <motion.button
-                  className="relative py-4 px-10 rounded-lg font-bold text-lg text-white z-10 w-full"
-                  style={{
-                    background: 'linear-gradient(to right, rgba(0, 255, 255, 0.15), rgba(139, 92, 246, 0.15))'
+              <div className="relative inline-block">
+                {/* Pulsing glow effect */}
+                <motion.div 
+                  className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] opacity-75 blur-md"
+                  animate={{
+                    opacity: [0.5, 0.8, 0.5],
+                    scale: [0.98, 1.01, 0.98],
                   }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Button itself */}
+                <motion.button
+                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg border border-[#00FFFF]/50 z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* Add a subtle inner shadow/border */}
-                  <div className="absolute inset-0 rounded-lg" 
-                    style={{
-                      boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)'
-                    }} 
-                  />
                   Get Started
                 </motion.button>
               </div>
@@ -191,11 +180,5 @@ const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'a
   }
   return 'default';
 };
-
-// Add this to global CSS or use inline style with keyframes
-// @keyframes spin {
-//   from { transform: rotate(0deg); }
-//   to { transform: rotate(360deg); }
-// }
 
 export default Hero;
