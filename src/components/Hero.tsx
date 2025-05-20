@@ -128,11 +128,17 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Traveling Glow Button */}
+            {/* Inline Styles Traveling Glow Button */}
             <div className="mt-8 text-center">
               <div className="relative inline-block group">
-                {/* This is the traveling glow border effect */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-75 group-hover:opacity-100 animate-glow-travel transition-opacity duration-300"></div>
+                {/* Button background with gradient border */}
+                <div 
+                  className="absolute -inset-0.5 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    animation: 'glow-travel 4s linear infinite',
+                    backgroundSize: '400% 400%'
+                  }}
+                ></div>
                 
                 {/* Button itself */}
                 <motion.button
@@ -154,27 +160,6 @@ const Hero = () => {
     </section>
   );
 };
-
-// Add this to your globals.css or tailwind.config.js to define the animation
-// @keyframes glow-travel {
-//   0%, 100% {
-//     background-position: 0% 0%;
-//   }
-//   25% {
-//     background-position: 100% 0%;
-//   }
-//   50% {
-//     background-position: 100% 100%;
-//   }
-//   75% {
-//     background-position: 0% 100%;
-//   }
-// }
-
-// .animate-glow-travel {
-//   animation: glow-travel 4s linear infinite;
-//   background-size: 400% 400%;
-// }
 
 const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'analysis' | 'default' => {
   const lowercase = question.toLowerCase();
