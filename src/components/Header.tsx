@@ -36,7 +36,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {['Features', 'Benefits', 'Pricing'].map((item) => (
+            {['Features', 'Pricing'].map((item) => (
               <motion.a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -75,7 +75,7 @@ const Header = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="flex flex-col space-y-4">
-              {['Features', 'Benefits', 'Pricing'].map((item) => (
+              {['Features', 'Pricing'].map((item) => (
                 <a
                   key={item}
                   href={`#${item.toLowerCase()}`}
