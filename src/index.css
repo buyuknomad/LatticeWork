@@ -18,7 +18,7 @@ to { transform: rotate(360deg); }
   75% {
     background-position: 0% 100%;
   }
-}
+};
 
 .animate-glow-travel {
   animation: glow-travel 4s linear infinite;
