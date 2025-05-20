@@ -133,17 +133,19 @@ const Hero = () => {
               <div className="relative inline-block overflow-hidden rounded-lg p-[2px]">
                 {/* Border glow effect container */}
                 <div className="absolute inset-0 overflow-hidden rounded-lg">
-                  {/* The moving gradient - we use multiple layers for a more complex effect */}
+                  {/* The moving gradient - using the global spin animation */}
                   <div 
-                    className="absolute -inset-[100%] animate-[spin_8s_linear_infinite] opacity-90"
+                    className="absolute -inset-[100%] opacity-90"
                     style={{
-                      background: 'conic-gradient(from 0deg, transparent, #00FFFF, #8B5CF6, transparent)'
+                      background: 'conic-gradient(from 0deg, transparent, #00FFFF, #8B5CF6, transparent)',
+                      animation: 'spin 8s linear infinite'
                     }}
                   />
                   <div 
-                    className="absolute -inset-[100%] animate-[spin_12s_linear_infinite_reverse] opacity-70"
+                    className="absolute -inset-[100%] opacity-70"
                     style={{
-                      background: 'conic-gradient(from 180deg, transparent, #8B5CF6, #00FFFF, transparent)'
+                      background: 'conic-gradient(from 180deg, transparent, #8B5CF6, #00FFFF, transparent)',
+                      animation: 'spin 12s linear infinite reverse'
                     }}
                   />
                 </div>
@@ -191,11 +193,5 @@ const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'a
   }
   return 'default';
 };
-
-// Add this to global CSS or use inline style with keyframes
-// @keyframes spin {
-//   from { transform: rotate(0deg); }
-//   to { transform: rotate(360deg); }
-// }
 
 export default Hero;
