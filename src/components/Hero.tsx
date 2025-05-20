@@ -89,7 +89,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-      <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
   Better Thinking,{' '}
   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
     Better Decisions
@@ -98,7 +98,8 @@ const Hero = () => {
 <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
   A toolkit of mental models and cognitive biases that helps you see problems clearly, 
   recognize thinking traps, and find solutions that others miss.
-</p>on.button
+</p>
+          <motion.button
             className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 text-lg shadow-lg shadow-[#00FFFF]/20"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
