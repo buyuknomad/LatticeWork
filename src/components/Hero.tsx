@@ -128,62 +128,34 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Enhanced Get Started Button */}
+            {/* Enhanced Get Started Button with Motion Glow */}
             <div className="mt-8 text-center">
-              <motion.button
-                className="relative group bg-gradient-to-r from-[#00FFFF] to-[#00FFFF] px-10 py-4 rounded-lg text-lg font-bold text-[#1A1A1A] transition-all duration-300 overflow-hidden"
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: "0 0 25px 5px rgba(0, 255, 255, 0.25)" 
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {/* Gradient overlay on hover */}
+              <div className="relative inline-block">
+                {/* Motion glow effect */}
                 <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
+                  className="absolute -inset-0.5 rounded-lg opacity-75 blur-md bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] -z-10"
+                  animate={{
+                    background: [
+                      "linear-gradient(90deg, rgba(0, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)",
+                      "linear-gradient(180deg, rgba(0, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)",
+                      "linear-gradient(270deg, rgba(0, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)",
+                      "linear-gradient(360deg, rgba(0, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)",
+                      "linear-gradient(90deg, rgba(0, 255, 255, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%)",
+                    ]
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
                 />
                 
-                {/* Button text */}
-                <span className="relative z-10">Get Started</span>
-                
-                {/* Animated particles for button */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                  {[...Array(5)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1 h-1 rounded-full bg-white"
-                      style={{
-                        x: Math.random() * 100 + "%",
-                        y: Math.random() * 100 + "%",
-                      }}
-                      animate={{
-                        scale: [0, 1.5, 0],
-                        opacity: [0, 0.8, 0],
-                        x: [
-                          `${Math.random() * 100}%`, 
-                          `${Math.random() * 100}%`
-                        ],
-                        y: [
-                          `${Math.random() * 100}%`, 
-                          `${Math.random() * 100}%`
-                        ],
-                      }}
-                      transition={{
-                        duration: 2 + Math.random() * 3,
-                        repeat: Infinity,
-                        delay: Math.random() * 5,
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* Button glow effect */}
+                {/* Secondary pulse glow */}
                 <motion.div 
-                  className="absolute -inset-1 rounded-lg blur-md group-hover:blur-xl opacity-40 group-hover:opacity-70 transition-all duration-500 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] -z-10"
+                  className="absolute -inset-1 rounded-lg blur-xl opacity-40 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] -z-20"
                   animate={{
                     scale: [1, 1.05, 1],
+                    opacity: [0.3, 0.5, 0.3],
                   }}
                   transition={{
                     duration: 4,
@@ -191,7 +163,27 @@ const Hero = () => {
                     repeatType: "reverse",
                   }}
                 />
-              </motion.button>
+                
+                {/* Actual button */}
+                <motion.button
+                  className="relative bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg transition-all duration-300 text-lg z-10"
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 0 25px 5px rgba(0, 255, 255, 0.25)" 
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {/* Gradient overlay on hover */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                  />
+                  
+                  {/* Button text */}
+                  <span className="relative z-10">Get Started</span>
+                </motion.button>
+              </div>
               
               <p className="mt-4 text-sm text-gray-400">
                 No credit card required · 14-day free trial
