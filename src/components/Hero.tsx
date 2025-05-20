@@ -154,12 +154,7 @@ const Hero = () => {
                 >
                   Get Started
                 </motion.button>
-              </div>
-              
-              <p className="mt-4 text-sm text-gray-400">
-                No credit card required · 14-day free trial
-              </p>
-            </div>
+             
           </div>
         </motion.div>
       </div>
