@@ -25,10 +25,7 @@ interface Node {
   originalY: number;
   targetX: number;
   targetY: number;
-  level?: number; 
-  // For structural hints from layout:
-  layerIndex?: number;
-  positionInLayer?: number;
+  level?: number; // Added for hierarchical layouts
 }
 
 interface Point {
@@ -41,16 +38,19 @@ interface InteractiveDemoProps {
   category: 'business' | 'personal' | 'analysis' | 'default';
 }
 
+// Helper function to calculate distance between two points (can stay outside)
 const distance = (point1: Point, point2: Point) => {
   return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
 };
 
+// Helper function to normalize an angle between 0 and 2π (can stay outside)
 const normalizeAngle = (angle: number) => {
   while (angle < 0) angle += Math.PI * 2;
   while (angle >= Math.PI * 2) angle -= Math.PI * 2;
   return angle;
 };
 
+// Helper function to calculate the shortest angle between two angles (can stay outside)
 const angleBetween = (angle1: number, angle2: number) => {
   angle1 = normalizeAngle(angle1);
   angle2 = normalizeAngle(angle2);
@@ -59,6 +59,7 @@ const angleBetween = (angle1: number, angle2: number) => {
   return diff;
 };
 
+// Helper function to find the midpoint angle between two angles (can stay outside)
 const midPointAngle = (angle1: number, angle2: number) => {
   angle1 = normalizeAngle(angle1);
   angle2 = normalizeAngle(angle2);
@@ -75,6 +76,7 @@ const midPointAngle = (angle1: number, angle2: number) => {
   return normalizeAngle(midAngle);
 };
 
+// Helper function to clamp a value between min and max (can stay outside)
 const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
 };
@@ -104,13 +106,16 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     ]
   };
 
+  // Moved drawing functions inside the component to access scope (centerRef, transitionProgress)
+
   const drawTriangularPatternElements = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
     const center = centerRef.current || { x: canvas.width / 2, y: canvas.height / 2 };
+    // Increased opacity from 0.03 to 0.05 for better visibility
     ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 * transitionProgress})`;
     ctx.lineWidth = 1;
     
     const triangleHeight = Math.min(canvas.width, canvas.height) * 0.7;
-    const triangleWidth = triangleHeight * 0.866; 
+    const triangleWidth = triangleHeight * 0.866; // Equilateral triangle width
     const layers = 4;
     
     for (let layer = 0; layer < layers; layer++) {
@@ -141,10 +146,12 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
 
   const drawGridPatternElements = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
     const center = centerRef.current || { x: canvas.width / 2, y: canvas.height / 2 };
+    // Increased opacity from 0.03 to 0.05 for better visibility
     ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 * transitionProgress})`;
     ctx.lineWidth = 1;
     
     for (let layer = 1; layer <= 3; layer++) {
+      // Increased base factor from 0.40 to 0.42 for larger hexagons
       const hexRadius = Math.min(canvas.width, canvas.height) * 0.42 * (layer / 3); 
       ctx.beginPath();
       for (let i = 0; i < 6; i++) {
@@ -164,6 +171,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
 
   const drawCirclePatternElements = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
     const center = centerRef.current || { x: canvas.width / 2, y: canvas.height / 2 };
+    // Increased opacity from 0.06 to 0.08 for better visibility
     ctx.strokeStyle = `rgba(0, 255, 255, ${0.08 * transitionProgress})`; 
     ctx.lineWidth = 1;
     
@@ -189,6 +197,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     const levels = 3;
     const levelHeight = canvas.height / (levels + 1);
     
+    // Increased opacity from 0.03 to 0.05 for better visibility
     ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 * transitionProgress})`;
     ctx.lineWidth = 1;
     
@@ -208,59 +217,41 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     currentProgress: number, 
     canvas: HTMLCanvasElement
   ) => {
-    // Use target positions for determining structural connections, more stable during animation
-    const p1 = { x: node1.targetX, y: node1.targetY, layerIndex: node1.layerIndex, positionInLayer: node1.positionInLayer };
-    const p2 = { x: node2.targetX, y: node2.targetY, layerIndex: node2.layerIndex, positionInLayer: node2.positionInLayer };
-
-    const yDiff = Math.abs(p1.y - p2.y);
-    const xDiff = Math.abs(p1.x - p2.x);
-    const distVal = distance(p1,p2); // Distance between target positions
-
-    const triangleLayerHeight = (Math.min(canvas.width, canvas.height) * 0.7) / 4; // from updateNodePosition
-    const isSameTargetLayer = node1.layerIndex !== undefined && node1.layerIndex === node2.layerIndex;
-    const isAdjacentTargetLayer = node1.layerIndex !== undefined && node2.layerIndex !== undefined && Math.abs(node1.layerIndex - node2.layerIndex) === 1;
+    const sameLayer = Math.abs(node1.y - node2.y) < 20;
+    const adjacentLayer = !sameLayer && Math.abs(node1.y - node2.y) < canvas.height / 5;
+    const distVal = distance(node1, node2); 
     
-    let shouldConnect = false;
-
-    if (isSameTargetLayer && node1.layerIndex !== undefined) {
-        // Connect horizontal neighbors in the same layer
-        const expectedSpacing = ( (Math.min(canvas.width, canvas.height) * 0.7 * 0.866) * (1 - (node1.layerIndex / 4)) ) / Math.max(1, node1.layerIndex); // Approximate
-        if (Math.abs( (node1.positionInLayer || 0) - (node2.positionInLayer || 0) ) === 1 && xDiff < expectedSpacing * 1.5) {
-            shouldConnect = true;
-        }
-    } else if (isAdjacentTargetLayer && node1.layerIndex !== undefined && node2.layerIndex !== undefined) {
-        // Connect to nodes in adjacent layer if they are structurally children
-        const upperNode = node1.layerIndex < node2.layerIndex ? node1 : node2;
-        const lowerNode = node1.layerIndex < node2.layerIndex ? node2 : node1;
-        // A node (L,P) connects to (L+1, P) and (L+1, P+1)
-        if ( (lowerNode.positionInLayer === upperNode.positionInLayer || lowerNode.positionInLayer === (upperNode.positionInLayer || 0) + 1) &&
-             xDiff < triangleLayerHeight * 1.5 ) { // xDiff should be relatively small for a slanted line
-            shouldConnect = true;
-        }
-    }
-    
-    // Fallback for highlighted nodes to ensure some connectivity if structure is sparse
-    if (!shouldConnect && node1.highlighted && node2.highlighted && distance(node1, node2) < triangleLayerHeight * 2.5) {
-        shouldConnect = true;
-    }
-
-    if (shouldConnect) {
-      const opacity = Math.max(0.12, (0.6 - (distance(node1, node2) / 200)) * currentProgress);
-      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
-      const lineWidth = isNodeHovered ? 2 : (node1.highlighted && node2.highlighted ? 1.5 : 1);
-      const glowAmount = isNodeHovered ? 5 : (node1.highlighted && node2.highlighted ? 3 : 0);
+    // Increased connection distance threshold from 120 to 150
+    if ((sameLayer || adjacentLayer) && distVal < 150) {
+      // Enhanced opacity calculation for better visibility
+      // Reduced divisor from 300 to 200 for stronger connections
+      const opacity = (0.5 - (distVal / 200)) * currentProgress;
       
+      // Add connection highlighting for hovered nodes
+      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
+      const lineWidth = isNodeHovered ? 2 : 1;
+      const glowAmount = isNodeHovered ? 5 : 0;
+      
+      // Add shadow glow effect for better visibility
       ctx.shadowBlur = glowAmount;
       ctx.shadowColor = "#00FFFF";
+      
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+      ctx.strokeStyle = `rgba(0, 255, 255, ${Math.max(0.1, opacity)})`; // Increased min opacity from 0.05 to 0.1
       
       ctx.beginPath();
       ctx.moveTo(node1.x, node1.y);
-      // For triangular, straight lines are often clearer for the structure
-      ctx.lineTo(node2.x, node2.y);
+      
+      if (adjacentLayer) {
+        ctx.lineTo(node2.x, node2.y);
+      } else {
+        const midX = (node1.x + node2.x) / 2;
+        const midY = (node1.y + node2.y) / 2 - 10;
+        ctx.quadraticCurveTo(midX, midY, node2.x, node2.y);
+      }
       ctx.stroke();
       
+      // Reset shadow and line width
       ctx.shadowBlur = 0;
       ctx.lineWidth = 1;
     }
@@ -272,60 +263,50 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     node2: Node, 
     currentProgress: number 
   ) => {
-    const p1 = { x: node1.targetX, y: node1.targetY };
-    const p2 = { x: node2.targetX, y: node2.targetY };
-    const center = centerRef.current || { x: (canvasRef.current?.width || 0) / 2, y: (canvasRef.current?.height || 0) / 2 };
-
-    const distToCenter1 = distance(p1, center);
-    const distToCenter2 = distance(p2, center);
-    const angleToCenter1 = Math.atan2(p1.y - center.y, p1.x - center.x);
-    const angleToCenter2 = Math.atan2(p2.y - center.y, p2.x - center.x);
-    const angleDiff = angleBetween(angleToCenter1, angleToCenter2);
+    const center = centerRef.current || { 
+      x: canvasRef.current ? canvasRef.current.width / 2 : 0, 
+      y: canvasRef.current ? canvasRef.current.height / 2 : 0 
+    };
+    const dist1 = distance(node1, center);
+    const dist2 = distance(node2, center);
     
-    const baseHexRadius = Math.min(canvasRef.current?.width || 0, canvasRef.current?.height || 0) * 0.42;
-    const expectedNeighborDistHighlighted = baseHexRadius * 0.35; // Approx distance between highlighted central nodes
-    const expectedNeighborDistOuter = baseHexRadius * (1/3) * 0.9; // Approx for outer layers
-
-    let shouldConnect = false;
-
-    if (node1.highlighted && node2.highlighted) {
-        // Highlighted nodes form a central hexagon
-        if (distance(p1, p2) < expectedNeighborDistHighlighted * 1.5 && angleDiff < Math.PI / 2.5) { // ~72 deg
-             shouldConnect = true;
-        }
-    } else if (!node1.highlighted && !node2.highlighted) {
-        // Non-highlighted nodes on concentric hex layers
-        const onSameLayer = Math.abs(distToCenter1 - distToCenter2) < expectedNeighborDistOuter * 0.5;
-        const onAdjacentLayer = !onSameLayer && Math.abs(distToCenter1 - distToCenter2) < expectedNeighborDistOuter * 1.5;
-
-        if (onSameLayer && distance(p1, p2) < expectedNeighborDistOuter * 1.5 && angleDiff < Math.PI / 2.8) { // ~64 deg
-            shouldConnect = true;
-        } else if (onAdjacentLayer && distance(p1, p2) < expectedNeighborDistOuter * 1.5 && angleDiff < Math.PI / 5) { // ~36 deg
-            shouldConnect = true;
-        }
-    } else if ((node1.highlighted || node2.highlighted) && distance(p1,p2) < expectedNeighborDistOuter * 1.8 ) {
-        // Connecting highlighted to non-highlighted, more lenient
-        shouldConnect = true;
-    }
-
-
-    if (shouldConnect) {
-      const opacity = Math.max(0.15, (0.6 - (distance(node1, node2) / 180)) * currentProgress);
-      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
-      const lineWidth = isNodeHovered ? 2 : (node1.highlighted && node2.highlighted ? 1.5 : 1);
-      const glowAmount = isNodeHovered ? 5 : (node1.highlighted && node2.highlighted ? 3 : 0);
+    const isSameLayer = Math.abs(dist1 - dist2) < 25; // Increased threshold from 20 to 25
+    const isAdjacentLayer = Math.abs(dist1 - dist2) < 50 && !isSameLayer; // Increased threshold from 40 to 50
+    
+    // Increased connection distance threshold from 100 to 130
+    if ((isSameLayer || isAdjacentLayer) && distance(node1, node2) < 130) {
+      // Reduced divisor from 300 to 180 for stronger connections
+      const opacity = (0.5 - (distance(node1, node2) / 180)) * currentProgress;
       
+      // Add connection highlighting for hovered nodes
+      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
+      const lineWidth = isNodeHovered ? 2 : (isSameLayer ? 1.5 : 1);
+      const glowAmount = isNodeHovered ? 5 : 0;
+      
+      // Add shadow glow effect for better visibility
       ctx.shadowBlur = glowAmount;
       ctx.shadowColor = "#00FFFF";
+      
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+      ctx.strokeStyle = `rgba(0, 255, 255, ${Math.max(0.12, opacity)})`; // Increased min opacity from 0.05 to 0.12
       
       ctx.beginPath();
       ctx.moveTo(node1.x, node1.y);
-      // For hex grids, straight lines are usually best
-      ctx.lineTo(node2.x, node2.y);
+      
+      if (isAdjacentLayer) {
+        const angle1 = Math.atan2(node1.y - center.y, node1.x - center.x);
+        const angle2 = Math.atan2(node2.y - center.y, node2.x - center.x);
+        const midAng = midPointAngle(angle1, angle2); 
+        const midDist = (dist1 + dist2) / 2;
+        const cpX = center.x + Math.cos(midAng) * midDist;
+        const cpY = center.y + Math.sin(midAng) * midDist;
+        ctx.quadraticCurveTo(cpX, cpY, node2.x, node2.y);
+      } else {
+        ctx.lineTo(node2.x, node2.y);
+      }
       ctx.stroke();
       
+      // Reset shadow and line width
       ctx.shadowBlur = 0;
       ctx.lineWidth = 1;
     }
@@ -337,73 +318,54 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     node2: Node, 
     currentProgress: number 
   ) => {
-    const p1 = { x: node1.targetX, y: node1.targetY };
-    const p2 = { x: node2.targetX, y: node2.targetY };
-    const center = centerRef.current || { x: (canvasRef.current?.width || 0) / 2, y: (canvasRef.current?.height || 0) / 2 };
-
-    const angle1 = Math.atan2(p1.y - center.y, p1.x - center.x);
-    const angle2 = Math.atan2(p2.y - center.y, p2.x - center.x);
-    const radius1 = distance(p1, center);
-    const radius2 = distance(p2, center);
+    const center = centerRef.current || { 
+      x: canvasRef.current ? canvasRef.current.width / 2 : 0, 
+      y: canvasRef.current ? canvasRef.current.height / 2 : 0 
+    };
     
-    const angleDiff = angleBetween(angle1, angle2);
-    const almostSameTargetRadius = Math.abs(radius1 - radius2) < 20; // Based on target radii
-    // Max 8 highlighted nodes on the main circle, so angular separation is PI/4 (45 deg)
-    const highlightedAngularSeparation = Math.PI / 4 * 1.2; // একটু বেশি
-    // For non-highlighted, using golden angle, so neighbors can be at various angles.
-    // Connect if angularly close and on same/adjacent target radius.
-    const nonHighlightedAngularSeparation = Math.PI / 3; // 60 degrees for general non-highlighted
-
-    let shouldConnect = false;
-
-    if (node1.highlighted && node2.highlighted) {
-        if (almostSameTargetRadius && angleDiff < highlightedAngularSeparation) {
-            shouldConnect = true;
-        }
-    } else if (!node1.highlighted && !node2.highlighted) {
-        const radiusDiff = Math.abs(radius1 - radius2);
-        const baseRadiusForOuter = Math.min(canvasRef.current?.width || 0, canvasRef.current?.height || 0) * 0.35;
-        const expectedRingSeparation = baseRadiusForOuter * 0.3; // From updateNodePosition logic
-
-        if (almostSameTargetRadius && angleDiff < nonHighlightedAngularSeparation) { // Connect along circumference
-            shouldConnect = true;
-        } else if (radiusDiff > expectedRingSeparation * 0.5 && radiusDiff < expectedRingSeparation * 1.5 && angleDiff < Math.PI / 6) { // Connect radially
-            shouldConnect = true;
-        }
-    } else if ( (node1.highlighted || node2.highlighted) && distance(p1,p2) < 120 ) {
-         // Connecting highlighted to non-highlighted, more lenient connection to bridge the structure
-         shouldConnect = true;
-    }
-
-
-    if (shouldConnect) {
-      const opacity = Math.max(0.15, (0.7 - (distance(node1, node2) / 150)) * currentProgress);
-      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
-      const lineWidth = isNodeHovered ? 2 : (node1.highlighted && node2.highlighted ? 1.5 : 1);
-      const glowAmount = isNodeHovered ? 5 : (node1.highlighted && node2.highlighted ? 3 : 0);
+    const angle1 = Math.atan2(node1.y - center.y, node1.x - center.x);
+    const angle2 = Math.atan2(node2.y - center.y, node2.x - center.x);
+    const radius1 = distance(node1, center);
+    const radius2 = distance(node2, center);
+    
+    // Increased angle threshold from 0.8 to 1.0 and from 1.2 to 1.4
+    const angleDiff = Math.abs(angleBetween(angle1, angle2)); 
+    const radiusRatio = Math.max(radius1, radius2) / Math.min(radius1, radius2);
+    
+    if ((angleDiff < 1.0 && radiusRatio < 1.4) || 
+        (Math.abs(radius1 - radius2) < 25 && angleDiff < 1.4)) { // Increased threshold from 20 to 25
       
+      // Reduced divisor from 300 to 160 for stronger connections  
+      const opacity = (0.5 - (distance(node1, node2) / 160)) * currentProgress;
+      
+      // Add connection highlighting for hovered nodes
+      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
+      const lineWidth = isNodeHovered ? 2 : 1.2; // Increased base lineWidth from 1 to 1.2
+      const glowAmount = isNodeHovered ? 5 : 0;
+      
+      // Add shadow glow effect for better visibility
       ctx.shadowBlur = glowAmount;
       ctx.shadowColor = "#00FFFF";
+      
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+      // Increased minimum opacity from 0.1 to 0.15
+      ctx.strokeStyle = `rgba(0, 255, 255, ${Math.max(0.15, opacity)})`; 
       
       ctx.beginPath();
       ctx.moveTo(node1.x, node1.y);
       
-      if (almostSameTargetRadius && angleDiff > Math.PI / 12) { // If on same circle and not too close, curve along arc
-        const midAng = midPointAngle(Math.atan2(node1.y - center.y, node1.x - center.x), Math.atan2(node2.y - center.y, node2.x - center.x));
-        const actualRadius1 = distance(node1, center);
-        const actualRadius2 = distance(node2, center);
-        const avgActualRadius = (actualRadius1 + actualRadius2) / 2;
-        const curveFactor = 1.05; 
-        const cpX = center.x + Math.cos(midAng) * avgActualRadius * curveFactor;
-        const cpY = center.y + Math.sin(midAng) * avgActualRadius * curveFactor;
-        ctx.quadraticCurveTo(cpX, cpY, node2.x, node2.y);
-      } else { // Radial or very close circumferential connections
+      if (Math.abs(radius1 - radius2) < 25 && angleDiff > 0.1) { // Increased threshold from 20 to 25
+        const midAng = midPointAngle(angle1, angle2); 
+        const midRadius = (radius1 + radius2) / 2;
+        const controlX = center.x + Math.cos(midAng) * midRadius;
+        const controlY = center.y + Math.sin(midAng) * midRadius;
+        ctx.quadraticCurveTo(controlX, controlY, node2.x, node2.y);
+      } else {
         ctx.lineTo(node2.x, node2.y);
       }
       ctx.stroke();
       
+      // Reset shadow and line width
       ctx.shadowBlur = 0;
       ctx.lineWidth = 1;
     }
@@ -415,73 +377,39 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     node2: Node, 
     currentProgress: number 
   ) => {
-    if (node1.level === undefined || node2.level === undefined) return;
-    // Use target positions for structural checks
-    const p1 = { x: node1.targetX, y: node1.targetY, level: node1.level };
-    const p2 = { x: node2.targetX, y: node2.targetY, level: node2.level };
-
-    const levelDiff = Math.abs(p1.level - p2.level);
-    const horizontalDist = Math.abs(p1.x - p2.x);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const effectiveMarginX = canvas.width * 0.15;
-    const levelWidth = canvas.width - effectiveMarginX * 2;
-    // Approx 3 highlighted nodes per level based on initNodes logic (i/3)
-    const approxNodesInLevel = 3; 
-    const expectedNodeSpacing = levelWidth / (approxNodesInLevel + 1);
-
-
-    let shouldConnect = false;
-
-    if (levelDiff === 1) { // Parent-child
-        const parentNode = p1.level < p2.level ? p1 : p2;
-        const childNode = p1.level < p2.level ? p2 : p1;
-        // Connect if child is horizontally "under" parent, within reasonable spacing
-        if (Math.abs(parentNode.x - childNode.x) < expectedNodeSpacing * 1.5) { 
-            shouldConnect = true;
-        }
-    } else if (levelDiff === 0) { // Siblings
-        // Connect if siblings are close horizontally
-        if (horizontalDist < expectedNodeSpacing * 1.2) {
-            shouldConnect = true;
-        }
-    }
+    if (node1.level === undefined || node2.level === undefined) return; 
     
-    // Fallback for highlighted nodes to ensure connectivity
-    if (!shouldConnect && node1.highlighted && node2.highlighted && distance(node1, node2) < expectedNodeSpacing * 2.5) {
-        shouldConnect = true;
-    }
-
-
-    if (shouldConnect) {
-      const opacity = Math.max(0.15, (0.7 - (distance(node1, node2) / 170)) * currentProgress);
-      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
-      const lineWidth = isNodeHovered ? 2 : (node1.highlighted && node2.highlighted ? 1.5 : 1);
-      const glowAmount = isNodeHovered ? 5 : (node1.highlighted && node2.highlighted ? 3 : 0);
+    const levelDiff = Math.abs(node1.level - node2.level);
+    // Increased connection distance threshold from 150 to 180
+    if (levelDiff === 1 && distance(node1, node2) < 180) {
+      // Reduced divisor from 300 to 170 for stronger connections
+      const opacity = (0.5 - (distance(node1, node2) / 170)) * currentProgress;
       
+      // Add connection highlighting for hovered nodes
+      const isNodeHovered = node1.id === hoveredNodeId || node2.id === hoveredNodeId;
+      const lineWidth = isNodeHovered ? 2 : 1.3; // Increased base lineWidth from 1 to 1.3
+      const glowAmount = isNodeHovered ? 5 : 0;
+      
+      // Add shadow glow effect for better visibility
       ctx.shadowBlur = glowAmount;
       ctx.shadowColor = "#00FFFF";
+      
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+      // Increased minimum opacity from 0.05 to 0.13
+      ctx.strokeStyle = `rgba(0, 255, 255, ${Math.max(0.13, opacity)})`;
       
       ctx.beginPath();
       ctx.moveTo(node1.x, node1.y);
       
-      if (levelDiff === 1) { // Parent-child uses a gentle curve
-        const topNode = node1.level < node2.level ? node1 : node2;
-        const bottomNode = node1.level < node2.level ? node2 : node1;
-        const controlYOffset = (bottomNode.y - topNode.y) * 0.3;
-        ctx.bezierCurveTo(
-          topNode.x, topNode.y + controlYOffset, 
-          bottomNode.x, bottomNode.y - controlYOffset, 
-          bottomNode.x, bottomNode.y
-        );
-      } else { // Siblings or other connections are straight
-        ctx.lineTo(node2.x, node2.y);
-      }
+      const [topNode, bottomNode] = node1.level < node2.level ? [node1, node2] : [node2, node1];
+      
+      const controlX = (topNode.x + bottomNode.x) / 2;
+      const controlY = topNode.y + (bottomNode.y - topNode.y) * 0.3;
+      
+      ctx.quadraticCurveTo(controlX, controlY, bottomNode.x, bottomNode.y);
       ctx.stroke();
       
+      // Reset shadow and line width
       ctx.shadowBlur = 0;
       ctx.lineWidth = 1;
     }
@@ -548,7 +476,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     return () => clearInterval(intervalId);
   }, [isTyping, category]); 
 
-  const initNodes = () => { 
+  const initNodes = () => { // initNodes should be defined before being used in useEffect's resizeCanvas
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -561,10 +489,11 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
       const x = Math.random() * canvas.width;
       const y = Math.random() * canvas.height;
       
-      const node: Node = { // Explicitly type node here
+      newNodes.push({
         id: i,
         x: x,
         y: y,
+        // Highlighted nodes slightly larger for better visibility
         radius: highlighted ? 7 : 3 + Math.random() * 2,
         color: highlighted ? '#00FFFF' : '#444444',
         speed: 0.2 + Math.random() * 0.3,
@@ -573,164 +502,14 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
         category: highlighted ? category : undefined,
         originalX: x,
         originalY: y,
-        targetX: x, // Will be updated by updateNodePosition
-        targetY: y, // Will be updated by updateNodePosition
-        level: highlighted && category === 'analysis' ? Math.floor(i / Math.max(1,currentModels.length/3)) : undefined, // Adjust level assignment
-        layerIndex: undefined, // Will be set by updateNodePosition
-        positionInLayer: undefined // Will be set by updateNodePosition
-      };
-      newNodes.push(node);
+        targetX: x,
+        targetY: y,
+        level: highlighted && category === 'analysis' ? Math.floor(i / 3) : undefined 
+      });
     }
     nodesRef.current = newNodes;
-    // Call updateNodePosition once after init to set initial targetX/Y and layer info
-    // This is a bit tricky as updateNodePosition is usually called in animate loop.
-    // For now, targetX/Y are set by updateNodePosition during the first animation frames.
   };
-  
-  const updateNodePosition = (
-    node: Node,
-    canvas: HTMLCanvasElement,
-    currentCategory: string, 
-    index: number,
-    currentProgress: number 
-  ) => {
-    const center = centerRef.current || { x: canvas.width / 2, y: canvas.height / 2 };
-    
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-    const easedProgress = easeOutCubic(currentProgress);
-    
-    if (currentProgress < 0.1) {
-      node.x += Math.sin(Date.now() * 0.001 + index) * node.speed * (1 - currentProgress * 10);
-      node.y += Math.cos(Date.now() * 0.001 + index) * node.speed * (1 - currentProgress * 10);
-      node.originalX = node.x;
-      node.originalY = node.y;
-    } else {
-      let targetX = node.x; // Default to current if not set
-      let targetY = node.y;
-      
-      const highlightedNodes = nodesRef.current.filter(n => n.highlighted);
-      const highlightedCount = highlightedNodes.length;
-      const highlightedNodeIndex = highlightedNodes.findIndex(n => n.id === node.id);
 
-      if (currentCategory === 'business') {
-        const baseHexRadius = Math.min(canvas.width, canvas.height) * 0.42; // Matched to pattern drawing
-        
-        if (node.highlighted && highlightedNodeIndex !== -1) {
-          const totalHighlightedInCenter = Math.min(highlightedCount, 6); 
-          const hexAngle = (2 * Math.PI) / Math.max(1,totalHighlightedInCenter);
-          const angle = (highlightedNodeIndex % totalHighlightedInCenter) * hexAngle;
-          targetX = center.x + Math.cos(angle) * (baseHexRadius * 0.35);
-          targetY = center.y + Math.sin(angle) * (baseHexRadius * 0.35);
-          node.layerIndex = 0; // Central layer
-          node.positionInLayer = highlightedNodeIndex % totalHighlightedInCenter;
-        } else {
-          const layer = 1 + (index % 2); // simplified to 2 outer layers for clarity
-          const pointsInLayer = 6 * layer; 
-          const pointIndex = index % pointsInLayer;
-          const angle = (pointIndex / pointsInLayer) * Math.PI * 2;
-          const layerRadius = baseHexRadius * (0.6 + layer * 0.2); // Adjusted for better spacing
-          targetX = center.x + Math.cos(angle) * layerRadius * (0.95 + Math.random() * 0.1);
-          targetY = center.y + Math.sin(angle) * layerRadius * (0.95 + Math.random() * 0.1);
-          node.layerIndex = layer;
-          node.positionInLayer = pointIndex;
-        }
-      } else if (currentCategory === 'personal') {
-        const baseRadius = Math.min(canvas.width, canvas.height) * 0.35;
-        if (node.highlighted && highlightedNodeIndex !== -1) {
-          const angle = (highlightedNodeIndex / Math.max(1,highlightedCount)) * Math.PI * 2;
-          targetX = center.x + Math.cos(angle) * baseRadius;
-          targetY = center.y + Math.sin(angle) * baseRadius;
-          node.layerIndex = 0; // Main ring
-          node.positionInLayer = highlightedNodeIndex;
-        } else {
-          const circleIndex = index % 2; // 2 outer rings for non-highlighted
-          const circleRadius = baseRadius * (1.3 + circleIndex * 0.4); 
-          const goldenAngle = Math.PI * (3 - Math.sqrt(5)); 
-          const angle = (index * goldenAngle) % (Math.PI * 2);
-          targetX = center.x + Math.cos(angle) * circleRadius;
-          targetY = center.y + Math.sin(angle) * circleRadius;
-          node.layerIndex = 1 + circleIndex;
-          node.positionInLayer = index; // Less structured position in layer
-        }
-      } else if (currentCategory === 'analysis') {
-        const levels = 3; 
-        const levelHeight = canvas.height / (levels + 1);
-        const effectiveMarginX = canvas.width * 0.15;
-        
-        if (node.highlighted && node.level !== undefined) {
-          const nodeLevel = node.level % levels;
-          const nodesInThisLevel = highlightedNodes.filter(n => n.level !== undefined && (n.level % levels) === nodeLevel);
-          const countInLevel = nodesInThisLevel.length;
-          const nodeIndexInLevel = nodesInThisLevel.findIndex(n => n.id === node.id);
-
-          const levelWidth = canvas.width - effectiveMarginX * 2;
-          const nodeSpacing = countInLevel > 0 ? levelWidth / (countInLevel + 1) : levelWidth; 
-          
-          targetX = effectiveMarginX + nodeSpacing * (nodeIndexInLevel + 1);
-          targetY = levelHeight * (nodeLevel + 1);
-          node.layerIndex = nodeLevel; // Using 'level' as layerIndex for this category
-          node.positionInLayer = nodeIndexInLevel;
-        } else {
-          const randomLevel = Math.floor(Math.random() * levels);
-          targetX = effectiveMarginX + Math.random() * (canvas.width - effectiveMarginX * 2);
-          targetY = levelHeight * (randomLevel + 1) + (Math.random() - 0.5) * levelHeight * 0.4;
-          node.layerIndex = randomLevel;
-        }
-      } else { // Default - Triangular pattern
-        const triangleTotalHeight = Math.min(canvas.width, canvas.height) * 0.7;
-        const triangleBaseWidth = triangleTotalHeight * 0.866; 
-        const numLayers = 4; 
-        const layerVerticalSpacing = triangleTotalHeight / numLayers;
-
-        if (node.highlighted && highlightedNodeIndex !== -1) {
-          let currentLayer = 0;
-          let nodesInPrevLayers = 0;
-          let positionInCurrentLayer = 0;
-          for (let l = 0; l < numLayers; l++) {
-            const nodesThisLayer = l + 1;
-            if (highlightedNodeIndex < nodesInPrevLayers + nodesThisLayer) {
-              currentLayer = l;
-              positionInCurrentLayer = highlightedNodeIndex - nodesInPrevLayers;
-              break;
-            }
-            nodesInPrevLayers += nodesThisLayer;
-          }
-          currentLayer = Math.min(currentLayer, numLayers - 1); // Cap layer
-
-          node.layerIndex = currentLayer;
-          node.positionInLayer = positionInCurrentLayer;
-
-          targetY = canvas.height * 0.2 + currentLayer * layerVerticalSpacing;
-          const currentLayerEffectiveWidth = triangleBaseWidth * (1 - (currentLayer / numLayers));
-          const nodesActuallyInThisLayer = Math.min(currentLayer + 1, highlightedCount - nodesInPrevLayers );
-
-          if (nodesActuallyInThisLayer <= 1) {
-            targetX = center.x;
-          } else {
-            const spacing = currentLayerEffectiveWidth / Math.max(1, nodesActuallyInThisLayer - 1);
-            targetX = (center.x - currentLayerEffectiveWidth / 2) + positionInCurrentLayer * spacing;
-          }
-        } else { 
-          const randomLayer = Math.floor(Math.random() * numLayers);
-          targetY = canvas.height * 0.2 + randomLayer * layerVerticalSpacing;
-          const layerWidthAtRandom = triangleBaseWidth * (1-(randomLayer / numLayers));
-          targetX = (center.x - layerWidthAtRandom/2) + Math.random() * layerWidthAtRandom;
-          node.layerIndex = randomLayer;
-        }
-      }
-      
-      node.targetX = targetX;
-      node.targetY = targetY;
-      
-      const moveSpeed = 0.05 * easedProgress; 
-      node.x += (node.targetX - node.x) * moveSpeed;
-      node.y += (node.targetY - node.y) * moveSpeed;
-    }
-
-    node.x = clamp(node.x, 0, canvas.width);
-    node.y = clamp(node.y, 0, canvas.height);
-  };
-  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -749,10 +528,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     };
 
     window.addEventListener('resize', resizeCanvas);
-    if (nodesRef.current.length === 0) { // Initial setup only if nodes aren't there
-        resizeCanvas(); 
-    }
-
+    resizeCanvas(); 
 
     const animate = () => {
       if (!canvas || !ctx || !isVisible) {
@@ -763,11 +539,6 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       const currentNodes = nodesRef.current; 
-      
-      // Update positions and structural info first
-      currentNodes.forEach((node, i) => {
-        updateNodePosition(node, canvas, category, i, transitionProgress);
-      });
       
       if (transitionProgress > 0.7) {
         if (category === 'business') {
@@ -784,8 +555,9 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
       drawConnections(ctx, currentNodes, transitionProgress);
       drawParticles(ctx);
       
-      currentNodes.forEach((node) => { // Drawing uses updated x, y
+      currentNodes.forEach((node, i) => {
         drawNode(ctx, node, transitionProgress > 0);
+        updateNodePosition(node, canvas, category, i, transitionProgress);
       });
 
       animationRef.current = requestAnimationFrame(animate);
@@ -802,10 +574,11 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
   const drawNode = (ctx: CanvasRenderingContext2D, node: Node, isActive: boolean) => {
     const isHovered = node.id === hoveredNodeId;
     const nodeRadius = isHovered ? 
-      (node.highlighted ? 10 : 7) : 
-      (node.radius); 
+      (node.highlighted ? 10 : 7) : // Slightly increased hover size 
+      (node.radius); // Use node.radius directly as it's initialized
     
     if ((node.highlighted && isActive) || isHovered) {
+      // Increased shadow blur for better visibility
       ctx.shadowBlur = isHovered ? 18 : 15;
       ctx.shadowColor = node.color;
     } else {
@@ -818,8 +591,8 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     );
     
     const alpha = node.highlighted ? 
-      (0.8 + 0.2 * transitionProgress) : 
-      (0.4 + 0.1 * transitionProgress); 
+      (0.8 + 0.2 * transitionProgress) : // Increased base alpha from 0.7 to 0.8
+      (0.4 + 0.1 * transitionProgress); // Increased base alpha from 0.3 to 0.4
     
     gradient.addColorStop(0, `${node.color}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`);
     gradient.addColorStop(1, `${node.color}00`);
@@ -834,10 +607,12 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     if (transitionProgress > 0.5 && node.highlighted && node.name) {
       const labelOpacity = (transitionProgress - 0.5) * 2;
       ctx.fillStyle = `rgba(255, 255, 255, ${labelOpacity})`;
+      // Slightly larger font for better readability
       ctx.font = `${isHovered ? 'bold ' : ''}11px Inter, sans-serif`; 
       ctx.textAlign = 'center';
       ctx.fillText(node.name, node.x, node.y - nodeRadius - 5);
       
+      // Add shadow to text for better readability
       if (isHovered) {
         ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
         ctx.shadowBlur = 3;
@@ -860,10 +635,35 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
         }
       }
     } else {
-      // Draw all connections once. The specific draw...Connection functions will handle highlighted differences.
+      // First draw non-highlighted connections
       for (let i = 0; i < nodes.length; i++) {
         const node1 = nodes[i];
-        for (let j = i + 1; j < nodes.length; j++) { // Avoid duplicate checks and self-connections
+        if (node1.highlighted) continue; // Skip highlighted nodes for now
+        
+        for (let j = 0; j < nodes.length; j++) {
+          if (i === j) continue;
+          const node2 = nodes[j];
+          if (node2.highlighted) continue; // Skip highlighted nodes for now
+          
+          if (category === 'business') {
+            drawGridConnection(ctx, node1, node2, currentProgress * 0.7); // Reduced opacity for non-highlighted
+          } else if (category === 'personal') {
+            drawCircularConnection(ctx, node1, node2, currentProgress * 0.7); // Reduced opacity for non-highlighted
+          } else if (category === 'analysis') {
+            drawHierarchicalConnection(ctx, node1, node2, currentProgress * 0.7); // Reduced opacity for non-highlighted
+          } else {
+            drawDefaultConnection(ctx, node1, node2, currentProgress * 0.7, canvas); // Reduced opacity for non-highlighted
+          }
+        }
+      }
+      
+      // Then draw connections involving highlighted nodes (on top)
+      for (let i = 0; i < nodes.length; i++) {
+        const node1 = nodes[i];
+        if (!node1.highlighted && node1.id !== hoveredNodeId) continue; // Only process highlighted or hovered
+        
+        for (let j = 0; j < nodes.length; j++) {
+          if (i === j) continue;
           const node2 = nodes[j];
           
           if (category === 'business') {
@@ -879,17 +679,159 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
       }
     }
   };
+  
+  const updateNodePosition = (
+    node: Node,
+    canvas: HTMLCanvasElement,
+    currentCategory: string, 
+    index: number,
+    currentProgress: number 
+  ) => {
+    // const marginX = canvas.width * 0.15; // Defined but not always used
+    // const marginY = canvas.height * 0.15; // Defined but not always used
+    const center = centerRef.current || { x: canvas.width / 2, y: canvas.height / 2 };
+    
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+    const easedProgress = easeOutCubic(currentProgress);
+    
+    if (currentProgress < 0.1) {
+      node.x += Math.sin(Date.now() * 0.001 + index) * node.speed * (1 - currentProgress * 10);
+      node.y += Math.cos(Date.now() * 0.001 + index) * node.speed * (1 - currentProgress * 10);
+      node.originalX = node.x;
+      node.originalY = node.y;
+    } else {
+      let targetX, targetY;
+      
+      const highlightedNodes = nodesRef.current.filter(n => n.highlighted);
+      const highlightedCount = highlightedNodes.length;
+      const highlightedNodeIndex = highlightedNodes.findIndex(n => n.id === node.id);
+
+
+      if (currentCategory === 'business') {
+        // Increased base factor from 0.40 to 0.42 for larger hexagons node placement
+        const hexRadius = Math.min(canvas.width, canvas.height) * 0.42; 
+        const hexLayers = 3; 
+        
+        if (node.highlighted && highlightedNodeIndex !== -1) {
+          const angle = (highlightedNodeIndex / Math.max(1, highlightedCount)) * Math.PI * 2;
+          const adjustedRadius = hexRadius * 0.4; 
+          targetX = center.x + Math.cos(angle) * adjustedRadius;
+          targetY = center.y + Math.sin(angle) * adjustedRadius;
+        } else {
+          const layer = 1 + (index % hexLayers); 
+          const layerNodes = Math.max(1, Math.floor(6 * layer));
+          const nodeInLayer = index % layerNodes;
+          const angle = (nodeInLayer / layerNodes) * Math.PI * 2;
+          const adjustedRadius = hexRadius * (layer / hexLayers);
+          targetX = center.x + Math.cos(angle) * adjustedRadius * (0.9 + Math.random() * 0.2);
+          targetY = center.y + Math.sin(angle) * adjustedRadius * (0.9 + Math.random() * 0.2);
+        }
+      } else if (currentCategory === 'personal') {
+        if (node.highlighted && highlightedNodeIndex !== -1) {
+          const angle = (highlightedNodeIndex / Math.max(1, highlightedCount)) * Math.PI * 2;
+          const radius = Math.min(canvas.width, canvas.height) * 0.3;
+          targetX = center.x + Math.cos(angle) * radius;
+          targetY = center.y + Math.sin(angle) * radius;
+        } else {
+          const angle = (index / Math.max(1, nodesRef.current.length)) * Math.PI * 2;
+          const baseRadius = Math.min(canvas.width, canvas.height) * 0.3;
+          const radius = baseRadius * (1.2 + (index % 3) * 0.2); 
+          targetX = center.x + Math.cos(angle + Math.sin(Date.now() * 0.0003) * 0.2) * radius;
+          targetY = center.y + Math.sin(angle + Math.sin(Date.now() * 0.0003) * 0.2) * radius;
+        }
+      } else if (currentCategory === 'analysis') {
+        const levels = 3; 
+        const levelHeight = canvas.height / (levels + 1);
+        const effectiveMarginX = canvas.width * 0.1;
+        
+        if (node.highlighted && node.level !== undefined) {
+          const nodeLevel = node.level % levels;
+          // Filter nodes in the current level among highlighted nodes
+          const nodesInThisLevel = highlightedNodes.filter(n => n.level !== undefined && (n.level % levels) === nodeLevel);
+          const countInLevel = nodesInThisLevel.length;
+          const nodeIndexInLevel = nodesInThisLevel.findIndex(n => n.id === node.id);
+
+          const levelWidth = canvas.width - effectiveMarginX * 2;
+          // Ensure countInLevel is at least 1 if nodeIndexInLevel is valid
+          const nodeSpacing = countInLevel > 0 ? levelWidth / (countInLevel + 1) : levelWidth; 
+          
+          targetX = effectiveMarginX + nodeSpacing * (nodeIndexInLevel + 1);
+          targetY = levelHeight * (nodeLevel + 1);
+        } else {
+          const randomLevel = Math.floor(Math.random() * levels);
+          targetX = effectiveMarginX + Math.random() * (canvas.width - effectiveMarginX * 2);
+          targetY = levelHeight * (randomLevel + 1) + (Math.random() - 0.5) * levelHeight * 0.5;
+        }
+      } else { // Default - Triangular pattern
+        const triangleHeight = Math.min(canvas.width, canvas.height) * 0.7;
+        const triangleWidth = triangleHeight * 0.866; 
+        const layers = 4;
+        
+        if (node.highlighted && highlightedNodeIndex !== -1) {
+            const numHighlighted = Math.max(1, highlightedCount);
+            // Attempt to distribute highlighted nodes into layers in a triangular fashion
+            let nodesInPreviousLayers = 0;
+            let targetLayer = 0;
+            for (let l = 0; l < layers; l++) {
+                const nodesInThisLayer = l + 1; // e.g. 1, 2, 3, 4 nodes for a simple triangle
+                if (highlightedNodeIndex < nodesInPreviousLayers + nodesInThisLayer) {
+                    targetLayer = l;
+                    break;
+                }
+                nodesInPreviousLayers += nodesInThisLayer;
+            }
+            targetLayer = Math.min(targetLayer, layers -1); // Cap at max layers
+
+            const nodesActuallyInTargetLayer = Math.min(targetLayer + 1, numHighlighted - nodesInPreviousLayers);
+            const indexInTargetLayer = highlightedNodeIndex - nodesInPreviousLayers;
+
+
+            const layerY = canvas.height * 0.2 + targetLayer * (triangleHeight / layers);
+            const layerWidthRatio = 1 - (targetLayer / layers);
+            const currentLayerWidth = triangleWidth * layerWidthRatio;
+            
+            if (nodesActuallyInTargetLayer <= 1) {
+                targetX = center.x;
+            } else {
+                const spacing = currentLayerWidth / Math.max(1, nodesActuallyInTargetLayer -1); // Avoid division by zero
+                targetX = (center.x - currentLayerWidth / 2) + indexInTargetLayer * spacing;
+            }
+            targetY = layerY;
+
+        } else { 
+            const randomLayer = Math.max(1, layers - 1 - Math.floor(Math.random()*2)); 
+            const yPos = canvas.height * 0.2 + randomLayer * (triangleHeight / layers);
+            const layerWidthRatio = 1-(randomLayer / layers);
+            const layerWidth = triangleWidth * layerWidthRatio;
+            targetX = (center.x - layerWidth/2) + Math.random() * layerWidth;
+            targetY = yPos;
+        }
+      }
+      
+      node.targetX = targetX;
+      node.targetY = targetY;
+      
+      const moveSpeed = 0.05 * easedProgress; 
+      node.x += (node.targetX - node.x) * moveSpeed;
+      node.y += (node.targetY - node.y) * moveSpeed;
+    }
+
+    node.x = clamp(node.x, 0, canvas.width);
+    node.y = clamp(node.y, 0, canvas.height);
+  };
 
   const drawParticles = (ctx: CanvasRenderingContext2D) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    if (transitionProgress > 0.3 && Math.random() > 0.65 && particlesRef.current.length < 150) { 
+    // Increased particle count by reducing the random threshold from 0.7 to 0.65
+    if (transitionProgress > 0.3 && Math.random() > 0.65 && particlesRef.current.length < 150) { // Increased max from 100 to 150
       for (let i = 0; i < 3; i++) {
         particlesRef.current.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: 0.5 + Math.random() * 2, 
+          // Slightly larger particles for better visibility
+          size: 0.5 + Math.random() * 2, // Increased min size from 0 to 0.5
           speedX: (Math.random() - 0.5) * 2,
           speedY: (Math.random() - 0.5) * 2,
           life: 50 + Math.random() * 50,
@@ -902,6 +844,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
       const nearestNode = findNearestHighlightedNode(particle);
       
       if (nearestNode && transitionProgress > 0.5) {
+        // Increased attraction strength from 0.03 to 0.04
         particle.x += (nearestNode.x - particle.x) * 0.04;
         particle.y += (nearestNode.y - particle.y) * 0.04;
       } else {
@@ -909,7 +852,8 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
         particle.y += particle.speedY;
       }
       
-      const opacity = (particle.life / 80) * transitionProgress; 
+      // Increased base opacity
+      const opacity = (particle.life / 80) * transitionProgress; // Reduced divisor from 100 to 80
       ctx.fillStyle = `rgba(0, 255, 255, ${opacity})`;
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
@@ -951,20 +895,16 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     const mouseY = e.clientY - rect.top;
     
     let newHoveredId: number | null = null;
-    // Increase hover radius slightly for easier interaction
-    let minDistanceSq = (node: Node) => (node.radius + 15) * (node.radius + 15);
-
+    let minDistanceSq = 30 * 30; 
 
     nodesRef.current.forEach(node => {
       const dx = node.x - mouseX;
       const dy = node.y - mouseY;
       const distSq = dx*dx + dy*dy;
-      const hoverRadiusSq = minDistanceSq(node)
 
-      if (distSq < hoverRadiusSq) {
-        // If multiple nodes are in range, this will pick the last one checked.
-        // For picking the closest, you'd need to track min actual distance.
-        newHoveredId = node.id; 
+      if (distSq < node.radius * node.radius + minDistanceSq && distSq < minDistanceSq) { // Check against node radius + hover threshold
+        minDistanceSq = distSq; 
+        newHoveredId = node.id;
       }
     });
     
@@ -977,22 +917,23 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
     setHoveredNodeId(null);
   };
 
-  return (
-    <motion.div 
-      className="w-full h-80 bg-[#202020] rounded-lg overflow-hidden relative" 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <canvas 
-        ref={canvasRef} 
-        className="w-full h-full"
-        onMouseMove={handleCanvasMouseMove}
-        onMouseLeave={handleCanvasMouseLeave}
-      />
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[#202020]/40" />
-    </motion.div>
-  );
+return (
+  <motion.div 
+    className="w-full h-80 bg-[#202020] rounded-lg overflow-hidden relative" // Changed height from h-64 to h-80
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+  >
+    <canvas 
+      ref={canvasRef} 
+      className="w-full h-full"
+      onMouseMove={handleCanvasMouseMove}
+      onMouseLeave={handleCanvasMouseLeave}
+    />
+    {/* Enhanced gradient overlay for better depth perception */}
+    <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[#202020]/40" />
+  </motion.div>
+);
 };
 
 export default InteractiveDemo;
