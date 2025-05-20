@@ -1,10 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@keyframes spin {
-from { transform: rotate(0deg); }
-to { transform: rotate(360deg); }
-};
 @keyframes glow-travel {
   0%, 100% {
     background-position: 0% 0%;
@@ -18,8 +14,9 @@ to { transform: rotate(360deg); }
   75% {
     background-position: 0% 100%;
   }
-};
+}
 
 .animate-glow-travel {
   animation: glow-travel 4s linear infinite;
   background-size: 400% 400%;
+}
