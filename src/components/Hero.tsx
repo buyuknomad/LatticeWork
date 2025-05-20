@@ -128,27 +128,15 @@ const Hero = () => {
               category={getCategoryFromQuestion(question)}
             />
             
-            {/* Clean Glowing Button */}
+            {/* Traveling Glow Button */}
             <div className="mt-8 text-center">
-              <div className="relative inline-block">
-                {/* Pulsing glow effect */}
-                <motion.div 
-                  className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] opacity-75 blur-md"
-                  animate={{
-                    opacity: [0.5, 0.8, 0.5],
-                    scale: [0.98, 1.01, 0.98],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut"
-                  }}
-                />
+              <div className="relative inline-block group">
+                {/* This is the traveling glow border effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-75 group-hover:opacity-100 animate-glow-travel transition-opacity duration-300"></div>
                 
                 {/* Button itself */}
                 <motion.button
-                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg border border-[#00FFFF]/50 z-10"
+                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -166,6 +154,27 @@ const Hero = () => {
     </section>
   );
 };
+
+// Add this to your globals.css or tailwind.config.js to define the animation
+// @keyframes glow-travel {
+//   0%, 100% {
+//     background-position: 0% 0%;
+//   }
+//   25% {
+//     background-position: 100% 0%;
+//   }
+//   50% {
+//     background-position: 100% 100%;
+//   }
+//   75% {
+//     background-position: 0% 100%;
+//   }
+// }
+
+// .animate-glow-travel {
+//   animation: glow-travel 4s linear infinite;
+//   background-size: 400% 400%;
+// }
 
 const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'analysis' | 'default' => {
   const lowercase = question.toLowerCase();
