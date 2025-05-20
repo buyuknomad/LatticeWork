@@ -75,10 +75,6 @@ const Hero = () => {
     setQuestion(e.target.value);
   };
 
-  const handleTryClick = () => {
-    console.log("Processing query:", question);
-  };
-
   return (
     <section className="pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden" id="hero">
       <div className="container mx-auto px-4 md:px-8">
@@ -89,23 +85,16 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-  Better Thinking,{' '}
-  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-    Better Decisions
-  </span>
-</h1>
-<p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
-  A toolkit of mental models and cognitive biases that helps you see problems clearly, 
-  recognize thinking traps, and find solutions that others miss.
-</p>
-          <motion.button
-            className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 text-lg shadow-lg shadow-[#00FFFF]/20"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Get Started
-          </motion.button>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            Better Thinking,{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+              Better Decisions
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+            A toolkit of mental models and cognitive biases that helps you see problems clearly, 
+            recognize thinking traps, and find solutions that others miss.
+          </p>
         </motion.div>
 
         {/* Interactive Demo Container - Full Width */}
@@ -131,17 +120,6 @@ const Hero = () => {
                 placeholder={!isTypingAnimationActive ? "What deserves clearer thinking today?" : ""}
                 className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-lg"
               />
-              {!isTypingAnimationActive && question.length > 0 && (
-                <motion.button 
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#00FFFF] text-[#1A1A1A] px-5 py-2 rounded-md font-medium"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={handleTryClick}
-                >
-                  Try it
-                </motion.button>
-              )}
             </div>
             
             {/* Interactive Visualization */}
@@ -149,6 +127,17 @@ const Hero = () => {
               isTyping={!isTypingAnimationActive && question.length > 0} 
               category={getCategoryFromQuestion(question)}
             />
+            
+            {/* Get Started Button - Now inside the demo box */}
+            <div className="mt-8 text-center">
+              <motion.button
+                className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-4 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 text-lg shadow-lg shadow-[#00FFFF]/20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get Started
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       </div>
