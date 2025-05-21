@@ -33,7 +33,7 @@ async function tuneGeminiModel() {
 
     // Configure the tuning job
     console.log('Configuring tuning job...');
-    const modelId = 'gemini-1.5-pro-latest'; // Use the appropriate model ID
+    const modelId = 'gemini-2.5-flash-preview-05-20'; // Use the appropriate model ID
     
     const tuningConfig = {
       model: modelId,
