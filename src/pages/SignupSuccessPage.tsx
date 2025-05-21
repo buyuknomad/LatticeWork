@@ -3,10 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 
+interface LocationState {
+  email?: string;
+}
+
 const SignupSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || 'your email';
+  const state = location.state as LocationState;
+  const email = state?.email || 'your email';
 
   return (
     <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center p-4">
