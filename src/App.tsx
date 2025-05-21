@@ -8,13 +8,12 @@ import Features from './components/Features';
 import CallToAction from './components/CallToAction';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import ProtectedRoute from './components/ProtectedRoute';
-import BackgroundAnimation from './components/BackgroundAnimation';
-import Dashboard from './pages/Dashboard';
 import SignupSuccessPage from './pages/SignupSuccessPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './pages/Dashboard';
+import BackgroundAnimation from './components/BackgroundAnimation';
 
-
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
@@ -47,6 +46,6 @@ function App() {
       </AuthProvider>
     </Router>
   );
-}
+};
 
 export default App;
