@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
@@ -16,6 +18,8 @@ const Hero = () => {
   const [question, setQuestion] = useState('');
   const [isTypingAnimationActive, setIsTypingAnimationActive] = useState(true);
   const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!isTypingAnimationActive) {
@@ -73,6 +77,14 @@ const Hero = () => {
       setIsTypingAnimationActive(false); 
     }
     setQuestion(e.target.value);
+  };
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup');
+    }
   };
 
   return (
@@ -140,18 +152,16 @@ const Hero = () => {
                   }}
                 ></div>
                 
-              {/* Button itself */}
+                {/* Button itself */}
                 <motion.button
                   className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 rounded-lg z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => user ? navigate('/dashboard') : navigate('/signup')}
+                  onClick={handleGetStarted}
                 >
                   {user ? 'Go to Dashboard' : 'Get Started'}
                 </motion.button>
               </div>
-              
-         
             </div>
           </div>
         </motion.div>
