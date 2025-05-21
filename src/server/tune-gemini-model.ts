@@ -1,6 +1,6 @@
 // src/server/tune-gemini-model.ts
 import dotenv from 'dotenv';
-import { GoogleGenerativeAI, TuningState } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { readFileSync } from 'fs';
 import path from 'path';
 
@@ -18,78 +18,61 @@ async function tuneGeminiModel() {
       throw new Error('VITE_GEMINI_API_KEY is not defined in environment variables');
     }
 
-    console.log('Setting up Gemini API client...');
-    const genAI = new GoogleGenerativeAI(apiKey);
+    console.log('Setting up Google GenAI client...');
+    const ai = new GoogleGenAI({ apiKey });
 
     // Load the tuning data
     console.log(`Reading tuning data from: ${tuningDataPath}`);
     const tuningDataRaw = readFileSync(tuningDataPath, 'utf-8');
-    const tuningData = tuningDataRaw
+    const tuningExamples = tuningDataRaw
       .split('\n')
       .filter(line => line.trim() !== '')
       .map(line => JSON.parse(line));
 
-    console.log(`Loaded ${tuningData.length} tuning examples`);
+    console.log(`Loaded ${tuningExamples.length} tuning examples`);
 
-    // Configure the tuning job
-    console.log('Configuring tuning job...');
-    const modelId = 'gemini-2.5-flash-preview-05-20'; // Use the appropriate model ID
+    // List available models for tuning
+    console.log('Checking which models are available for tuning...');
+    const models = await ai.models.list();
+    const tuningModels = models.filter(m => 
+      m.supportedActions && m.supportedActions.includes('createTunedModel')
+    );
     
-    const tuningConfig = {
-      model: modelId,
-      displayName: 'cognitive-cosmos-advisor',
-      trainingData: tuningData,
-      hyperparameters: {
-        batchSize: 16, // Adjust based on your data size
-        learningRate: 1e-4,
-        epochCount: 3
-      },
-      adapter: 'LORA', // Use LoRA for efficient fine-tuning
-    };
+    if (tuningModels.length === 0) {
+      console.error('No models available for tuning. Verify your API key has tuning permissions.');
+      return;
+    }
+    
+    console.log('Models available for tuning:');
+    tuningModels.forEach(m => console.log(`- ${m.name}`));
+    
+    // Select a base model for tuning (preferably Gemini 1.5)
+    const baseModel = tuningModels.find(m => m.name.includes('gemini-1.5'))?.name || tuningModels[0].name;
+    console.log(`Selected base model for tuning: ${baseModel}`);
 
-    // Start the tuning job
-    console.log('Submitting tuning job to Gemini API...');
-    const tuningJob = await genAI.tuningModel.createTuningJob(tuningConfig);
+    // Start the tuning process
+    console.log('Starting tuning process...');
+    const tuningJob = await ai.tunings.tune({
+      baseModel,
+      trainingData: tuningExamples,
+      config: {
+        epochCount: 3,
+        batchSize: 16,
+        learningRate: 0.0001,
+        tunedModelDisplayName: "cognitive-cosmos-advisor"
+      }
+    });
 
     console.log('Tuning job created successfully!');
-    console.log(`Job ID: ${tuningJob.id}`);
-    console.log(`Initial state: ${tuningJob.state}`);
+    console.log(`Job ID: ${tuningJob.name}`);
+    console.log(`Tuned model: ${tuningJob.tunedModel.name}`);
     console.log('');
     console.log('The tuning process may take several hours to complete.');
-    console.log('You can check the status using the Google AI Studio interface');
-    console.log('or by querying the job ID through the API.');
-
-    // Optional: Set up a basic polling mechanism to check status
-    console.log('Setting up status polling (will check every 15 minutes)...');
-    const checkStatus = async () => {
-      try {
-        const jobDetails = await genAI.tuningModel.getTuningJob(tuningJob.id);
-        console.log(`[${new Date().toISOString()}] Job status: ${jobDetails.state}`);
-        
-        if (jobDetails.state === TuningState.SUCCEEDED) {
-          console.log('Tuning completed successfully!');
-          console.log(`Tuned model ID: ${jobDetails.tunedModel.name}`);
-          console.log('You can now use this model for predictions.');
-          clearInterval(intervalId);
-        } else if (jobDetails.state === TuningState.FAILED) {
-          console.error('Tuning job failed:', jobDetails.error);
-          clearInterval(intervalId);
-        }
-      } catch (error) {
-        console.error('Error checking job status:', error);
-      }
-    };
-
-    // Check status every 15 minutes
-    const intervalId = setInterval(checkStatus, 15 * 60 * 1000);
-
-    // Also check immediately after submission
-    setTimeout(checkStatus, 5000);
 
   } catch (error) {
     console.error('Error during tuning process:', error);
   }
 }
 
-// Run the tuning process
+// Run the function
 tuneGeminiModel();
