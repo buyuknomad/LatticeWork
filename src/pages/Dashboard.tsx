@@ -1,411 +1,251 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
-import { 
-  Settings, 
-  Search, 
-  Zap, 
-  Crown, 
-  Lightbulb, 
-  AlertTriangle, 
-  ArrowRight,
-  X,
-  Info
-} from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+// src/pages/Dashboard.tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useAuth } from '../context/AuthContext'; // Ensure this path is correct
+import { supabase } from '../lib/supabase'; // Assuming this is your client, for other uses
+import { User } from '@supabase/supabase-js';
+import InteractiveDemo from '@/components/InteractiveDemo'; // Assuming this path is correct
 
-// Mock data for testing
-const EXAMPLE_QUERIES = [
-  "How do I prioritize my competing tasks?",
-  "Should I trust my intuition or analyze data?",
-  "Why do team decisions often take so long?",
-  "How can I avoid confirmation bias in research?"
-];
+// Define a type for the results you expect to display eventually
+interface LatticeResult {
+  id: string;
+  name: string;
+  category: string;
+  summary: string;
+  type: 'mental_model' | 'cognitive_bias';
+  explanation?: string; // From LLM
+  // Add other fields like 'how_to_apply', 'how_to_recognize', 'how_to_mitigate' as needed
+}
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const location = useLocation();
-  const [userTier, setUserTier] = useState<'free' | 'premium'>('free');
-  const [query, setQuery] = useState('');
+  const { user, session } = useAuth();
+  const [userInput, setUserInput] = useState('');
+  const [results, setResults] = useState<LatticeResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [showTierToggle, setShowTierToggle] = useState(false);
-  
-  // Check if we should automatically focus on analysis (from landing page)
-  const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
-  
-  // Extract username from either metadata or email
-  const getDisplayName = () => {
-    if (!user) return 'User';
-    
-    if (user.user_metadata?.username) {
-      return user.user_metadata.username;
-    }
-    
-    if (user.email) {
-      return user.email.split('@')[0];
-    }
-    
-    return 'User';
-  };
+  const [error, setError] = useState<string | null>(null);
+  const [showTierEffect, setShowTierEffect] = useState(false); // For dev toggle visualization
 
-  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
-  };
+  // For the temporary Edge Function tester
+  const [queryResponse, setQueryResponse] = useState<string | null>(null);
+  const [isLoadingQuery, setIsLoadingQuery] = useState(false);
 
-  const handleQuerySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    
+  const [currentUserTier, setCurrentUserTier] = useState<'free' | 'premium'>('free');
+
+  // Developer toggle state for testing tiers
+  const [devTestTier, setDevTestTier] = useState<'free' | 'premium' | null>(null);
+  const displayTier = devTestTier || currentUserTier;
+
+  useEffect(() => {
+    if (user?.user_metadata?.tier) {
+      setCurrentUserTier(user.user_metadata.tier as 'free' | 'premium');
+    }
+  }, [user]);
+
+  // Effect to visualize tier change from developer toggle
+  useEffect(() => {
+    if (devTestTier) {
+      setShowTierEffect(true);
+      const timer = setTimeout(() => setShowTierEffect(false), 300); // Flash duration
+      return () => clearTimeout(timer);
+    }
+  }, [devTestTier]);
+
+  const handleQuerySubmit = useCallback(async () => {
+    if (!userInput.trim()) {
+      setError("Please enter a query.");
+      return;
+    }
     setIsLoading(true);
-    
-    // Simulate API call timing
+    setError(null);
+    setResults([]); // Clear previous results
+
+    // Placeholder: Simulating API call and tiered results
+    // Replace this with your actual API call to the Edge Function later
     setTimeout(() => {
+      const mockMentalModels: LatticeResult[] = [
+        { id: 'mm1', name: 'First Principles Thinking', category: 'Problem Solving', summary: 'Break down complex problems into basic elements.', type: 'mental_model' },
+        { id: 'mm2', name: 'Second-Order Thinking', category: 'Decision Making', summary: 'Consider the consequences of the consequences.', type: 'mental_model' },
+        { id: 'mm3', name: 'Inversion', category: 'Problem Solving', summary: 'Approach a problem by considering the opposite.', type: 'mental_model' },
+      ];
+      const mockCognitiveBiases: LatticeResult[] = [
+        { id: 'cb1', name: 'Confirmation Bias', category: 'Decision Making', summary: 'Favor information that confirms existing beliefs.', type: 'cognitive_bias' },
+        { id: 'cb2', name: 'Availability Heuristic', category: 'Decision Making', summary: 'Overestimate the likelihood of events that are easily recalled.', type: 'cognitive_bias' },
+      ];
+
+      let newResults: LatticeResult[] = [];
+      if (displayTier === 'free') {
+        newResults = [mockMentalModels[0], mockCognitiveBiases[0]];
+      } else { // premium
+        newResults = [...mockMentalModels.slice(0, 3), ...mockCognitiveBiases.slice(0, 2)];
+      }
+      setResults(newResults);
       setIsLoading(false);
-      setShowResults(true);
-    }, 1500);
+    }, 1000); // Simulate network delay
+  }, [userInput, displayTier]);
+
+
+  // NEW: Function to test the Edge Function
+  const handleTestEdgeFunction = async () => {
+    if (!session) {
+      alert("You must be logged in to test the function.");
+      setQueryResponse("Error: You must be logged in.");
+      return;
+    }
+
+    if (!userInput.trim()) {
+      alert("Please enter something in the 'What's on your mind?' field to send as a query.");
+      setQueryResponse("Error: Please enter a query in the input field above.");
+      return;
+    }
+
+    setIsLoadingQuery(true);
+    setQueryResponse(null);
+    setError(null); // Clear main error display
+
+    // --- IMPORTANT: Replace with your actual Supabase project details ---
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aGF1Z2xwbmV3dHd6dGNwanhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NzUyMjgsImV4cCI6MjA2MzM1MTIyOH0.UDo0SzmylY3VW2JR6-42P3F7BY8HPQ2jSiVkVn3aixc"; // YOUR Supabase Anon Key
+    const edgeFunctionUrl = "https://ywhauglpnewtwztcpjxp.supabase.co/functions/v1/get-lattice-insights"; // YOUR Edge Function URL
+    // --- End of section to replace ---
+    
+    const jwt = session.access_token;
+
+    try {
+      const response = await fetch(edgeFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${jwt}`,
+          'apikey': supabaseAnonKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: userInput }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error("Error from Edge Function:", responseData);
+        setQueryResponse(`Error ${response.status}: ${responseData.error || response.statusText}`);
+      } else {
+        console.log("Success from Edge Function:", responseData);
+        setQueryResponse(JSON.stringify(responseData, null, 2));
+      }
+    } catch (error: any) {
+      console.error("Network or other error calling Edge Function:", error);
+      setQueryResponse(`Client-side error: ${error.message}`);
+    } finally {
+      setIsLoadingQuery(false);
+    }
   };
 
-  const handleExampleClick = (example: string) => {
-    setQuery(example);
-  };
 
-  const resetQuery = () => {
-    setQuery('');
-    setShowResults(false);
-  };
-
-  const toggleTier = () => {
-    setUserTier(userTier === 'free' ? 'premium' : 'free');
+  // Function to toggle developer test tier
+  const toggleDevTier = () => {
+    if (devTestTier === null) setDevTestTier('premium');
+    else if (devTestTier === 'premium') setDevTestTier('free');
+    else setDevTestTier(null); // Back to actual tier
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header Section with User Welcome and Settings */}
-        <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-lg mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Welcome, {getDisplayName()}!
-            </h1>
-            <div className="flex items-center gap-3">
-              {/* Dev-only tier toggle button */}
-              <motion.button
-                className="hidden md:flex items-center gap-1 text-xs bg-[#2D2D3A] px-2 py-1 rounded text-gray-400 hover:text-gray-300"
-                onClick={() => setShowTierToggle(!showTierToggle)}
-                whileHover={{ scale: 1.05 }}
-                title="Developer Toggle"
-              >
-                <Info size={12} />
-                <span>Dev</span>
-              </motion.button>
-              
-              <Link 
-                to="/settings" 
-                className="bg-[#2A2D35] p-2 rounded-lg hover:bg-[#333740] transition-colors"
-                title="Profile Settings"
-              >
-                <Settings className="h-5 w-5 text-[#00FFFF]" />
-              </Link>
-            </div>
-          </div>
-          
-          {/* Dev Mode Tier Toggle */}
-          {showTierToggle && (
-            <div className="mb-4 p-3 bg-[#2D2D3A] rounded-lg border border-[#444]">
-              <p className="text-sm text-gray-300 mb-2">Developer Mode: Toggle user tier for testing</p>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={toggleTier}
-                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                    userTier === 'free' 
-                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700' 
-                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
-                  }`}
-                >
-                  Free Tier
-                </button>
-                <button 
-                  onClick={toggleTier}
-                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                    userTier === 'premium' 
-                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700' 
-                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
-                  }`}
-                >
-                  Premium Tier
-                </button>
-              </div>
-            </div>
-          )}
-          
-          {/* Current User Tier */}
-          <div className="flex items-center gap-2 mb-4">
-            {userTier === 'premium' ? (
-              <div className="flex items-center gap-2 text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-1 rounded-full text-sm border border-[#8B5CF6]/30">
-                <Crown size={14} />
-                <span>Premium</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-[#00FFFF] bg-[#00FFFF]/10 px-3 py-1 rounded-full text-sm border border-[#00FFFF]/30">
-                <Zap size={14} />
-                <span>Free Tier • 2 queries/day</span>
-              </div>
-            )}
-          </div>
-          
-          <p className="text-gray-300 mb-6">
-            Use your mental models toolkit to analyze situations, make better decisions, and avoid cognitive biases.
-          </p>
-          
-          {/* Query form */}
-          {!showResults && (
-            <div className="space-y-6">
-              <form onSubmit={handleQuerySubmit}>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="What's on your mind? Ask any question..."
-                    value={query}
-                    onChange={handleQueryChange}
-                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] transition-shadow duration-300"
-                    autoFocus={shouldFocusAnalysis}
-                  />
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  
-                  {query && (
-                    <button
-                      type="button"
-                      className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
-                      onClick={() => setQuery('')}
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
-                  
-                  <button
-                    type="submit"
-                    disabled={!query.trim() || isLoading}
-                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
-                      query.trim() && !isLoading 
-                        ? 'text-[#00FFFF] hover:text-[#00CCCC]' 
-                        : 'text-gray-600 cursor-not-allowed'
-                    } transition-colors`}
-                  >
-                    <ArrowRight size={20} />
-                  </button>
-                </div>
-              </form>
-              
-              {/* Example queries */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-400 mb-3">Try asking about:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {EXAMPLE_QUERIES.map((example, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleExampleClick(example)}
-                      className="bg-[#2A2D35] text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm hover:bg-[#333740] transition-colors truncate max-w-[200px] sm:max-w-[250px]"
-                    >
-                      {example}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Loading state */}
-          {isLoading && (
-            <div className="py-12 flex flex-col items-center justify-center">
-              <div className="relative">
-                <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-[#00FFFF] animate-spin"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-10 w-10 rounded-full bg-[#212327]"></div>
-                </div>
-              </div>
-              <p className="mt-4 text-gray-400">Analyzing your query...</p>
-            </div>
-          )}
-          
-          {/* Results Display */}
-          {showResults && !isLoading && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">Results for your query</h2>
-                <button
-                  onClick={resetQuery}
-                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1"
-                >
-                  <X size={14} /> 
-                  New Query
-                </button>
-              </div>
-              
-              <div className="p-3 bg-[#2A2D35]/50 rounded-lg border border-[#444] mb-6">
-                <p className="text-gray-300 italic">"{query}"</p>
-              </div>
-              
-              {/* Mental Models Section */}
-              <div className="space-y-4">
-                <h3 className="flex items-center gap-2 text-lg font-medium text-[#00FFFF]">
-                  <Lightbulb className="h-5 w-5" />
-                  Mental Models
-                  <span className="text-sm font-normal text-gray-400">
-                    ({userTier === 'premium' ? '3 of 300' : '1 of 75'} available)
-                  </span>
-                </h3>
-                
-                {/* Premium Tier: 3 models */}
-                {userTier === 'premium' ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((item) => (
-                      <div 
-                        key={item}
-                        className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors"
-                      >
-                        <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
-                        <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                            Learn More
-                          </button>
-                          <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                            How to Apply
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Free Tier: 1 model
-                  <div className="space-y-3">
-                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors">
-                      <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
-                      <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
-                      <div className="mt-3 flex justify-end gap-2">
-                        <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                          Learn More
-                        </button>
-                        <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                          How to Apply
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Premium Teaser */}
-                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
-                        <h4 className="font-medium text-[#8B5CF6]">Premium Models</h4>
-                      </div>
-                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 3-4 mental models per query and our full library of 300 models.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Cognitive Biases Section */}
-              <div className="space-y-4 mt-8">
-                <h3 className="flex items-center gap-2 text-lg font-medium text-yellow-400">
-                  <AlertTriangle className="h-5 w-5" />
-                  Cognitive Biases
-                  <span className="text-sm font-normal text-gray-400">
-                    ({userTier === 'premium' ? '2 of 246' : '1 of 40'} available)
-                  </span>
-                </h3>
-                
-                {/* Premium Tier: 2 biases */}
-                {userTier === 'premium' ? (
-                  <div className="space-y-3">
-                    {[1, 2].map((item) => (
-                      <div 
-                        key={item}
-                        className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors"
-                      >
-                        <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
-                        <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
-                            How to Recognize
-                          </button>
-                          <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
-                            How to Mitigate
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Free Tier: 1 bias
-                  <div className="space-y-3">
-                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                      <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
-                      <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
-                      <div className="mt-3 flex justify-end gap-2">
-                        <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
-                          How to Recognize
-                        </button>
-                        <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
-                          How to Mitigate
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Premium Teaser */}
-                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
-                        <h4 className="font-medium text-[#8B5CF6]">Premium Biases</h4>
-                      </div>
-                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 2-3 cognitive biases per query and our full library of 246 biases.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Visualization Section (Premium only) */}
-              {userTier === 'premium' && (
-                <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#8B5CF6]/30">
-                  <h3 className="flex items-center gap-2 text-lg font-medium text-[#8B5CF6] mb-3">
-                    <Crown className="h-5 w-5" /> 
-                    Relationships Visualization
-                  </h3>
-                  <div className="bg-[#1F1F1F] rounded-lg h-40 flex items-center justify-center">
-                    <p className="text-gray-400">Premium visualization will appear here</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Premium Upgrade CTA (Free tier only) */}
-              {userTier === 'free' && (
-                <div className="mt-8 p-6 bg-gradient-to-r from-[#1F1F1F] to-[#252525] rounded-xl border border-[#333333]">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-[#8B5CF6]/10 rounded-full p-3 border border-[#8B5CF6]/30">
-                      <Crown className="h-6 w-6 text-[#8B5CF6]" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2">
-                        Upgrade to Premium
-                      </h3>
-                      <p className="text-gray-300 mb-4">
-                        Get unlimited queries, access to all 300 mental models, 246 biases, and the relationship visualization.
-                      </p>
-                      <button 
-                        className="bg-[#8B5CF6] text-white py-2 px-4 rounded-lg hover:bg-[#8B5CF6]/90 transition-colors"
-                      >
-                        View Premium Plans
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        
-        {/* Query history or additional components could go here */}
+    <div className={`container mx-auto p-4 transition-all duration-300 ease-in-out ${showTierEffect ? (displayTier === 'premium' ? 'bg-blue-50' : 'bg-orange-50') : ''}`}>
+      <h1 className="text-3xl font-bold text-center mb-6">Cosmic Lattice Dashboard</h1>
+      
+      {/* Developer Tier Toggle - As per handover doc, useful for testing UI */}
+      <div className="fixed top-4 right-4 bg-gray-700 text-white p-2 rounded shadow-lg z-50">
+        <label className="block text-xs">Dev Tier Override:</label>
+        <Button onClick={toggleDevTier} size="sm" variant="outline" className="text-xs text-white hover:bg-gray-600">
+          {devTestTier ? `Testing as ${devTestTier}` : `Actual: ${currentUserTier}`} (Toggle)
+        </Button>
       </div>
+
+      <div className="mb-8 p-6 bg-white shadow-xl rounded-lg">
+        <div className="flex items-center space-x-2 mb-4">
+          <Input
+            type="text"
+            placeholder="What's on your mind? Describe a situation or ask a question..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            className="flex-grow !text-lg p-3 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            onKeyPress={(e) => { if (e.key === 'Enter') handleQuerySubmit(); }}
+          />
+          <Button 
+            onClick={handleQuerySubmit} 
+            disabled={isLoading || !userInput.trim()}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold !text-lg py-3 px-6"
+          >
+            {isLoading ? 'Thinking...' : 'Get Insights'}
+          </Button>
+        </div>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      </div>
+
+      {/* Temporary Edge Function Tester Section - NEW */}
+      <div className="my-8 p-6 bg-gray-100 shadow-lg rounded-lg">
+        <h2 className="text-xl font-semibold mb-3 text-gray-700">Temporary Edge Function Tester</h2>
+        <p className="text-sm text-gray-600 mb-3">
+          The input field above ("What's on your mind?") will be used as the query for this test.
+          Ensure you are logged in as the correct user (`ceyyla@gmail.com` or your test user with the `tier` set).
+        </p>
+        <Button onClick={handleTestEdgeFunction} disabled={isLoadingQuery} variant="destructive" size="lg">
+          {isLoadingQuery ? "Calling Edge Function..." : "TEST: Call get-lattice-insights Function"}
+        </Button>
+        {queryResponse && (
+          <div className="mt-4 p-3 border bg-white rounded shadow">
+            <h3 className="font-semibold text-gray-700">Edge Function Response:</h3>
+            <pre className="text-sm whitespace-pre-wrap break-all bg-gray-50 p-2 rounded mt-1">{queryResponse}</pre>
+          </div>
+        )}
+      </div>
+      {/* End of Temporary Edge Function Tester Section */}
+
+
+      {/* Display Results - This part might need significant updates when real LLM data comes in */}
+      {results.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Recommended Tools: ({displayTier} view)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {results.map((item) => (
+              <div 
+                key={item.id} 
+                className={`p-5 rounded-xl shadow-lg transition-all hover:shadow-2xl ${
+                  item.type === 'mental_model' ? 'bg-cyan-500 text-white' : 'bg-amber-500 text-white'
+                }`}
+              >
+                <h3 className="text-xl font-bold mb-2">{item.name}</h3>
+                <p className="text-sm mb-1"><span className="font-semibold">Category:</span> {item.category}</p>
+                <p className="text-sm mb-3">{item.summary}</p>
+                {item.explanation && <p className="text-xs italic mt-2 p-2 bg-black bg-opacity-10 rounded">LLM Note: {item.explanation}</p>}
+                <div className="mt-3 space-x-2">
+                  <Button variant="secondary" size="sm" className="bg-opacity-80 hover:bg-opacity-100">Learn More</Button>
+                  {/* Add other buttons as needed */}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Premium Feature: Interactive Visualization */}
+      {displayTier === 'premium' && results.length > 0 && (
+        <div className="mt-12 p-6 bg-white shadow-xl rounded-lg">
+          <h2 className="text-2xl font-semibold mb-4">Interactive Relationship Map (Premium)</h2>
+          <div className="h-96 border rounded-md">
+            {/* Pass appropriate data to InteractiveDemo */}
+            <InteractiveDemo data={results.map(r => ({id: r.id, label: r.name, group: r.type === 'mental_model' ? 1 : 2}))} />
+          </div>
+        </div>
+      )}
+
+      {/* Upsell for Free Tier */}
+      {displayTier === 'free' && results.length > 0 && (
+         <div className="mt-10 p-6 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg shadow-xl text-center">
+          <h3 className="text-2xl font-bold mb-3">Unlock More Insights & Visualizations!</h3>
+          <p className="mb-4">Upgrade to Premium to get more recommendations and explore the interactive relationship map.</p>
+          <Button size="lg" variant="outline" className="bg-white text-indigo-600 hover:bg-gray-100 font-bold">
+            Upgrade to Premium
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
