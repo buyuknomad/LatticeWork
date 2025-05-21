@@ -36,8 +36,23 @@ const Header = () => {
           </motion.div>
 
           <nav className="flex items-center space-x-8">
-            <Link to="/features" className="text-white hover:text-[#00FFFF] transition-colors">Features</Link>
-            <Link to="/pricing" className="text-white hover:text-[#00FFFF] transition-colors">Pricing</Link>
+            {/* Show Features/Pricing only for non-authenticated users */}
+            {!user && (
+              <>
+                <Link to="/features" className="text-white hover:text-[#00FFFF] transition-colors">Features</Link>
+                <Link to="/pricing" className="text-white hover:text-[#00FFFF] transition-colors">Pricing</Link>
+              </>
+            )}
+            
+            {/* Dashboard Link - Only visible when user is logged in */}
+            {user && (
+              <Link 
+                to="/dashboard" 
+                className="text-white hover:text-[#00FFFF] transition-colors font-medium"
+              >
+                Dashboard
+              </Link>
+            )}
             
             {/* Login/Logout Button */}
             <motion.button
