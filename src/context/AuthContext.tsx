@@ -14,13 +14,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authListenerInitialized, setAuthListenerInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load the session once on mount
   useEffect(() => {
-    const loadSession = async () => {
+    // Get initial session
+    const loadSession = async (): Promise<void> => {
       try {
+        console.log('Loading initial session');
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -29,9 +29,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (data?.session) {
+          console.log('Initial session found:', data.session.user.email);
           setSession(data.session);
           setUser(data.session.user);
-          console.log('Session loaded successfully');
         } else {
           console.log('No active session found');
         }
@@ -43,42 +43,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadSession();
-  }, []);
 
-  // Set up auth state change listener once session is loaded
-  useEffect(() => {
-    if (authListenerInitialized || isLoading) return;
-    
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
-        console.log(`Auth event: ${event}`);
-        
-        // Skip redundant updates
-        if (event === 'INITIAL_SESSION') return;
+        console.log(`Auth event [${event}]:`, newSession ? `User ${newSession.user.email}` : 'No session');
         
         // Update state based on session changes
         if (newSession) {
           setSession(newSession);
           setUser(newSession.user);
-          console.log('User authenticated:', newSession.user.email);
         } else {
           setSession(null);
           setUser(null);
-          console.log('User logged out');
         }
+        
+        setIsLoading(false);
       }
     );
     
-    setAuthListenerInitialized(true);
-    
     // Clean up subscription on unmount
     return () => {
+      console.log('Cleaning up auth subscription');
       subscription.unsubscribe();
     };
-  }, [isLoading, authListenerInitialized]);
+  }, []);
 
-  const signOut = useCallback(async () => {
+  const signOut = useCallback(async (): Promise<void> => {
     try {
+      console.log('Attempting to sign out');
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       
@@ -87,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
+      console.log('Successfully signed out');
       setSession(null);
       setUser(null);
     } catch (err) {
@@ -96,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const value = {
+  const value: AuthContextType = {
     session,
     user,
     isLoading,
@@ -106,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
