@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Brain } from 'lucide-react';
+import { Brain, Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleAuthClick = () => {
     if (user) {
@@ -14,6 +15,10 @@ const Header = () => {
     } else {
       navigate('/login');
     }
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -25,17 +30,19 @@ const Header = () => {
     >
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex justify-between items-center">
+          {/* Logo */}
           <motion.div 
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
           >
-        <Link to="/">
-              <Brain className="h-8 w-8 text-[#00FFFF]" />
-              <span className="font-bold text-xl md:text-2xl">Cosmic Lattice</span>
+            <Link to="/" className="flex items-center">
+              <Brain className="h-7 w-7 text-[#00FFFF]" />
+              <span className="font-bold text-lg ml-2">Cosmic Lattice</span>
             </Link>
           </motion.div>
 
-          <nav className="flex items-center space-x-8">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
             {/* Show Features/Pricing only for non-authenticated users */}
             {!user && (
               <>
@@ -77,7 +84,86 @@ const Header = () => {
               </motion.button>
             )}
           </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button 
+              onClick={toggleMenu}
+              className="text-white p-1 rounded-md focus:outline-none"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <motion.div 
+            className="md:hidden mt-4 bg-[#212327] rounded-lg p-4 shadow-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex flex-col space-y-3">
+              {/* Show Features/Pricing only for non-authenticated users */}
+              {!user && (
+                <>
+                  <Link 
+                    to="/features" 
+                    className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Features
+                  </Link>
+                  <Link 
+                    to="/pricing" 
+                    className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Pricing
+                  </Link>
+                </>
+              )}
+              
+              {/* Dashboard Link - Only visible when user is logged in */}
+              {user && (
+                <Link 
+                  to="/dashboard" 
+                  className="text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
+              
+              <div className="pt-2 flex flex-col space-y-2">
+                {/* Login/Logout Button */}
+                <button
+                  className="bg-[#252525] border border-[#00FFFF]/30 text-[#00FFFF] py-2 px-3 rounded-lg transition-all duration-300 relative overflow-hidden shadow-sm text-center"
+                  onClick={() => {
+                    handleAuthClick();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <span className="relative z-10">{user ? 'Logout' : 'Login'}</span>
+                </button>
+                
+                {/* Show Sign Up button if not logged in */}
+                {!user && (
+                  <button
+                    className="bg-[#00FFFF] text-[#1A1A1A] py-2 px-3 rounded-lg font-medium transition-all duration-300 text-center"
+                    onClick={() => {
+                      navigate('/signup');
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.header>
   );
