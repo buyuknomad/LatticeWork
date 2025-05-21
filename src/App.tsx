@@ -21,7 +21,7 @@ const App: React.FC = () => {
       <AuthProvider>
         <div className="relative min-h-screen bg-[#1A1A1A] text-white overflow-hidden">
           <BackgroundAnimation />
-          <div className="relative z-10">
+          <div className="relative z-10 max-w-[1600px] mx-auto">
             <Header />
             <Routes>
               {/* Public routes */}
