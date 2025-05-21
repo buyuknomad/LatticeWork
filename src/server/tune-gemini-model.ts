@@ -31,46 +31,66 @@ async function tuneGeminiModel() {
 
     console.log(`Loaded ${tuningExamples.length} tuning examples`);
 
-    // List available models for tuning
-    console.log('Checking which models are available for tuning...');
-    const models = await ai.models.list();
-    const tuningModels = models.filter(m => 
-      m.supportedActions && m.supportedActions.includes('createTunedModel')
-    );
-    
-    if (tuningModels.length === 0) {
-      console.error('No models available for tuning. Verify your API key has tuning permissions.');
-      return;
-    }
-    
-    console.log('Models available for tuning:');
-    tuningModels.forEach(m => console.log(`- ${m.name}`));
-    
-    // Select a base model for tuning (preferably Gemini 1.5)
-    const baseModel = tuningModels.find(m => m.name.includes('gemini-1.5'))?.name || tuningModels[0].name;
-    console.log(`Selected base model for tuning: ${baseModel}`);
+    // Instead of trying to list models, let's specify the model directly
+    const baseModel = 'gemini-1.5-pro-latest';
+    console.log(`Using base model for tuning: ${baseModel}`);
 
     // Start the tuning process
     console.log('Starting tuning process...');
-    const tuningJob = await ai.tunings.tune({
+    
+    // Log the structure of the first example for debugging
+    console.log('Example structure:', JSON.stringify(tuningExamples[0], null, 2).slice(0, 500) + '...');
+    
+    // Convert the data to the expected format if needed
+    const tuningConfig = {
       baseModel,
       trainingData: tuningExamples,
-      config: {
+      tuningOptions: {
         epochCount: 3,
-        batchSize: 16,
-        learningRate: 0.0001,
-        tunedModelDisplayName: "cognitive-cosmos-advisor"
-      }
-    });
+        batchSize: 8,
+        learningRate: 0.0001
+      },
+      displayName: "cognitive-cosmos-advisor"
+    };
+    
+    console.log('Submitting tuning job with config...');
+    const tuningJob = await ai.tunings.create(tuningConfig);
 
     console.log('Tuning job created successfully!');
-    console.log(`Job ID: ${tuningJob.name}`);
-    console.log(`Tuned model: ${tuningJob.tunedModel.name}`);
-    console.log('');
-    console.log('The tuning process may take several hours to complete.');
+    console.log(`Job details:`, tuningJob);
+    
+    // Monitor the job
+    console.log('Setting up polling for job status...');
+    const checkStatus = async () => {
+      try {
+        const jobStatus = await ai.tunings.get(tuningJob.name);
+        console.log(`[${new Date().toISOString()}] Job status:`, jobStatus.state);
+        
+        if (jobStatus.state === 'SUCCEEDED') {
+          console.log('Tuning completed successfully!');
+          console.log('Tuned model:', jobStatus.tunedModel);
+          clearInterval(intervalId);
+        } else if (jobStatus.state === 'FAILED') {
+          console.error('Tuning job failed:', jobStatus.error);
+          clearInterval(intervalId);
+        }
+      } catch (error) {
+        console.error('Error checking status:', error);
+      }
+    };
+    
+    // Check every 15 minutes
+    const intervalId = setInterval(checkStatus, 15 * 60 * 1000);
+    
+    // Also check immediately
+    setTimeout(checkStatus, 5000);
 
   } catch (error) {
     console.error('Error during tuning process:', error);
+    // Log more details about the error
+    if (error.response) {
+      console.error('Error response:', error.response.data);
+    }
   }
 }
 
