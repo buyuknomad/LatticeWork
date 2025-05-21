@@ -161,7 +161,7 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? 'Try Analysis Now' : 'Get Started'}
+                  {user ? 'Analyze Now' : 'Get Started'}
                 </motion.button>
               </div>
             </div>
