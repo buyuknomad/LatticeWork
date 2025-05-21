@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,6 @@ const SignupPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [fullName, setFullName] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -26,10 +25,6 @@ const SignupPage: React.FC = () => {
 
   const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setConfirmPassword(e.target.value);
-  };
-
-  const handleFullNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setFullName(e.target.value);
   };
 
   const togglePasswordVisibility = (): void => {
@@ -56,13 +51,16 @@ const SignupPage: React.FC = () => {
     try {
       console.log('Attempting to sign up user:', email);
       
+      // Extract username from email (everything before @)
+      const username = email.split('@')[0];
+      
       // Sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            full_name: fullName,
+            username: username,
           },
         },
       });
@@ -150,24 +148,6 @@ const SignupPage: React.FC = () => {
         )}
         
         <form onSubmit={handleSignup}>
-          <div className="mb-6">
-            <label htmlFor="fullName" className="block text-gray-300 mb-2">Full Name</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-500" />
-              </div>
-              <input
-                type="text"
-                id="fullName"
-                className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
-                placeholder="Your full name"
-                value={fullName}
-                onChange={handleFullNameChange}
-                required
-              />
-            </div>
-          </div>
-          
           <div className="mb-6">
             <label htmlFor="email" className="block text-gray-300 mb-2">Email</label>
             <div className="relative">
