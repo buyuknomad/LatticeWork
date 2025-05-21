@@ -32,7 +32,7 @@ async function tuneGeminiModel() {
     console.log(`Loaded ${tuningExamples.length} tuning examples`);
 
     // Instead of trying to list models, let's specify the model directly
-    const baseModel = 'gemini-2.5-flash-preview-05-20';
+    const baseModel = '	gemini-2.0-flash';
     console.log(`Using base model for tuning: ${baseModel}`);
 
     // Start the tuning process
