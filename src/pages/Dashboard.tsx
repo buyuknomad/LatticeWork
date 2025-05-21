@@ -2,25 +2,37 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
+interface DebugInfo {
+  user: any;
+  metadata: any;
+}
+
 const Dashboard: React.FC = () => {
-  const { user, refreshSession } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   useEffect(() => {
-    // Ensure we have the latest session data
-    const loadUserData = async () => {
+    // Get the latest user data for display
+    const loadUserData = async (): Promise<void> => {
       setIsLoading(true);
       try {
-        // Force a session refresh
-        await refreshSession();
+        console.log('Loading user data for dashboard');
         
         // Get user data for debugging
-        const { data: userData } = await supabase.auth.getUser();
+        const { data: userData, error } = await supabase.auth.getUser();
+        
+        if (error) {
+          console.error('Error fetching user data:', error);
+          return;
+        }
+        
         setDebugInfo({
           user: userData?.user || null,
           metadata: userData?.user?.user_metadata || null,
         });
+        
+        console.log('User data loaded successfully');
       } catch (error) {
         console.error('Error loading user data:', error);
       } finally {
@@ -29,7 +41,7 @@ const Dashboard: React.FC = () => {
     };
     
     loadUserData();
-  }, [refreshSession]);
+  }, []);
 
   if (isLoading) {
     return (
