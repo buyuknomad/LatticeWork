@@ -21,3 +21,85 @@
   animation: glow-travel 4s linear infinite;
   background-size: 400% 400%;
 }
+
+/* Add this to src/index.css */
+
+/* Base responsive settings for the entire app */
+:root {
+  --container-max-width: 1280px;
+  --section-spacing: 5rem;
+  --text-scale: 1;
+}
+
+/* High-DPI screen optimizations */
+@media screen and (min-width: 1920px) and (min-resolution: 192dpi), 
+       screen and (min-width: 2560px) {
+  :root {
+    --container-max-width: 1400px;
+    --section-spacing: 4rem;
+    --text-scale: 0.9;
+  }
+  
+  /* Tighter spacing for high-DPI screens */
+  .container {
+    max-width: var(--container-max-width);
+  }
+  
+  /* Adjust text sizing for readability on high-DPI */
+  h1 {
+    font-size: calc(2.5rem * var(--text-scale));
+  }
+  
+  h2 {
+    font-size: calc(2rem * var(--text-scale));
+  }
+  
+  h3 {
+    font-size: calc(1.5rem * var(--text-scale));
+  }
+  
+  p {
+    font-size: calc(1rem * var(--text-scale));
+  }
+  
+  /* More dense padding/margins on sections */
+  section {
+    padding-top: var(--section-spacing);
+    padding-bottom: var(--section-spacing);
+  }
+  
+  /* Reduce card padding for better density */
+  .bg-[#252525], .bg-[#212327] {
+    padding: calc(1.5rem * var(--text-scale));
+  }
+  
+  /* More compact buttons */
+  button {
+    padding-top: calc(0.75rem * var(--text-scale));
+    padding-bottom: calc(0.75rem * var(--text-scale));
+  }
+  
+  /* Increase information density in layouts */
+  .gap-8 {
+    gap: calc(2rem * var(--text-scale));
+  }
+  
+  /* Improve visual density of navigation */
+  nav {
+    gap: calc(1.5rem * var(--text-scale));
+  }
+}
+
+/* Ultra-high resolution screens (like yours at 3840×2400) */
+@media screen and (min-width: 3000px) {
+  :root {
+    --container-max-width: 1600px;
+    --section-spacing: 3.5rem;
+    --text-scale: 0.85;
+  }
+  
+  /* Even more compact for ultra-high resolutions */
+  .container {
+    max-width: var(--container-max-width);
+  }
+}
