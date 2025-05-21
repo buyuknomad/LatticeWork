@@ -40,6 +40,7 @@ const App: React.FC = () => {
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/settings" element={<Settings />} />
                 {/* Add other protected routes here */}
               </Route>
             </Routes>
