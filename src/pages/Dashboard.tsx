@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { Link } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 
 interface DebugInfo {
   user: any;
@@ -43,6 +45,23 @@ const Dashboard: React.FC = () => {
     loadUserData();
   }, []);
 
+  // Extract username from email or metadata
+  const getDisplayName = () => {
+    if (!user) return 'User';
+    
+    // First try to get username from metadata
+    if (user.user_metadata?.username) {
+      return user.user_metadata.username;
+    }
+    
+    // Fallback: extract username from email (part before @)
+    if (user.email) {
+      return user.email.split('@')[0];
+    }
+    
+    return 'User';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -82,9 +101,18 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-lg">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6">
-            Welcome, {user?.user_metadata?.full_name || user?.email || 'User'}!
-          </h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Welcome, {getDisplayName()}!
+            </h1>
+            <Link 
+              to="/settings" 
+              className="bg-[#2A2D35] p-2 rounded-lg hover:bg-[#333740] transition-colors"
+              title="Profile Settings"
+            >
+              <Settings className="h-5 w-5 text-[#00FFFF]" />
+            </Link>
+          </div>
           
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4 text-[#00FFFF]">
