@@ -1,22 +1,14 @@
-// src/services/supabase-client.ts
+// src/services/supabase-client.ts (client-side)
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
 import { MentalModel, CognitiveBias } from '../types/models';
 
-dotenv.config();
+// Initialize Supabase client with public anon key
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-// Check if Supabase credentials are defined
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-  throw new Error('SUPABASE_URL or SUPABASE_KEY is not defined in environment variables');
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
-
-// Functions to fetch data from Supabase
+// Functions to fetch data from Supabase (client-side)
 export async function getAllMentalModels(): Promise<MentalModel[]> {
   const { data, error } = await supabase
     .from('mental_models')
@@ -34,5 +26,3 @@ export async function getAllCognitiveBiases(): Promise<CognitiveBias[]> {
   if (error) throw error;
   return data || [];
 }
-
-export default supabase;
