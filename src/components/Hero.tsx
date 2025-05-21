@@ -81,8 +81,10 @@ const Hero = () => {
 
   const handleGetStarted = () => {
     if (user) {
-      navigate('/dashboard');
+      // If user is logged in, navigate to the dashboard analyze section
+      navigate('/dashboard?action=analyze');
     } else {
+      // If not logged in, take them to signup
       navigate('/signup');
     }
   };
@@ -159,7 +161,7 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? 'Go to Dashboard' : 'Get Started'}
+                  {user ? 'Try Analysis Now' : 'Get Started'}
                 </motion.button>
               </div>
             </div>
