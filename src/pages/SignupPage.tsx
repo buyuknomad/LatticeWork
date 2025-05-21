@@ -1,92 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { AuthError } from '@supabase/supabase-js';
 
 const SignupPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [fullName, setFullName] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const navigate = useNavigate();
 
-  const handleSignup = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  // Basic validation
-  if (password !== confirmPassword) {
-    setErrorMessage('Passwords do not match.');
-    return;
-  }
-  
-  if (password.length < 6) {
-    setErrorMessage('Password must be at least 6 characters long.');
-    return;
-  }
-  
-  setIsLoading(true);
-  setErrorMessage(null);
-  
- // In handleSignup function:
-try {
-  // Sign up the user
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
-      },
-    },
-  });
-  
-  if (error) throw error;
-  
-  if (data.user && data.user.identities && data.user.identities.length === 0) {
-    // User already exists
-    setErrorMessage('An account with this email already exists.');
-    setIsLoading(false);
-    return;
-  }
-  
-  // Check if email confirmation is required
-  if (data.session) {
-    // Auto-confirmed, immediately navigate to dashboard
-    console.log('Account created with session, redirecting to dashboard');
-    navigate('/dashboard');
-  } else {
-    // Email confirmation required
-    console.log('Account created, email confirmation required');
-    navigate('/signup-success', { 
-      state: { email: email } 
-    });
-  }
-} catch (error: any) {
-  console.error('Error signing up:', error.message);
-  setErrorMessage(error.message || 'Failed to sign up. Please try again.');
-} finally {
-  setIsLoading(false);
-} 
-    // Force a session refresh to make sure our auth context catches the new session
-    await supabase.auth.getSession();
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setConfirmPassword(e.target.value);
+  };
+
+  const handleFullNameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setFullName(e.target.value);
+  };
+
+  const togglePasswordVisibility = (): void => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleSignup = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
     
-    // Navigate to dashboard with a slight delay to ensure auth state updates
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 500);
+    // Basic validation
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
     
-  } catch (error: any) {
-    console.error('Error signing up:', error.message);
-    setErrorMessage(error.message || 'Failed to sign up. Please try again.');
-    setIsLoading(false);
-  }
-};
-  const handleGoogleSignup = async () => {
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    try {
+      // Sign up the user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      });
+      
+      if (error) throw error;
+      
+      if (data.user?.identities && data.user.identities.length === 0) {
+        // User already exists
+        setErrorMessage('An account with this email already exists.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Check if email confirmation is required
+      if (data.session) {
+        // Auto-confirmed, immediately navigate to dashboard
+        console.log('Account created with session, redirecting to dashboard');
+        navigate('/dashboard');
+      } else {
+        // Email confirmation required
+        console.log('Account created, email confirmation required');
+        navigate('/signup-success', { 
+          state: { email: email } 
+        });
+      }
+    } catch (error) {
+      console.error('Error signing up:', error);
+      const authError = error as AuthError;
+      setErrorMessage(authError.message || 'Failed to sign up. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async (): Promise<void> => {
     setIsLoading(true);
     setErrorMessage(null);
     
@@ -100,11 +109,16 @@ try {
       
       if (error) throw error;
       // No need to navigate here as OAuth will redirect automatically
-    } catch (error: any) {
-      console.error('Error with Google signup:', error.message);
-      setErrorMessage(error.message || 'Failed to sign up with Google. Please try again.');
+    } catch (error) {
+      console.error('Error with Google signup:', error);
+      const authError = error as AuthError;
+      setErrorMessage(authError.message || 'Failed to sign up with Google. Please try again.');
       setIsLoading(false);
     }
+  };
+
+  const navigateToLogin = (): void => {
+    navigate('/login');
   };
 
   return (
@@ -139,7 +153,7 @@ try {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="Your full name"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={handleFullNameChange}
                 required
               />
             </div>
@@ -157,7 +171,7 @@ try {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="your.email@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
               />
             </div>
@@ -175,13 +189,13 @@ try {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="Create a password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 required
               />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={togglePasswordVisibility}
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5 text-gray-500" />
@@ -204,7 +218,7 @@ try {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="Confirm your password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={handleConfirmPasswordChange}
                 required
               />
             </div>
@@ -243,8 +257,9 @@ try {
         <p className="mt-8 text-center text-gray-400">
           Already have an account?{' '}
           <button
-            onClick={() => navigate('/login')}
+            onClick={navigateToLogin}
             className="text-[#00FFFF] hover:underline"
+            type="button"
           >
             Log In
           </button>
