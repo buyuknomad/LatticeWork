@@ -46,8 +46,8 @@ const Header = () => {
             {/* Show Features/Pricing only for non-authenticated users */}
             {!user && (
               <>
-                <Link to="/features" className="text-white hover:text-[#00FFFF] transition-colors">Features</Link>
-                <Link to="/pricing" className="text-white hover:text-[#00FFFF] transition-colors">Pricing</Link>
+                <a href="#features" className="text-white hover:text-[#00FFFF] transition-colors">Features</a>
+                <a href="#pricing" className="text-white hover:text-[#00FFFF] transition-colors">Pricing</a>
               </>
             )}
             
@@ -106,7 +106,7 @@ const Header = () => {
           >
             <div className="flex flex-col space-y-3">
               {/* Show Features/Pricing only for non-authenticated users */}
-             {!user && (
+              {!user && (
                 <>
                   <a 
                     href="#features" 
