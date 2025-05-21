@@ -1,27 +1,31 @@
-// src/server/prepare-gemini-tuning-data.ts
+// src/server/format-gemini-tuning-data.ts
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 
-async function convertToGeminiFormat() {
+// Path to your examples file
+const examplesPath = '/home/project/examples.json';
+
+async function formatGeminiTuningData() {
   try {
-    // Load your examples JSON file
-    const rawData = readFileSync('examples.json', 'utf-8');
+    // Read the examples file
+    console.log(`Reading examples from: ${examplesPath}`);
+    const rawData = readFileSync(examplesPath, 'utf-8');
     const examples = JSON.parse(rawData);
     
-    console.log(`Loaded ${examples.length} examples from file`);
+    console.log(`Found ${examples.length} examples to format`);
     
-    // Convert to Gemini's fine-tuning format
-    const geminiExamples = examples.map(example => {
-      // Format the model response with mental models and biases
-      const modelsText = example.relevantModels
-        .map(model => `- **${model.name}**: ${model.summary}`)
-        .join('\n');
+    // Format examples for Gemini
+    const formattedExamples = examples.map(example => {
+      // Format the model response
+      const modelsText = example.relevantModels.map((model: any) => 
+        `- **${model.name}**: ${model.summary}`
+      ).join('\n\n');
       
-      const biasesText = example.relevantBiases
-        .map(bias => `- **${bias.name}**: ${bias.summary}`)
-        .join('\n');
+      const biasesText = example.relevantBiases.map((bias: any) => 
+        `- **${bias.name}**: ${bias.summary}`
+      ).join('\n\n');
       
-      // Create the chat format that Gemini expects
+      // Create the formatted conversation example
       return {
         messages: [
           {
@@ -47,16 +51,23 @@ Understanding these concepts can help you navigate this situation more effective
       };
     });
     
-    // Write to a JSONL file (one JSON object per line)
-    const jsonlData = geminiExamples.map(example => JSON.stringify(example)).join('\n');
-    writeFileSync('gemini-tuning-data.jsonl', jsonlData);
+    // Save the formatted examples to JSONL file
+    const jsonlData = formattedExamples.map(example => JSON.stringify(example)).join('\n');
+    const outputPath = path.join('/home/project', 'gemini-tuning-data.jsonl');
+    writeFileSync(outputPath, jsonlData);
     
-    console.log(`Successfully converted ${geminiExamples.length} examples to Gemini format`);
-    console.log('Saved to gemini-tuning-data.jsonl');
+    console.log(`Successfully formatted ${examples.length} examples`);
+    console.log(`Saved to: ${outputPath}`);
+    
+    // Also create a regular JSON file (easier to inspect)
+    const jsonOutputPath = path.join('/home/project', 'gemini-tuning-data.json');
+    writeFileSync(jsonOutputPath, JSON.stringify(formattedExamples, null, 2));
+    console.log(`Also saved as JSON to: ${jsonOutputPath}`);
+    
   } catch (error) {
-    console.error('Error converting data:', error);
+    console.error('Error formatting tuning data:', error);
   }
 }
 
-// Run the conversion
-convertToGeminiFormat();
+// Run the function
+formatGeminiTuningData();
