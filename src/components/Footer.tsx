@@ -68,7 +68,7 @@ const Footer = () => {
         </div>
         
         <div className="pt-8 border-t border-[#333333] text-center text-gray-500 text-sm">
-          <p>© {new Date().getFullYear()} Cognitive Cosmos. All rights reserved.</p>
+          <<p>© {new Date().getFullYear()} Cosmic Lattice. All rights reserved.</p>
         </div>
       </div>
     </footer>
