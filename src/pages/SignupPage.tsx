@@ -32,27 +32,46 @@ const SignupPage: React.FC = () => {
   setIsLoading(true);
   setErrorMessage(null);
   
-  try {
-    // Sign up the user
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
+ // In handleSignup function:
+try {
+  // Sign up the user
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
       },
+    },
+  });
+  
+  if (error) throw error;
+  
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    // User already exists
+    setErrorMessage('An account with this email already exists.');
+    setIsLoading(false);
+    return;
+  }
+  
+  // Check if email confirmation is required
+  if (data.session) {
+    // Auto-confirmed, immediately navigate to dashboard
+    console.log('Account created with session, redirecting to dashboard');
+    navigate('/dashboard');
+  } else {
+    // Email confirmation required
+    console.log('Account created, email confirmation required');
+    navigate('/signup-success', { 
+      state: { email: email } 
     });
-    
-    if (error) throw error;
-    
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
-      // User already exists
-      setErrorMessage('An account with this email already exists.');
-      setIsLoading(false);
-      return;
-    }
-    
+  }
+} catch (error: any) {
+  console.error('Error signing up:', error.message);
+  setErrorMessage(error.message || 'Failed to sign up. Please try again.');
+} finally {
+  setIsLoading(false);
+} 
     // Force a session refresh to make sure our auth context catches the new session
     await supabase.auth.getSession();
     
