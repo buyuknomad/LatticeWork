@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import CallToAction from './components/CallToAction';
+import Pricing from './components/Pricing';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import SignupSuccessPage from './pages/SignupSuccessPage';
@@ -28,6 +29,7 @@ const App: React.FC = () => {
                   <Hero />
                   <Features />
                   <CallToAction />
+                  <Pricing />
                 </main>
               } />
               <Route path="/login" element={<LoginPage />} />
