@@ -1,9 +1,17 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      console.log('Protected route accessed without auth, redirecting to login');
+      navigate('/login', { replace: true });
+    }
+  }, [user, isLoading, navigate]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -14,13 +22,8 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Render the protected content
-  return <Outlet />;
+  // Render the protected content if user is authenticated
+  return user ? <Outlet /> : null;
 };
 
 export default ProtectedRoute;
