@@ -7,9 +7,9 @@ const Footer = () => {
       <div className="container mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
-            <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-2 mb-4">
               <Brain className="h-6 w-6 text-[#00FFFF]" />
-              <span className="font-bold text-lg">Cognitive Cosmos</span>
+              <span className="font-bold text-lg">Cosmic Lattice</span>
             </div>
             <p className="text-gray-400 mb-4">
               Transforming chaotic thoughts into structured, actionable insights.
