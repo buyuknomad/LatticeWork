@@ -37,14 +37,14 @@ const SignupSuccessPage: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/login', { replace: true })}
             className="w-full bg-[#2A2D35] text-white py-3 px-4 rounded-lg border border-[#333333] hover:border-[#00FFFF]/50 transition-colors"
           >
             Return to Login
           </motion.button>
           
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/', { replace: true })}
             className="text-gray-400 hover:text-[#00FFFF] text-sm transition-colors"
           >
             Back to Home
