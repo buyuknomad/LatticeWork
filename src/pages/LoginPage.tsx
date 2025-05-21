@@ -1,26 +1,68 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // We'll implement Supabase auth here in the next step
-    console.log('Login attempted with:', email, password);
-    setIsLoading(false);
+    setErrorMessage(null);
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      // Successful login
+      navigate('/dashboard'); // Navigate to dashboard or homepage
+    } catch (error: any) {
+      console.error('Error logging in:', error.message);
+      setErrorMessage(error.message || 'Failed to sign in. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    // We'll implement Google auth here in the next step
-    console.log('Google login attempted');
-    setIsLoading(false);
+    setErrorMessage(null);
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      
+      if (error) throw error;
+      // No need to navigate here as OAuth will redirect automatically
+    } catch (error: any) {
+      console.error('Error with Google login:', error.message);
+      setErrorMessage(error.message || 'Failed to sign in with Google. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  const navigateToSignUp = () => {
+    navigate('/signup');
+  };
+
+  const navigateToForgotPassword = () => {
+    navigate('/forgot-password');
   };
 
   return (
@@ -35,6 +77,12 @@ const LoginPage: React.FC = () => {
           Welcome Back to <span className="text-[#00FFFF]">Cognitive Cosmos</span>
         </h1>
         <p className="text-gray-400 mb-8">Sign in to continue your thinking journey</p>
+        
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">
+            {errorMessage}
+          </div>
+        )}
         
         <form onSubmit={handleLogin}>
           <div className="mb-6">
@@ -85,9 +133,13 @@ const LoginPage: React.FC = () => {
           </div>
           
           <div className="flex justify-end mb-6">
-            <a href="#" className="text-[#00FFFF] text-sm hover:underline">
+            <button
+              type="button"
+              onClick={navigateToForgotPassword}
+              className="text-[#00FFFF] text-sm hover:underline"
+            >
               Forgot password?
-            </a>
+            </button>
           </div>
           
           <motion.button
@@ -122,9 +174,12 @@ const LoginPage: React.FC = () => {
         
         <p className="mt-8 text-center text-gray-400">
           Don't have an account?{' '}
-          <a href="#" className="text-[#00FFFF] hover:underline">
+          <button
+            onClick={navigateToSignUp}
+            className="text-[#00FFFF] hover:underline"
+          >
             Sign Up
-          </a>
+          </button>
         </p>
       </motion.div>
     </div>
