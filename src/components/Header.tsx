@@ -106,22 +106,22 @@ const Header = () => {
           >
             <div className="flex flex-col space-y-3">
               {/* Show Features/Pricing only for non-authenticated users */}
-              {!user && (
+             {!user && (
                 <>
-                  <Link 
-                    to="/features" 
+                  <a 
+                    href="#features" 
                     className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Features
-                  </Link>
-                  <Link 
-                    to="/pricing" 
+                  </a>
+                  <a 
+                    href="#pricing" 
                     className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Pricing
-                  </Link>
+                  </a>
                 </>
               )}
               
