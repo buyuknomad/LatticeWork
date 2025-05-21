@@ -29,9 +29,9 @@ const Header = () => {
             className="flex items-center space-x-2"
             whileHover={{ scale: 1.05 }}
           >
-            <Link to="/">
+        <Link to="/">
               <Brain className="h-8 w-8 text-[#00FFFF]" />
-              <span className="font-bold text-xl md:text-2xl">Cognitive Cosmos</span>
+              <span className="font-bold text-xl md:text-2xl">Cosmic Lattice</span>
             </Link>
           </motion.div>
 
