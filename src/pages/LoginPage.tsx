@@ -1,46 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { AuthError } from '@supabase/supabase-js';
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setPassword(e.target.value);
+  };
+
+  const togglePasswordVisibility = (): void => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting login with:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
       
+      console.log('Login successful:', data.user?.email);
       // Successful login
-      navigate('/dashboard'); // Navigate to dashboard or homepage
-    } catch (error: any) {
-      console.error('Error logging in:', error.message);
-      setErrorMessage(error.message || 'Failed to sign in. Please try again.');
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      console.error('Login error:', error);
+      const authError = error as AuthError;
+      setErrorMessage(authError.message || 'Failed to sign in. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (): Promise<void> => {
     setIsLoading(true);
     setErrorMessage(null);
     
     try {
+      console.log('Attempting Google login');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -50,18 +67,19 @@ const LoginPage: React.FC = () => {
       
       if (error) throw error;
       // No need to navigate here as OAuth will redirect automatically
-    } catch (error: any) {
-      console.error('Error with Google login:', error.message);
-      setErrorMessage(error.message || 'Failed to sign in with Google. Please try again.');
+    } catch (error) {
+      console.error('Google login error:', error);
+      const authError = error as AuthError;
+      setErrorMessage(authError.message || 'Failed to sign in with Google. Please try again.');
       setIsLoading(false);
     }
   };
 
-  const navigateToSignUp = () => {
+  const navigateToSignUp = (): void => {
     navigate('/signup');
   };
 
-  const navigateToForgotPassword = () => {
+  const navigateToForgotPassword = (): void => {
     navigate('/forgot-password');
   };
 
@@ -97,7 +115,7 @@ const LoginPage: React.FC = () => {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="your.email@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
               />
             </div>
@@ -115,13 +133,13 @@ const LoginPage: React.FC = () => {
                 className="bg-[#2A2D35] text-white rounded-lg block w-full pl-10 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
                 placeholder="Enter your password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 required
               />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={togglePasswordVisibility}
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5 text-gray-500" />
@@ -177,6 +195,7 @@ const LoginPage: React.FC = () => {
           <button
             onClick={navigateToSignUp}
             className="text-[#00FFFF] hover:underline"
+            type="button"
           >
             Sign Up
           </button>
