@@ -6,11 +6,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Check if API key is defined
-if (!process.env.GEMINI_API_KEY) {
+if (!process.env.VITE_GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is not defined in environment variables');
 }
 
 // Initialize the API with your API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY);
 
 export default genAI;
