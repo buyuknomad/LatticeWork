@@ -54,6 +54,8 @@ const SignupPage: React.FC = () => {
     setErrorMessage(null);
     
     try {
+      console.log('Attempting to sign up user:', email);
+      
       // Sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -67,27 +69,33 @@ const SignupPage: React.FC = () => {
       
       if (error) throw error;
       
+      console.log('Signup response:', data);
+      
+      // Check if the user already exists
       if (data.user?.identities && data.user.identities.length === 0) {
-        // User already exists
         setErrorMessage('An account with this email already exists.');
         setIsLoading(false);
         return;
       }
       
-      // Check if email confirmation is required
+      // Check if there is a session (auto-confirmation)
       if (data.session) {
-        // Auto-confirmed, immediately navigate to dashboard
-        console.log('Account created with session, redirecting to dashboard');
-        navigate('/dashboard');
+        console.log('Account created and auto-confirmed with active session, navigating to dashboard');
+        
+        // Small timeout to ensure auth state updates
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 500);
       } else {
-        // Email confirmation required
-        console.log('Account created, email confirmation required');
+        // Supabase is likely configured for email confirmation
+        console.log('Account created but requires email confirmation');
         navigate('/signup-success', { 
-          state: { email: email } 
+          state: { email },
+          replace: true
         });
       }
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error('Error during signup:', error);
       const authError = error as AuthError;
       setErrorMessage(authError.message || 'Failed to sign up. Please try again.');
     } finally {
@@ -100,6 +108,7 @@ const SignupPage: React.FC = () => {
     setErrorMessage(null);
     
     try {
+      console.log('Attempting Google signup');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
