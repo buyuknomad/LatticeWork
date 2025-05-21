@@ -16,62 +16,57 @@ const SignupPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match.');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long.');
-      return;
-    }
-    
-    setIsLoading(true);
-    setErrorMessage(null);
-    
-    try {
-      // Sign up the user
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+  e.preventDefault();
+  
+  // Basic validation
+  if (password !== confirmPassword) {
+    setErrorMessage('Passwords do not match.');
+    return;
+  }
+  
+  if (password.length < 6) {
+    setErrorMessage('Password must be at least 6 characters long.');
+    return;
+  }
+  
+  setIsLoading(true);
+  setErrorMessage(null);
+  
+  try {
+    // Sign up the user
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
         },
-      });
-      
-      if (error) throw error;
-      
-      if (data.user && data.user.identities && data.user.identities.length === 0) {
-        // User already exists
-        setErrorMessage('An account with this email already exists.');
-        setIsLoading(false);
-        return;
-      }
-      
-      // Successfully created account - either auto-confirmed or email confirmation sent
-      if (data.user?.confirmed_at) {
-        // Auto-confirmed, navigate to dashboard
-        navigate('/dashboard');
-      } else {
-        // Email confirmation required
-        navigate('/signup-success', { 
-          state: { email: email } 
-        });
-      }
-    } catch (error: any) {
-      console.error('Error signing up:', error.message);
-      setErrorMessage(error.message || 'Failed to sign up. Please try again.');
-    } finally {
+      },
+    });
+    
+    if (error) throw error;
+    
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // User already exists
+      setErrorMessage('An account with this email already exists.');
       setIsLoading(false);
+      return;
     }
-  };
-
+    
+    // Force a session refresh to make sure our auth context catches the new session
+    await supabase.auth.getSession();
+    
+    // Navigate to dashboard with a slight delay to ensure auth state updates
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 500);
+    
+  } catch (error: any) {
+    console.error('Error signing up:', error.message);
+    setErrorMessage(error.message || 'Failed to sign up. Please try again.');
+    setIsLoading(false);
+  }
+};
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     setErrorMessage(null);
