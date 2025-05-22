@@ -232,8 +232,6 @@ const Dashboard: React.FC = () => {
         setError(data.error);
       } else {
         setResults(data);
-        
- 
       }
 
     } catch (err: any) {
