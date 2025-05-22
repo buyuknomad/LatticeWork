@@ -1,0 +1,144 @@
+{
+  "mental_models": {
+    "lastSuccessfullyProcessedOffset": 0,
+    "processedRecordIds": [],
+    "failedRecordIds": [
+      {
+        "id": "MM003",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM024",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM012",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM006",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM013",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM023",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM014",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM019",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM004",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM011",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM021",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM016",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM009",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM020",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM018",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM010",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM015",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM007",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM017",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM002",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM022",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM008",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM001",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM025",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM005",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      }
+    ],
+    "lastRanAt": "2025-05-22T13:52:38.314Z",
+    "configUsedSnapshot": {
+      "embeddingModelId": "gemini-embedding-exp-03-07",
+      "targetEmbeddingDimensionality": 1536,
+      "textSourceFields": [
+        "name",
+        "category",
+        "summary"
+      ],
+      "embeddingColumnName": "embedding"
+    }
+  }
+}
