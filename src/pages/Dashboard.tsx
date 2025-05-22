@@ -19,9 +19,11 @@ import {
   Eye,
   ChevronUp,
   ExternalLink,
-  Layers
+  Layers,
+  Clock
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 // --- Type Definitions ---
 interface RecommendedTool {
@@ -229,6 +231,23 @@ const Dashboard: React.FC = () => {
         setError(data.error);
       } else {
         setResults(data);
+        
+        // Save to query history
+        try {
+          await supabase
+            .from('query_history')
+            .insert({
+              user_id: user?.id,
+              query_text: query,
+              recommended_tools: data.recommendedTools || [],
+              relationships_summary: data.relationshipsSummary || null,
+              full_response: data,
+              tier_at_query: displayTier
+            });
+        } catch (saveError) {
+          console.error('Error saving to history:', saveError);
+          // Don't show error to user - saving history is not critical
+        }
       }
 
     } catch (err: any) {
@@ -400,6 +419,17 @@ const Dashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
+                {/* History Button */}
+                <Link to="/history">
+                  <motion.button
+                    className="p-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 transition-all group"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Clock className="h-5 w-5 text-gray-400 group-hover:text-[#00FFFF] transition-colors" />
+                  </motion.button>
+                </Link>
+
                 <motion.button
                   className="hidden md:flex items-center gap-2 px-3 py-2 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg text-xs text-gray-400 hover:text-gray-300 hover:border-[#444444] transition-all"
                   onClick={() => setShowTierToggle(!showTierToggle)}
