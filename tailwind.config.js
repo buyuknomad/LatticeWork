@@ -41,5 +41,5 @@ export default {
       },
     },
   },
-  plugins: [ /* require("tailwindcss-animate") */ ], // Temporarily remove/comment out
+ // plugins: [ /* require("tailwindcss-animate") */ ], // Temporarily remove/comment out
 }
