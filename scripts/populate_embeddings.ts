@@ -13,35 +13,56 @@ interface ScriptConfig {
   supabaseUrl: string;
   supabaseServiceKey: string;
   targetEmbeddingDimensionality: number;
-  tablesToProcess: Array<{ tableName: 'mental_models' | 'cognitive_biases'; textSourceFields: Array<keyof DbRecord>; idColumn: string; embeddingColumn: string }>;
+  tablesToProcess: Array<{
+    tableName: 'mental_models' | 'cognitive_biases';
+    idColumn: string; // Name of the primary key column in this table
+    textSourceFields: Array<keyof DbRecord>; // Fields from DB to construct text for embedding
+    embeddingColumnName: string; // Column in Supabase where this combined embedding will be stored
+  }>;
   delayBetweenRequestsMs: number;
   maxRetries: number;
   baseRetryDelayMs: number;
-  batchSize: number; // How many records to fetch from Supabase at a time
+  dbQueryBatchSize: number; // How many records to fetch from Supabase at a time
+  // Concurrency for Promise.all when processing a fetched batch from DB
+  maxConcurrentEmbeddingsPerDbBatch: number; 
   progressFilePath: string;
+  cachePath: string;
 }
 
 // --- Type Definitions ---
 interface DbRecord {
-  id: string | number; // Assuming your ID is text or int (adjust if it's always one type)
+  id: string | number; // Primary key type
   name?: string;
   category?: string;
   summary?: string;
-  // Add other fields if they are part of textSourceFields
-  [key: string]: any; 
+  detailed_description?: string; // If you plan to embed this separately or combine it
+  [key: string]: any; // Allow other properties from DB
 }
 
 interface TableProgress {
-  lastSuccessfullyProcessedOffset: number; // Use offset for robust pagination
-  processedRecordIds: (string | number)[];
-  failedRecordIds: Array<{ id: string | number; error: string; attempts: number }>;
+  lastSuccessfullyProcessedId: string | number | null; // Last ID for which embedding was successfully stored
+  processedRecordIdsThisRun: (string | number)[]; // IDs processed in the current execution
+  failedRecordIdsThisRun: Array<{ id: string | number; error: string; attempts: number }>; // IDs failed in current run
+  totalSuccessfullyEmbeddedEver: number; // Count of all unique IDs ever embedded for this table
+  configUsedSnapshot: Pick<ScriptConfig, 'embeddingModelId' | 'targetEmbeddingDimensionality' | 'tablesToProcess'>;
   lastRanAt: string;
-  configUsedSnapshot: Pick<ScriptConfig, 'embeddingModelId' | 'targetEmbeddingDimensionality' | 'textSourceFields' | 'embeddingColumnName'>; // Per-table config snapshot
 }
 
 interface ProcessingProgress {
   [tableName: string]: TableProgress;
 }
+
+interface EmbeddingCacheEntry {
+  embedding: number[];
+  generatedAt: string;
+  modelUsed: string;
+  textSample: string;
+  actualDimension: number;
+}
+interface EmbeddingCache {
+  [cacheKey: string]: EmbeddingCacheEntry;
+}
+
 
 // --- Default Configuration Values ---
 const config: ScriptConfig = {
@@ -53,165 +74,220 @@ const config: ScriptConfig = {
   tablesToProcess: [
     { 
       tableName: 'mental_models', 
+      idColumn: 'id', // Assuming 'id' is the PK. Adjust if it's 'model_id'
       textSourceFields: ['name', 'category', 'summary'], 
-      idColumn: 'id', // Assuming 'id' is the primary key for mental_models
-      embeddingColumn: 'embedding' 
+      embeddingColumnName: 'embedding' 
     },
     { 
       tableName: 'cognitive_biases', 
+      idColumn: 'id', // Assuming 'id' is the PK. Adjust if it's 'bias_id' or similar
       textSourceFields: ['name', 'category', 'summary'], 
-      idColumn: 'id', // Assuming 'id' is the primary key for cognitive_biases
-      embeddingColumn: 'embedding'
+      embeddingColumnName: 'embedding'
     }
   ],
-  delayBetweenRequestsMs: parseInt(process.env.DELAY_BETWEEN_REQUESTS_MS || '500', 10), // 0.5 second
+  delayBetweenRequestsMs: parseInt(process.env.DELAY_BETWEEN_REQUESTS_MS || '500', 10),
   maxRetries: parseInt(process.env.MAX_RETRIES || '3', 10),
   baseRetryDelayMs: parseInt(process.env.BASE_RETRY_DELAY_MS || '3000', 10),
-  batchSize: parseInt(process.env.DB_BATCH_SIZE || '50', 10),
-  progressFilePath: process.env.PROGRESS_FILE_PATH || './db_embedding_progress.json',
+  dbQueryBatchSize: parseInt(process.env.DB_QUERY_BATCH_SIZE || '50', 10),
+  maxConcurrentEmbeddingsPerDbBatch: parseInt(process.env.MAX_CONCURRENT_EMBEDDINGS || '5', 10),
+  progressFilePath: process.env.PROGRESS_FILE_PATH || './db_embedding_v2_progress.json',
+  cachePath: process.env.CACHE_PATH || './embedding_v2_cache.json',
 };
-
 
 // --- Global Clients (initialized in main) ---
 let genAI: GoogleGenerativeAI;
-let embeddingApi: GenerativeModel; // API binding for the embedding model
+let embeddingApi: GenerativeModel;
 let supabase: SupabaseClient;
+let progressTracker: ProgressTracker;
+let embeddingCache: PersistentCache;
+
 
 // --- Utility Functions ---
 const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-class ProgressTracker {
-  private progress: ProcessingProgress = {};
-  private progressPath: string;
+function validateConfig(cfg: ScriptConfig): void {
+    const requiredFields: (keyof Pick<ScriptConfig, 'geminiApiKey' | 'supabaseUrl' | 'supabaseServiceKey'>)[] = 
+        ['geminiApiKey', 'supabaseUrl', 'supabaseServiceKey'];
+    const missingFields = requiredFields.filter(field => !cfg[field]);
 
-  constructor(progressPath: string) {
-    this.progressPath = progressPath;
+    if (missingFields.length > 0) {
+        throw new Error(`Missing required configuration from .env or defaults: ${missingFields.join(', ')}`);
+    }
+    console.log("Configuration validated successfully.");
+}
+
+class PersistentCache {
+  private cache: EmbeddingCache = {};
+  private cachePath: string;
+
+  constructor(cachePath: string) {
+    this.cachePath = cachePath;
+    this.loadCache();
+  }
+
+  private loadCache(): void {
+    try {
+      if (fs.existsSync(this.cachePath)) {
+        const data = fs.readFileSync(this.cachePath, 'utf-8');
+        this.cache = JSON.parse(data);
+        console.log(`Loaded cache with ${Object.keys(this.cache).length} entries from ${this.cachePath}`);
+      } else {
+        console.log("No existing cache file found. Starting with an empty cache.");
+      }
+    } catch (error: any) {
+      console.error('Error loading cache:', error.message);
+      this.cache = {};
+    }
+  }
+
+  private saveCache(): void {
+    try {
+      fs.writeFileSync(this.cachePath, JSON.stringify(this.cache, null, 2));
+    } catch (error: any) {
+      console.error('Error saving cache:', error.message);
+    }
+  }
+
+  get(textToEmbed: string, idForCacheKey: string | number, fieldName: string): number[] | undefined {
+    const cacheKey = this.generateCacheKey(textToEmbed, idForCacheKey, fieldName);
+    const entry = this.cache[cacheKey];
+    if (entry && 
+        entry.modelUsed === config.embeddingModelId && 
+        entry.actualDimension === config.targetEmbeddingDimensionality) {
+      return entry.embedding;
+    }
+    return undefined;
+  }
+
+  set(textToEmbed: string, idForCacheKey: string | number, fieldName: string, embedding: number[], actualDimension: number): void {
+    const cacheKey = this.generateCacheKey(textToEmbed, idForCacheKey, fieldName);
+    this.cache[cacheKey] = {
+      embedding,
+      generatedAt: new Date().toISOString(),
+      modelUsed: config.embeddingModelId,
+      textSample: textToEmbed.substring(0, 100),
+      actualDimension: actualDimension
+    };
+    this.saveCache();
+  }
+
+  private generateCacheKey(text: string, id: string | number, fieldName: string): string {
+    return `${id}_${fieldName}_${config.embeddingModelId}_dim${config.targetEmbeddingDimensionality}_len${text.length}_${text.substring(0,20)}_${text.slice(-20)}`;
+  }
+}
+
+class ProgressTracker {
+  private progressData: ProcessingProgress = {};
+  private progressFilePath: string;
+
+  constructor(filePath: string) {
+    this.progressFilePath = filePath;
     this.loadProgress();
   }
 
-  private getDefaultTableProgress(textSourceFields: Array<keyof DbRecord>, embeddingColumnName: string): TableProgress {
+  private getDefaultTableProgress(tableConfig: ScriptConfig['tablesToProcess'][0]): TableProgress {
     return {
       lastSuccessfullyProcessedOffset: 0,
-      processedRecordIds: [],
-      failedRecordIds: [],
+      processedRecordIdsThisRun: [],
+      failedRecordIdsThisRun: [],
+      totalSuccessfullyEmbeddedEver: 0,
       lastRanAt: new Date().toISOString(),
-      configUsedSnapshot: { // Snapshot for the specific table config
+      configUsedSnapshot: {
         embeddingModelId: config.embeddingModelId,
         targetEmbeddingDimensionality: config.targetEmbeddingDimensionality,
-        textSourceFields: textSourceFields,
-        embeddingColumnName: embeddingColumnName
+        textSourceFields: tableConfig.textSourceFields,
+        embeddingColumnName: tableConfig.embeddingColumnName,
       }
     };
   }
 
   private loadProgress(): void {
     try {
-      if (fs.existsSync(this.progressPath)) {
-        const data = fs.readFileSync(this.progressPath, 'utf-8');
-        this.progress = JSON.parse(data);
-        console.log(`Loaded progress from ${this.progressPath}`);
+      if (fs.existsSync(this.progressFilePath)) {
+        const data = fs.readFileSync(this.progressFilePath, 'utf-8');
+        this.progressData = JSON.parse(data);
+        console.log(`Loaded progress from ${this.progressFilePath}.`);
+        // Validate loaded progress against current table configs
+        config.tablesToProcess.forEach(tc => {
+            if (this.progressData[tc.tableName]) {
+                const currentSnapshot = {
+                    embeddingModelId: config.embeddingModelId,
+                    targetEmbeddingDimensionality: config.targetEmbeddingDimensionality,
+                    textSourceFields: tc.textSourceFields,
+                    embeddingColumnName: tc.embeddingColumnName,
+                };
+                if (JSON.stringify(this.progressData[tc.tableName].configUsedSnapshot) !== JSON.stringify(currentSnapshot)) {
+                    console.warn(`Config mismatch for table '${tc.tableName}' in progress file. Consider resetting.`);
+                }
+            }
+        });
+
       } else {
-        console.log("No existing progress file found. Starting fresh for each table.");
+        console.log("No progress file found. Starting fresh.");
       }
     } catch (error: any) {
-      console.error('Error loading progress file, will start fresh if tables are new:', error.message);
-      this.progress = {};
+      console.error("Error loading progress file:", error.message);
+      this.progressData = {};
     }
   }
 
   private saveProgress(): void {
     try {
-      fs.writeFileSync(this.progressPath, JSON.stringify(this.progress, null, 2));
+      fs.writeFileSync(this.progressFilePath, JSON.stringify(this.progressData, null, 2));
     } catch (error: any) {
-      console.error('Error saving progress:', error.message);
+      console.error("Error saving progress:", error.message);
     }
-  }
-  
-  getTableProgress(tableName: string, textSourceFields: Array<keyof DbRecord>, embeddingColumnName: string): TableProgress {
-    if (!this.progress[tableName]) {
-      console.log(`Initializing new progress for table: ${tableName}`);
-      this.progress[tableName] = this.getDefaultTableProgress(textSourceFields, embeddingColumnName);
-    }
-    // Check for config mismatch
-    const currentConfigSnapshot = {
-        embeddingModelId: config.embeddingModelId,
-        targetEmbeddingDimensionality: config.targetEmbeddingDimensionality,
-        textSourceFields: textSourceFields,
-        embeddingColumnName: embeddingColumnName
-    };
-    if (JSON.stringify(this.progress[tableName].configUsedSnapshot) !== JSON.stringify(currentConfigSnapshot)) {
-        console.warn(`WARNING: Configuration mismatch for table '${tableName}' between current script and saved progress.`);
-        console.warn("Saved progress config:", this.progress[tableName].configUsedSnapshot);
-        console.warn("Current script config for table:", currentConfigSnapshot);
-        console.warn(`Consider resetting progress for table '${tableName}' using --reset-progress --table=${tableName} if parameters changed.`);
-    }
-    return this.progress[tableName];
   }
 
-  markProcessed(tableName: string, recordId: string | number, currentOffset: number): void {
-    const tableProgress = this.getTableProgress(tableName, [], ''); // Pass dummy values, already loaded
-    if (!tableProgress.processedRecordIds.includes(recordId)) {
-      tableProgress.processedRecordIds.push(recordId);
+  getTableProgress(tableConfig: ScriptConfig['tablesToProcess'][0]): TableProgress {
+    if (!this.progressData[tableConfig.tableName]) {
+      this.progressData[tableConfig.tableName] = this.getDefaultTableProgress(tableConfig);
     }
-    tableProgress.failedRecordIds = tableProgress.failedIds.filter(item => item.id !== recordId);
-    tableProgress.lastSuccessfullyProcessedOffset = currentOffset;
-    tableProgress.lastRanAt = new Date().toISOString();
+    return this.progressData[tableConfig.tableName];
+  }
+
+  markProcessed(tableName: string, recordId: string | number, newOffset: number): void {
+    const tableP = this.progressData[tableName];
+    if (!tableP.processedRecordIdsThisRun.includes(recordId)) {
+      tableP.processedRecordIdsThisRun.push(recordId);
+      tableP.totalSuccessfullyEmbeddedEver++;
+    }
+    tableP.failedRecordIdsThisRun = tableP.failedRecordIdsThisRun.filter(item => item.id !== recordId);
+    tableP.lastSuccessfullyProcessedOffset = newOffset;
+    tableP.lastRanAt = new Date().toISOString();
     this.saveProgress();
   }
 
-  markFailed(tableName: string, recordId: string | number, errorMsg: string, attemptCount: number): void {
-    const tableProgress = this.getTableProgress(tableName, [], '');
-    const existingFailure = tableProgress.failedIds.find(item => item.id === recordId);
+  markFailed(tableName: string, recordId: string | number, errorMsg: string, attempts: number): void {
+    const tableP = this.progressData[tableName];
+    const existingFailure = tableP.failedRecordIdsThisRun.find(item => item.id === recordId);
     if (existingFailure) {
-        existingFailure.error = errorMsg;
-        existingFailure.attempts = attemptCount;
+      existingFailure.error = errorMsg;
+      existingFailure.attempts = attempts;
     } else {
-        tableProgress.failedIds.push({ id: recordId, error: errorMsg, attempts: attemptCount });
+      tableP.failedRecordIdsThisRun.push({ id: recordId, error: errorMsg, attempts });
     }
-    tableProgress.lastRanAt = new Date().toISOString();
+    tableP.lastRanAt = new Date().toISOString();
     this.saveProgress();
-  }
-
-  isProcessed(tableName: string, recordId: string | number): boolean {
-    return this.getTableProgress(tableName, [], '').processedRecordIds.includes(recordId);
   }
   
-  isPreviouslyFailed(tableName: string, recordId: string | number): boolean {
-      return this.getTableProgress(tableName, [], '').failedRecordIds.some(item => item.id === recordId);
-  }
-
-  getStartOffset(tableName: string, textSourceFields: Array<keyof DbRecord>, embeddingColumnName: string): number {
-    return this.getTableProgress(tableName, textSourceFields, embeddingColumnName).lastSuccessfullyProcessedOffset;
-  }
-
   reset(tableName?: string): void {
-    if (tableName && this.progress[tableName]) {
-      console.log(`Resetting progress for table: ${tableName}`);
-      // Re-initialize with current config for that table
-      const tableConfig = config.tablesToProcess.find(t => t.tableName === tableName);
-      if(tableConfig){
-          this.progress[tableName] = this.getDefaultTableProgress(tableConfig.textSourceFields, tableConfig.embeddingColumn);
+    if (tableName) {
+      const tableCfg = config.tablesToProcess.find(tc => tc.tableName === tableName);
+      if (tableCfg && this.progressData[tableName]) {
+        console.log(`Resetting progress for table: ${tableName}`);
+        this.progressData[tableName] = this.getDefaultTableProgress(tableCfg);
       } else {
-          delete this.progress[tableName]; // Should not happen if called correctly
+        console.log(`No progress or config found for table ${tableName} to reset.`);
       }
-    } else if (!tableName) {
-      console.log('Resetting all progress in progress file...');
-      this.progress = {};
     } else {
-        console.log(`No progress found for table ${tableName} to reset, or table not configured.`);
+      console.log('Resetting all progress...');
+      this.progressData = {};
+      config.tablesToProcess.forEach(tc => {
+          this.progressData[tc.tableName] = this.getDefaultTableProgress(tc);
+      });
     }
     this.saveProgress();
-  }
-
-  resetFailed(tableName: string): void {
-    if (this.progress[tableName]) {
-        console.log(`Clearing failed IDs for table: ${tableName}...`);
-        this.progress[tableName].failedIds = [];
-        this.saveProgress();
-        console.log(`Failed IDs cleared for ${tableName}. They will be re-attempted on the next run if not already processed.`);
-    } else {
-        console.log(`No progress found for table ${tableName} to reset failed IDs.`);
-    }
   }
 }
 
@@ -219,48 +295,49 @@ class ProgressTracker {
 async function generateEmbeddingWithRetries(
     text: string,
     recordIdForLog: string | number,
-    fieldNameForLog: string // e.g., "Combined Text"
+    contextDescription: string // e.g., "Combined text for mental_models"
 ): Promise<number[] | null> {
     if (!text || text.trim() === "") {
-        console.warn(`Skipping embedding for ${fieldNameForLog} of record ID ${recordIdForLog} as text is empty.`);
+        console.warn(`Skipping embedding for ${contextDescription} of record ID ${recordIdForLog} as text is empty.`);
         return null;
     }
 
-    // Caching is omitted in this version for simplicity, but can be re-added if processing very large datasets or for cost optimization.
+    const cachedEmbedding = embeddingCache.get(text, recordIdForLog, contextDescription);
+    if (cachedEmbedding) {
+        console.log(`Using cached embedding for ${contextDescription} of ID ${recordIdForLog}`);
+        return cachedEmbedding;
+    }
 
     let retries = 0;
     while (retries <= config.maxRetries) {
         try {
-            console.log(`Attempt ${retries + 1}/${config.maxRetries + 1}: Generating embedding for ${fieldNameForLog} of record ID ${recordIdForLog} (Text len: ${text.length}, starts: "${text.substring(0, 70)}...")`);
+            console.log(`Attempt ${retries + 1}/${config.maxRetries + 1}: Generating embedding for ${contextDescription} of ID ${recordIdForLog} (Text len: ${text.length}, starts: "${text.substring(0, 70)}...")`);
             
             const result: EmbeddingResult = await embeddingApi.embedContent({
                 content: { parts: [{ text }] },
                 taskType: TaskType.RETRIEVAL_DOCUMENT,
-                outputDimensionality: config.targetEmbeddingDimensionality, // Requesting 1536
+                outputDimensionality: config.targetEmbeddingDimensionality,
             });
 
             const embeddingValues = result.embedding?.values;
 
             if (embeddingValues) {
                 if (embeddingValues.length !== config.targetEmbeddingDimensionality) {
-                    const errMsg = `CRITICAL DIMENSION MISMATCH for record ID ${recordIdForLog}: Model ${config.embeddingModelId} returned ${embeddingValues.length} dimensions, but script expected ${config.targetEmbeddingDimensionality}.`;
+                    const errMsg = `CRITICAL DIMENSION MISMATCH for ID ${recordIdForLog}: Model ${config.embeddingModelId} returned ${embeddingValues.length} dimensions, but script expected ${config.targetEmbeddingDimensionality}.`;
                     console.error(errMsg);
-                    // This error will be caught by the calling function and the item marked as failed.
-                    throw new Error(errMsg); 
+                    throw new Error(errMsg);
                 }
-                console.log(`Successfully generated embedding for ${recordIdForLog}. Dimension: ${embeddingValues.length}.`);
+                console.log(`Successfully generated embedding for ID ${recordIdForLog}. Dimension: ${embeddingValues.length}.`);
+                embeddingCache.set(text, recordIdForLog, contextDescription, embeddingValues, embeddingValues.length);
                 return embeddingValues;
             } else {
-                console.warn(`Warning: Embedding API returned no values for record ID ${recordIdForLog}. Response: ${JSON.stringify(result).substring(0,200)}`);
-                if (retries >= config.maxRetries) {
-                    console.error(`Failed to get embedding values for ${recordIdForLog} after max retries (API returned no embedding values).`);
-                    return null; 
-                }
+                console.warn(`Warning: API returned no embedding values for ID ${recordIdForLog}. Response snippet: ${JSON.stringify(result).substring(0,200)}`);
+                if (retries >= config.maxRetries) throw new Error("API returned no embedding values after max retries.");
             }
         } catch (error: any) {
             const errorMessage = error.message || 'Unknown API error';
-            const status = error.status || error.cause?.error?.status;
-            console.error(`Error generating embedding for record ID ${recordIdForLog} (Attempt ${retries + 1}): ${errorMessage}`);
+            const status = error.status || error.cause?.error?.status; // For Google API specific errors
+            console.error(`Error generating embedding for ID ${recordIdForLog} (Attempt ${retries + 1}): ${errorMessage}`);
             
             const isRateLimitError = status === 429 || String(errorMessage).includes('RESOURCE_EXHAUSTED') || String(errorMessage).includes('rate limit') || String(errorMessage).includes('try again later');
 
@@ -269,194 +346,260 @@ async function generateEmbeddingWithRetries(
                 console.log(`Rate limit or temporary server issue. Retrying in ${currentDelay / 1000}s...`);
                 await delay(currentDelay);
                 retries++;
-                continue; 
+                continue;
             } else {
-                // Non-retryable error or max retries reached for a retryable one
-                console.error(`Failed to generate embedding for ${recordIdForLog} after ${retries + 1} attempts. Last error: ${errorMessage}`);
-                return null; 
+                console.error(`Failed to generate embedding for ID ${recordIdForLog} after ${retries + 1} attempts. Last error: ${errorMessage}`);
+                throw error; // Re-throw to be caught by processSingleRecord
             }
         }
-        // If we fall through (e.g. API returned no values but didn't error, and it's not the last retry)
-        retries++; 
-        if (retries <= config.maxRetries) {
-            const currentDelay = config.baseRetryDelayMs * Math.pow(2, retries - 1);
-            console.log(`Retrying due to missing embedding values in ${currentDelay / 1000}s...`);
-            await delay(currentDelay);
-        }
+         // Should not be reached if errors are thrown or success path taken
+        retries++;
+        if (retries <= config.maxRetries) await delay(config.baseRetryDelayMs * Math.pow(2, retries -1 ));
     }
-    console.error(`Ultimately failed to generate embedding for record ID ${recordIdForLog} after all retries.`);
-    return null;
+    throw new Error(`Failed to generate embedding for ID ${recordIdForLog} after all retries.`);
 }
 
-async function processTableBackfill(
-    tableName: 'mental_models' | 'cognitive_biases',
-    idColumn: string,
-    textSourceFields: Array<keyof DbRecord>,
-    embeddingColumn: string
-) {
-    console.log(`\n--- Starting Backfill for Table: ${tableName} ---`);
-    let currentOffset = progressTracker.getStartOffset(tableName, textSourceFields, embeddingColumn);
-    let itemsProcessedInThisRun = 0;
-    let itemsFailedInThisRun = 0;
+
+async function processSingleRecord(
+    record: DbRecord,
+    tableConfigDetail: ScriptConfig['tablesToProcess'][0]
+): Promise<boolean> {
+    const { tableName, idColumn, textSourceFields, embeddingColumnName } = tableConfigDetail;
+    const recordId = record[idColumn];
+
+    if (progressTracker.isProcessed(tableName, recordId) || progressTracker.isPreviouslyFailed(tableName, recordId)) {
+        // This check is somewhat redundant if fetching only NULL embeddings, but good for safety.
+        console.log(`Skipping record ID ${recordId} from ${tableName} as it's already processed or was marked failed.`);
+        return true; // Count as "handled" for batching purposes, but not newly processed
+    }
+    
+    let textToEmbed = "";
+    for (const field of textSourceFields) {
+        if (record[field] && typeof record[field] === 'string') {
+            textToEmbed += `${field.charAt(0).toUpperCase() + field.slice(1)}: ${record[field]}\n`;
+        }
+    }
+    textToEmbed = textToEmbed.trim();
+
+    if (!textToEmbed) {
+        console.warn(`No text content to embed for record ID ${recordId} in ${tableName}. Marking as failed.`);
+        progressTracker.markFailed(tableName, recordId, "No text content to embed", 0);
+        return false;
+    }
+
+    try {
+        const embeddingVector = await generateEmbeddingWithRetries(textToEmbed, recordId, `Combined text for ${tableName}`);
+        if (embeddingVector) {
+            const updatePayload: { [key: string]: any } = {};
+            updatePayload[embeddingColumnName] = embeddingVector;
+
+            const { error: updateError } = await supabase
+                .from(tableName)
+                .update(updatePayload)
+                .eq(idColumn, recordId);
+
+            if (updateError) {
+                console.error(`ERROR updating Supabase for ID ${recordId} in ${tableName}: ${updateError.message}`);
+                progressTracker.markFailed(tableName, recordId, `Supabase update error: ${updateError.message}`, config.maxRetries + 1);
+                return false;
+            } else {
+                console.log(`Successfully embedded and stored for ID ${recordId} (${record.name || ''}) in ${tableName}.`);
+                return true; // Success for this record
+            }
+        } else {
+            progressTracker.markFailed(tableName, recordId, "Embedding generation returned null after retries", config.maxRetries + 1);
+            return false;
+        }
+    } catch (error: any) {
+        console.error(`Unhandled error during processing of record ID ${recordId} from ${tableName}: ${error.message}`);
+        progressTracker.markFailed(tableName, recordId, `Outer error: ${error.message}`, config.maxRetries + 1);
+        return false;
+    }
+}
+
+
+async function processTable(tableConfigDetail: ScriptConfig['tablesToProcess'][0]) {
+    const { tableName, idColumn, textSourceFields, embeddingColumnName } = tableConfigDetail;
+    console.log(`\n--- Starting Batch Processing for Table: ${tableName} ---`);
+    
+    let processedInThisRunForTable = 0;
+    let failedInThisRunForTable = 0;
+    let currentDbOffset = 0; // We will fetch records where embedding is null, so offset is simpler here.
 
     while (true) {
-        console.log(`\nFetching records from ${tableName}. Current offset: ${currentOffset}, Batch size: ${config.batchSize}`);
-        
-        const selectString = `${idColumn}, ${textSourceFields.join(', ')}`; // Select ID and source fields
-        const { data: records, error: fetchError } = await supabase
+        const tableProgress = progressTracker.getTableProgress(tableConfigDetail); // Get fresh progress state
+        console.log(`\nFetching batch from ${tableName} where '${embeddingColumnName}' is NULL. Offset: ${currentDbOffset}, BatchSize: ${config.dbQueryBatchSize}`);
+        console.log(progressTracker.getProgressStats()); // Show overall progress
+
+        const selectFields = [idColumn, ...textSourceFields.filter(f => f !== idColumn)].join(', ');
+
+        const { data: recordsToProcess, error: fetchError } = await supabase
             .from(tableName)
-            .select(selectString)
-            .is(embeddingColumn, null) // Fetch only records where the embedding column IS NULL
-            .order(idColumn as string, { ascending: true }) // Order by ID to process consistently
-            .range(0, config.batchSize -1); // Fetch a batch of items that need embedding
+            .select(selectFields)
+            .is(embeddingColumnName, null) // Fetch only records needing embedding
+            .order(idColumn as string, { ascending: true }) // Consistent order
+            .range(currentDbOffset, currentDbOffset + config.dbQueryBatchSize - 1);
 
         if (fetchError) {
-            console.error(`ERROR fetching records from ${tableName} (targeting NULL embeddings):`, fetchError.message);
-            await delay(config.baseRetryDelayMs * 2); // Wait longer before retrying DB fetch
-            continue; // Retry fetching
+            console.error(`ERROR fetching records from ${tableName}: ${fetchError.message}. Retrying after delay...`);
+            await delay(config.baseRetryDelayMs * 2);
+            continue;
         }
 
-        if (!records || records.length === 0) {
-            console.log(`No more records in ${tableName} require embedding (or all remaining failed previously and were not reset).`);
+        if (!recordsToProcess || recordsToProcess.length === 0) {
+            console.log(`No more records in ${tableName} require embedding based on NULL '${embeddingColumnName}' column and current offset.`);
+            break; 
+        }
+        
+        console.log(`Workspaceed ${recordsToProcess.length} records to process for ${tableName} in this DB batch.`);
+        const recordsForConcurrentProcessing = recordsToProcess.filter(r => !progressTracker.isProcessed(tableName, r[idColumn]) && !progressTracker.isPreviouslyFailed(tableName, r[idColumn]));
+        
+        if (recordsForConcurrentProcessing.length === 0) {
+            console.log("All records in this fetched batch were already processed or previously failed. Advancing DB offset.");
+            currentDbOffset += recordsToProcess.length; // Advance offset by the number of records fetched
+            if (recordsToProcess.length < config.dbQueryBatchSize) break; // Reached the end
+            continue;
+        }
+        
+        console.log(`Processing ${recordsForConcurrentProcessing.length} new/unfailed records concurrently (max: ${config.maxConcurrentEmbeddingsPerDbBatch}).`);
+
+        for (let i = 0; i < recordsForConcurrentProcessing.length; i += config.maxConcurrentEmbeddingsPerDbBatch) {
+            const concurrentBatch = recordsForConcurrentProcessing.slice(i, i + config.maxConcurrentEmbeddingsPerDbBatch);
+            
+            const processingPromises = concurrentBatch.map(async (recordUntyped) => {
+                const record = recordUntyped as DbRecord;
+                const recordId = record[idColumn];
+                try {
+                    const success = await processSingleRecord(record, tableConfigDetail);
+                    if (success) {
+                        progressTracker.markProcessed(tableName, recordId, currentDbOffset + recordsToProcess.indexOf(recordUntyped) + 1); // Use the overall offset
+                        processedInThisRunForTable++;
+                    } else {
+                        // Failure is marked within processSingleRecord or generateEmbeddingWithRetries
+                        failedInThisRunForTable++;
+                    }
+                } catch(e: any) {
+                    console.error(`Unexpected error processing record ${recordId} in batch map: ${e.message}`);
+                    progressTracker.markFailed(tableName, recordId, `Batch map error: ${e.message}`, 0);
+                    failedInThisRunForTable++;
+                }
+            });
+            await Promise.all(processingPromises);
+            console.log(`Sub-batch of ${concurrentBatch.length} processed. Current table stats - Processed: ${processedInThisRunForTable}, Failed: ${failedInThisRunForTable}`);
+        }
+        
+        currentDbOffset += recordsToProcess.length; // Advance offset based on initial fetch size
+
+        if (recordsToProcess.length < config.dbQueryBatchSize) {
+            console.log(`Likely reached end of records for ${tableName} needing embedding.`);
             break;
         }
-
-        console.log(`Workspaceed ${records.length} records for this batch from ${tableName} that need embedding.`);
-
-        const batchPromises = records.map(async (recordUntyped) => {
-            const record = recordUntyped as DbRecord; // Cast to known type
-            const recordId = record[idColumn];
-
-            if (progressTracker.isProcessed(tableName, recordId) || progressTracker.isPreviouslyFailed(tableName, recordId)) {
-                // This check is mostly redundant if .is(embeddingColumn, null) works perfectly,
-                // but good as a safeguard if progress file is more up-to-date or for items that failed before getting embedding set to null.
-                console.log(`Skipping ID ${recordId} (${record.name || 'N/A'}) as it's already processed or marked failed (and not reset).`);
-                return;
-            }
-
-            let textToEmbed = "";
-            for (const field of textSourceFields) {
-                if (record[field] && typeof record[field] === 'string') {
-                    // Simple concatenation; can be made more sophisticated (e.g., "Title: X Summary: Y")
-                    textToEmbed += `${record[field]}\n`; 
-                }
-            }
-            textToEmbed = textToEmbed.trim();
-
-            if (!textToEmbed) {
-                console.warn(`No text content to embed for record ID ${recordId} (${record.name}). Marking as failed.`);
-                progressTracker.markFailed(tableName, recordId, "No text content to embed", 0);
-                itemsFailedInThisRun++;
-                return;
-            }
-            
-            const embeddingVector = await generateEmbeddingWithRetries(textToEmbed, recordId, "Combined Source Text");
-
-            if (embeddingVector) {
-                const updatePayload: { [key: string]: any } = {};
-                updatePayload[embeddingColumn] = embeddingVector;
-
-                const { error: updateError } = await supabase
-                    .from(tableName)
-                    .update(updatePayload)
-                    .eq(idColumn, recordId);
-
-                if (updateError) {
-                    console.error(`ERROR updating Supabase for ID ${recordId} in ${tableName}: ${updateError.message}`);
-                    progressTracker.markFailed(tableName, recordId, updateError.message, config.maxRetries + 1);
-                    itemsFailedInThisRun++;
-                } else {
-                    console.log(`Successfully generated and stored embedding for ID ${recordId} (${record.name}) in ${tableName}.`);
-                    progressTracker.markProcessed(tableName, recordId, currentOffset + records.indexOf(record) + 1); // Update offset based on actual position
-                    itemsProcessedInThisRun++;
-                }
-            } else {
-                console.warn(`Failed to generate embedding for ID ${recordId} (${record.name}) after retries.`);
-                progressTracker.markFailed(tableName, recordId, "Embedding generation failed after retries", config.maxRetries + 1);
-                itemsFailedInThisRun++;
-            }
-            // Delay between processing each record within a batch
-            await delay(config.delayBetweenRequestsMs); 
-        });
-        
-        await Promise.all(batchPromises);
-        currentOffset += records.length; // Advance offset by the number of records fetched and attempted
-
-        console.log(`Batch for ${tableName} complete. Processed in this run so far: ${itemsProcessedInThisRun}, Failed in this run so far: ${itemsFailedInThisRun}`);
-        console.log(progressTracker.getProgressStats());
-
-        // No need for outer delay if batching from Supabase correctly handles new items
+        // No inter-DB-batch delay needed if Supabase handles pagination well
     }
-    console.log(`--- Finished Backfill for Table: ${tableName} ---`);
+    console.log(`--- Finished processing for Table: ${tableName}. Processed in this run: ${processedInThisRunForTable}, Failed in this run: ${failedInThisRunForTable} ---`);
 }
 
 
 async function main() {
-    try {
-        validateConfig(config);
-        initializeClients();
-        
-        progressTracker = new ProgressTracker(config.progressFilePath);
+  try {
+    validateConfig(config);
+    initializeClients();
+    
+    embeddingCache = new PersistentCache(config.cachePath);
+    progressTracker = new ProgressTracker(config.progressFilePath);
 
-        console.log(`\n=== Database Embedding Backfill Script (v1.1-node-db) ===`);
-        console.log(`Embedding Model: ${config.embeddingModelId}`);
-        console.log(`Target Dimension: ${config.targetEmbeddingDimensionality}`);
-        console.log(`Progress file: ${config.progressFilePath}`);
-        console.log("-----------------------------------------------------\n");
+    console.log(`\n=== Database Embedding Backfill Script (v1.2-node-db-from-scratch) ===`);
+    console.log(`Embedding Model: ${config.embeddingModelId}`);
+    console.log(`Target Dimension: ${config.targetEmbeddingDimensionality}`);
+    console.log(`Progress file: ${config.progressFilePath}`);
+    console.log(`Cache file: ${config.cachePath}`);
+    console.log("-----------------------------------------------------\n");
 
-        for (const tableConfig of config.tablesToProcess) {
-            await processTableBackfill(
-                tableConfig.tableName, 
-                tableConfig.idColumn, 
-                tableConfig.textSourceFields, 
-                tableConfig.embeddingColumn
-            );
-        }
-        
-        console.log("\n=== Full Backfill Script Finished ===");
-        console.log(progressTracker.getProgressStats()); // Show final stats if needed (will be per-table)
-
-    } catch (error: any) {
-        console.error('\n--- CRITICAL SCRIPT ERROR ---');
-        console.error('Error:', error.message);
-        if (error.stack) console.error("Stack:", error.stack);
-        process.exit(1);
+    for (const tableConfigDetail of config.tablesToProcess) {
+      await processTable(tableConfigDetail);
     }
+    
+    console.log("\n=== Full Backfill Script Finished ===");
+    // Log final stats for all tables from progress tracker
+    for (const tableConfigDetail of config.tablesToProcess) {
+        const tableP = progressTracker.getTableProgress(tableConfigDetail);
+        console.log(`\nStats for ${tableConfigDetail.tableName}:`);
+        console.log(`  Total successfully embedded ever: ${tableP.totalSuccessfullyEmbeddedEver}`);
+        console.log(`  Processed in last run (newly embedded or confirmed): ${tableP.processedRecordIdsThisRun.length}`);
+        console.log(`  Failed in last run (newly failed or re-failed): ${tableP.failedRecordIdsThisRun.length}`);
+        if (tableP.failedRecordIdsThisRun.length > 0) {
+            console.warn(`  Failed IDs for ${tableConfigDetail.tableName}: ${tableP.failedRecordIdsThisRun.map(f=>f.id).join(', ')}`);
+        }
+    }
+
+  } catch (error: any) {
+    console.error('\n--- CRITICAL SCRIPT ERROR ---');
+    console.error('Error:', error.message);
+    if (error.stack) console.error("Stack:", error.stack);
+    process.exit(1);
+  }
 }
 
 // --- Command Line Interface Options ---
-const args = process.argv.slice(2);
-const resetProgressArg = args.find(arg => arg.startsWith('--reset-progress'));
-const resetFailedArg = args.find(arg => arg.startsWith('--reset-failed'));
-const tableArg = args.find(arg => arg.startsWith('--table='))?.split('=')[1];
+// (Ensure progressTracker is initialized before CLI ops if they modify progress)
+function handleCliArgs() {
+    const args = process.argv.slice(2);
+    let shouldExitAfterArgs = false;
 
-if (resetProgressArg) {
-    validateConfig(config); // Load config to get progressPath
-    progressTracker = new ProgressTracker(config.progressFilePath); // Initialize for reset
-    const targetTable = tableArg || args.find(arg => !arg.startsWith('--')) ; // Allow --table=X or just X after --reset-progress
+    if (args.includes('--reset-progress')) {
+        validateConfig(config); // Load config to get progressPath
+        progressTracker = new ProgressTracker(config.progressFilePath); // Initialize for reset
+        const targetTable = args.find(arg => arg.startsWith('--table='))?.split('=')[1];
+        progressTracker.reset(targetTable);
+        shouldExitAfterArgs = true;
+    }
     
-    if (targetTable && (targetTable === 'mental_models' || targetTable === 'cognitive_biases')) {
-        progressTracker.reset(targetTable as 'mental_models' | 'cognitive_biases');
-    } else if (targetTable) {
-        console.warn(`Invalid table name "${targetTable}" for reset. Use 'mental_models' or 'cognitive_biases', or no table name to reset all.`);
-    } else {
-        progressTracker.reset(); // Reset all if no table specified
+    if (args.includes('--reset-failed')) {
+        validateConfig(config);
+        progressTracker = new ProgressTracker(config.progressFilePath);
+        const targetTable = args.find(arg => arg.startsWith('--table='))?.split('=')[1];
+        if (targetTable && (targetTable === 'mental_models' || targetTable === 'cognitive_biases')) {
+            progressTracker.resetFailed(targetTable as 'mental_models' | 'cognitive_biases');
+        } else if (targetTable) {
+             console.error("Invalid table for --reset-failed. Use 'mental_models' or 'cognitive_biases'.");
+        } else {
+            console.error("Please specify a table with --reset-failed using --table=<table_name>.");
+        }
+        shouldExitAfterArgs = true;
     }
-    process.exit(0);
+
+    if (args.includes('--reset-cache')) {
+        validateConfig(config); 
+        if (fs.existsSync(config.cachePath)) {
+            fs.unlinkSync(config.cachePath);
+            console.log('Embedding cache file deleted.');
+        } else {
+            console.log('No embedding cache file found to delete.');
+        }
+        shouldExitAfterArgs = true;
+    }
+
+    if (shouldExitAfterArgs) {
+        process.exit(0);
+    }
 }
 
-if (resetFailedArg) {
-    validateConfig(config);
-    progressTracker = new ProgressTracker(config.progressFilePath);
-    const targetTable = tableArg || args.find(arg => !arg.startsWith('--')) ;
-    if (targetTable && (targetTable === 'mental_models' || targetTable === 'cognitive_biases')) {
-        progressTracker.resetFailed(targetTable as 'mental_models' | 'cognitive_biases');
-    } else {
-         console.error("To reset failed progress, please specify a valid table using --table=<table_name> (e.g., mental_models).");
-         process.exit(1);
-    }
-    process.exit(0);
+// --- Initialize and Run ---
+function initializeAndRun() {
+    validateConfig(config); // Validate config first
+    initializeClients();   // Then initialize clients that depend on config
+    
+    // Initialize these singletons after config is validated and potentially used by CLI args
+    embeddingCache = new PersistentCache(config.cachePath);
+    progressTracker = new ProgressTracker(config.progressFilePath); 
+    
+    main().catch(error => { // main() will re-validate and re-init, which is slightly redundant but okay
+      console.error("Unhandled error in main execution:", error);
+      process.exit(1);
+    });
 }
 
-// --- Run the Main Script ---
-main();
+// Handle CLI arguments first, they might exit
+handleCliArgs(); 
+// If CLI args didn't cause an exit, run the main script logic
+initializeAndRun();
