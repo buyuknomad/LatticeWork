@@ -14,6 +14,7 @@ import SignupSuccessPage from './pages/SignupSuccessPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
 
 // Create a wrapper component that can use useLocation
@@ -21,7 +22,7 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   
   // Define routes where footer should be hidden
-  const hideFooterRoutes = ['/dashboard', '/settings', '/login', '/signup', '/signup-success'];
+  const hideFooterRoutes = ['/dashboard', '/settings', '/history', '/login', '/signup', '/signup-success'];
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
 
   return (
@@ -47,6 +48,7 @@ const AppContent: React.FC = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/history" element={<History />} />
             {/* Add other protected routes here */}
           </Route>
         </Routes>
