@@ -764,7 +764,8 @@ const Dashboard: React.FC = () => {
       relationships={results.relationshipsSummary}
     />
   </motion.div>
-)}
+)};
+
 // Keep the same DashboardBackground component
 // Update only the DashboardBackground component in Dashboard.tsx
 const DashboardBackground: React.FC = () => {
