@@ -1,0 +1,2794 @@
+{
+  "timestamp": "2025-05-22T13:41:21.581Z",
+  "config": {
+    "supabaseUrl": "https://ywhauglpnewtwztcpjxp.supabase.co",
+    "supabaseServiceKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aGF1Z2xwbmV3dHd6dGNwanhwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Nzc3NTIyOCwiZXhwIjoyMDYzMzUxMjI4fQ.WfddB6Vhd0j2O3QI56uAmHBx11uwP-c_SsQd3d-kRZA",
+    "expectedEmbeddingDimension": 1536,
+    "tablesToVerify": [
+      {
+        "tableName": "mental_models",
+        "idColumn": "id",
+        "embeddingColumn": "embedding",
+        "textFields": [
+          "name",
+          "category",
+          "summary"
+        ]
+      },
+      {
+        "tableName": "cognitive_biases",
+        "idColumn": "id",
+        "embeddingColumn": "embedding",
+        "textFields": [
+          "name",
+          "category",
+          "summary"
+        ]
+      }
+    ]
+  },
+  "tableStats": [
+    {
+      "tableName": "mental_models",
+      "totalRecords": 298,
+      "recordsWithEmbeddings": 0,
+      "recordsWithoutEmbeddings": 298,
+      "invalidEmbeddings": 298,
+      "correctDimensionEmbeddings": 0,
+      "wrongDimensionEmbeddings": 0,
+      "emptyTextRecords": 0,
+      "averageEmbeddingLength": 0,
+      "sampleEmbeddingValues": [],
+      "recordsWithoutEmbeddingsList": [
+        {
+          "id": "ST097",
+          "name": "Randomized Controlled Experiment",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST139",
+          "name": "Authority (Influence Model)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM045",
+          "name": "Multiplying by Zero",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM019",
+          "name": "Alloying",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM008",
+          "name": "Occam's Razor",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM012",
+          "name": "Thermodynamics",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM013",
+          "name": "Inertia",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM018",
+          "name": "Catalysts",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM005",
+          "name": "Second-Order Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM003",
+          "name": "First Principles Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM015",
+          "name": "Velocity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM017",
+          "name": "Activation Energy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM014",
+          "name": "Friction and Viscosity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM011",
+          "name": "Reciprocity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM016",
+          "name": "Leverage",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM007",
+          "name": "Inversion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM001",
+          "name": "The Map Is Not the Territory",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM020",
+          "name": "Evolution Part One: Natural Selection and Extinction",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM006",
+          "name": "Probabilistic Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM009",
+          "name": "Hanlon's Razor",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM010",
+          "name": "Relativity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM021",
+          "name": "Evolution Part Two: Adaptation Rate and the Red Queen Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM004",
+          "name": "Thought Experiment",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM002",
+          "name": "Circle of Competence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM036",
+          "name": "Algorithms",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM034",
+          "name": "Margin of Safety",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM041",
+          "name": "Compounding",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM042",
+          "name": "Sampling",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM035",
+          "name": "Churn",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM039",
+          "name": "Irreducibility",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM030",
+          "name": "Feedback Loops",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM040",
+          "name": "The Law of Diminishing Returns",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM023",
+          "name": "Niches",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM028",
+          "name": "Incentives",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM026",
+          "name": "Cooperation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM032",
+          "name": "Bottlenecks",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM038",
+          "name": "Emergence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM024",
+          "name": "Self-Preservation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM043",
+          "name": "Randomness",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM031",
+          "name": "Equilibrium",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM022",
+          "name": "Ecosystem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM037",
+          "name": "Critical Mass",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM029",
+          "name": "Tendency to Minimize Energy Output",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM027",
+          "name": "Hierarchical Organization",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM048",
+          "name": "Global and Local Maxima",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM050",
+          "name": "Supply and Demand",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM047",
+          "name": "Surface Area",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM049",
+          "name": "Scarcity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM061",
+          "name": "Audience",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM052",
+          "name": "Trade-offs",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM053",
+          "name": "Specialization",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM067",
+          "name": "Representation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM059",
+          "name": "Gresham's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM063",
+          "name": "Contrast",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM057",
+          "name": "Monopoly and Competition",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM064",
+          "name": "Framing",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM066",
+          "name": "Melody",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM062",
+          "name": "Genre",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM065",
+          "name": "Rhythm",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM056",
+          "name": "Debt",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM060",
+          "name": "Bubbles",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM055",
+          "name": "Efficiency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM058",
+          "name": "Creative Destruction",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM051",
+          "name": "Optimization",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM071",
+          "name": "Performance",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI007",
+          "name": "Chaos Dynamics",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM068",
+          "name": "Plot",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST002",
+          "name": "Antifragile",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI006",
+          "name": "Complex Adaptive Systems",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM070",
+          "name": "Setting",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST003",
+          "name": "De-risking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI003",
+          "name": "Causation vs. Correlation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI011",
+          "name": "Order of Magnitude",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI014",
+          "name": "Balance",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM069",
+          "name": "Character",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST001",
+          "name": "Unforced Error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI012",
+          "name": "Game Theory",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI009",
+          "name": "Network Effects",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI005",
+          "name": "Dunbar's Number",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI015",
+          "name": "Subtext",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI001",
+          "name": "Falsifiability",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI002",
+          "name": "Necessity and Sufficiency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI013",
+          "name": "Externalities",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST012",
+          "name": "Learned Helplessness",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST011",
+          "name": "Veil of Ignorance",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST010",
+          "name": "Most Respectful Interpretation (MRI)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST013",
+          "name": "Paradigm Shift",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST005",
+          "name": "Frame of Reference",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST014",
+          "name": "Thinking Gray",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST007",
+          "name": "Filter Bubble",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST008",
+          "name": "Echo Chambers",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST006",
+          "name": "Nudging",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST009",
+          "name": "Third Story",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST016",
+          "name": "Thinking, Fast and Slow",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST021",
+          "name": "Tyranny of Small Decisions",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST024",
+          "name": "Herd Immunity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST015",
+          "name": "Devil's Advocate",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST020",
+          "name": "Unintended Consequences",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST017",
+          "name": "Proximate Cause vs. Root Cause",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST023",
+          "name": "Public Goods",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST019",
+          "name": "5 Whys",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST022",
+          "name": "Free Rider Problem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST026",
+          "name": "Cap-and-Trade",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST033",
+          "name": "Goodhart's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST041",
+          "name": "Value-Based Care",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST027",
+          "name": "Moral Hazard",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST036",
+          "name": "Hydra Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST029",
+          "name": "Asymmetric Information",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST040",
+          "name": "Blowback",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST035",
+          "name": "Streisand Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST039",
+          "name": "Collateral Damage",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST038",
+          "name": "Chilling Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST034",
+          "name": "Cobra Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST043",
+          "name": "Short-termism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST025",
+          "name": "Coase Theorem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST032",
+          "name": "Government Failure (Political Failure)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST046",
+          "name": "Preserving Optionality",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST037",
+          "name": "Observer Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST030",
+          "name": "Adverse Selection",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST042",
+          "name": "Boiling Frog",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST045",
+          "name": "Path Dependence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST031",
+          "name": "Market Failure",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST049",
+          "name": "Reversible vs. Irreversible Decisions",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST062",
+          "name": "Brute Force Solution",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST055",
+          "name": "Power Law Distribution",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST054",
+          "name": "BATNA (Best Alternative To a Negotiated Agreement)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST047",
+          "name": "Precautionary Principle",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST048",
+          "name": "Analysis Paralysis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST051",
+          "name": "Parkinson's Law of Triviality (Bike-shedding)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST057",
+          "name": "Commitment (Productivity Tool)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST053",
+          "name": "Opportunity Cost",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST056",
+          "name": "Law of Diminishing Utility",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST060",
+          "name": "Hofstadter's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST061",
+          "name": "Design Pattern",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST058",
+          "name": "Default Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST059",
+          "name": "Parkinson's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST052",
+          "name": "Timeboxing",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST065",
+          "name": "Automation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST068",
+          "name": "Reframe the Problem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST066",
+          "name": "Parallel Processing",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST067",
+          "name": "Divide and Conquer",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST069",
+          "name": "Societal Evolution",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST076",
+          "name": "Flywheel",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST078",
+          "name": "Potential Energy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST075",
+          "name": "Momentum",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST081",
+          "name": "Two-Front War",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST087",
+          "name": "Polarity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST077",
+          "name": "Homeostasis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST074",
+          "name": "Peak (e.g., Peak Oil)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST070",
+          "name": "Scientific Method",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST071",
+          "name": "Strategy Tax",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST089",
+          "name": "Win-Win",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST085",
+          "name": "Eisenhower Decision Matrix",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST072",
+          "name": "Shirky Principle",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST082",
+          "name": "Multitasking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST090",
+          "name": "Anecdotal Evidence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST083",
+          "name": "Top Idea in Your Mind",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST079",
+          "name": "Center of Gravity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST086",
+          "name": "Sayre's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST088",
+          "name": "Zero-Sum",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST080",
+          "name": "Forcing Function",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST099",
+          "name": "False Negative (Type II Error)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST101",
+          "name": "Alternative Hypothesis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST091",
+          "name": "Tipping Point",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST098",
+          "name": "False Positive (Type I Error)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST096",
+          "name": "Luck Surface Area",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST102",
+          "name": "Statistical Significance (and p-value)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST107",
+          "name": "Pro-Con List",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST092",
+          "name": "Technology Adoption Life Cycle",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST109",
+          "name": "Cost-Benefit Analysis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST100",
+          "name": "Null Hypothesis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST106",
+          "name": "Meta-Analysis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST104",
+          "name": "Data Dredging (p-hacking)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST093",
+          "name": "S Curves",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST095",
+          "name": "Butterfly Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST110",
+          "name": "Sensitivity Analysis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST111",
+          "name": "Garbage In, Garbage Out (GIGO)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST105",
+          "name": "Systematic Review",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST103",
+          "name": "Replication Crisis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST112",
+          "name": "Decision Tree",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST114",
+          "name": "Utility Values",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST120",
+          "name": "Chatelier's Principle (Le Chatelier's Principle)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST123",
+          "name": "Knowns & Unknowns Framework",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST115",
+          "name": "Utilitarianism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST116",
+          "name": "Black Swan Events",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST121",
+          "name": "Hysteresis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST124",
+          "name": "Scenario Analysis (Scenario Planning)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST130",
+          "name": "Prediction Market",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST133",
+          "name": "Nash Equilibrium",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST119",
+          "name": "Simulation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST118",
+          "name": "Systems Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST129",
+          "name": "Crowdsourcing",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST127",
+          "name": "Groupthink",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST131",
+          "name": "Business Case",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST126",
+          "name": "Lateral Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST122",
+          "name": "Monte Carlo Simulation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST132",
+          "name": "Arms Race",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST128",
+          "name": "Divergent Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST154",
+          "name": "War of Attrition",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST141",
+          "name": "Ultimatum Game",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST146",
+          "name": "Carrot-and-Stick",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST147",
+          "name": "Containment",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST148",
+          "name": "Domino Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST142",
+          "name": "Distributive Justice vs. Procedural Justice",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST150",
+          "name": "Gateway Drug Theory",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST135",
+          "name": "Tit-for-Tat",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST136",
+          "name": "Commitment (Influence Model)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST151",
+          "name": "Loss Leader Strategy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST137",
+          "name": "Liking (Influence Model)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST152",
+          "name": "Appeasement",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST143",
+          "name": "Dark Patterns",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST138",
+          "name": "Social Proof",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST153",
+          "name": "Red Line (Line in the Sand)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST144",
+          "name": "Mutually Assured Destruction (MAD)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST149",
+          "name": "Broken Windows Theory",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST140",
+          "name": "Social Norms vs. Market Norms",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST158",
+          "name": "Endgame",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST161",
+          "name": "Joy's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST159",
+          "name": "Exit Strategy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST155",
+          "name": "Guerrilla Warfare",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST156",
+          "name": "Generals Always Fight the Last War",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST162",
+          "name": "10x Individual / 10x Team",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST157",
+          "name": "Punching Above Your Weight",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST164",
+          "name": "Specialists vs. Generalists",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST169",
+          "name": "Directly Responsible Individual (DRI)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST173",
+          "name": "Radical Candor",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST172",
+          "name": "Spacing Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST170",
+          "name": "Power Vacuum (Controlled Power Vacuum)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST166",
+          "name": "Foxes versus Hedgehogs",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST167",
+          "name": "Managing to the Person",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST165",
+          "name": "Commandos, Infantry, and Police (Organizational Roles)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST171",
+          "name": "Deliberate Practice",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST168",
+          "name": "Peter Principle",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST174",
+          "name": "Consequence-Conviction Matrix",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST177",
+          "name": "Maslow's Hierarchy of Needs",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST181",
+          "name": "Manager's Schedule versus Maker's Schedule",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST182",
+          "name": "Mythical Man-Month",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST192",
+          "name": "Product/Market Fit",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST189",
+          "name": "Why Now? (Strategic Timing)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST188",
+          "name": "Secret (Innovation Insight)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST186",
+          "name": "Market Power",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST194",
+          "name": "Customer Development",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST175",
+          "name": "Fixed Mindset vs. Growth Mindset",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST193",
+          "name": "Resonant Frequency (Metaphor for Fit)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST191",
+          "name": "First-Mover Advantage",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST185",
+          "name": "Sustainable Competitive Advantage",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST180",
+          "name": "Loyalists versus Mercenaries",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST183",
+          "name": "Boots on the Ground",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST178",
+          "name": "High-Context vs. Low-Context Communication",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST190",
+          "name": "Simultaneous Invention (Multiple Discovery)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST187",
+          "name": "Consensus-Contrarian Matrix",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM025",
+          "name": "Replication",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST196",
+          "name": "Pivot (Strategic Shift)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST212",
+          "name": "Cargo Cult",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST195",
+          "name": "OODA Loop",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST209",
+          "name": "Winner-Take-Most Markets",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST210",
+          "name": "Disruptive Innovation / Innovator's Dilemma",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST198",
+          "name": "What Type of Customer Are You Hunting?",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST202",
+          "name": "Big Five Personality Traits",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST211",
+          "name": "Crossing the Chasm",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST203",
+          "name": "Emotional Intelligence (EQ)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST208",
+          "name": "Regulatory Capture",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST205",
+          "name": "Moat (Competitive Moat)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST201",
+          "name": "Introverts vs. Extroverts",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST206",
+          "name": "Lock-In (Customer/Vendor Lock-In)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST207",
+          "name": "Barriers to Entry / Barriers to Exit",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST199",
+          "name": "Back-of-the-Envelope Calculation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST197",
+          "name": "Jobs to Be Done",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM044",
+          "name": "Regression to the Mean",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM046",
+          "name": "Equivalence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM033",
+          "name": "Scale",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI010",
+          "name": "Pareto Principle",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST004",
+          "name": "Minimum Viable Product (MVP)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI008",
+          "name": "Distributions",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "SI004",
+          "name": "Competition",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "MM054",
+          "name": "Interdependence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST028",
+          "name": "Principal-Agent Problem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST063",
+          "name": "Heuristic Solution",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST018",
+          "name": "Postmortem",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST044",
+          "name": "Technical Debt",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST064",
+          "name": "Black Boxes",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST050",
+          "name": "Hick's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST073",
+          "name": "Lindy Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST108",
+          "name": "Maslow's Hammer",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST094",
+          "name": "Cascading Failure",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST084",
+          "name": "Deep Work",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST113",
+          "name": "Expected Value",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST145",
+          "name": "Deterrence",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST160",
+          "name": "Burn the Boats (Crossing the Rubicon)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST200",
+          "name": "Beachhead",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST176",
+          "name": "Pygmalion Effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST125",
+          "name": "Counterfactual Thinking",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST117",
+          "name": "Fat-Tailed Distributions",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST184",
+          "name": "Arbitrage",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST134",
+          "name": "Iterated Game (Repeated Game)",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST204",
+          "name": "Idea Maze",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST163",
+          "name": "Nature versus Nurture",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "ST179",
+          "name": "Winning Hearts and Minds",
+          "reason": "Invalid embedding format"
+        }
+      ],
+      "wrongDimensionRecords": []
+    },
+    {
+      "tableName": "cognitive_biases",
+      "totalRecords": 245,
+      "recordsWithEmbeddings": 0,
+      "recordsWithoutEmbeddings": 245,
+      "invalidEmbeddings": 237,
+      "correctDimensionEmbeddings": 0,
+      "wrongDimensionEmbeddings": 0,
+      "emptyTextRecords": 0,
+      "averageEmbeddingLength": 0,
+      "sampleEmbeddingValues": [],
+      "recordsWithoutEmbeddingsList": [
+        {
+          "id": "CB017",
+          "name": "Prejudice",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB012",
+          "name": "Serial recall effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB019",
+          "name": "Fading affect bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB001",
+          "name": "Peak-end rule",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB013",
+          "name": "Part-list cueing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB004",
+          "name": "Modality effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB002",
+          "name": "Leveling and sharpening",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB011",
+          "name": "List-length effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB014",
+          "name": "Hindsight bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB003",
+          "name": "Misinformation effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB005",
+          "name": "Memory inhibition",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB018",
+          "name": "Negativity bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB010",
+          "name": "Duration neglect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB021",
+          "name": "Cognitive dissonance",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB025",
+          "name": "Clustering illusion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB022",
+          "name": "Mental filtering",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB007",
+          "name": "Suffix effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB006",
+          "name": "Serial position effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB020",
+          "name": "Reason-Respecting Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB023",
+          "name": "Anchoring",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB015",
+          "name": "Implicit associations",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB009",
+          "name": "Recency effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB034",
+          "name": "Consistency bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB043",
+          "name": "Misattribution of memory",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB042",
+          "name": "Imagination inflation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB046",
+          "name": "Rosy retrospection",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB031",
+          "name": "Confirmation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB036",
+          "name": "Cryptomnesia",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB044",
+          "name": "Mood congruent memory bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB047",
+          "name": "Self-relevance effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB037",
+          "name": "Egocentric bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB033",
+          "name": "Black-and-white fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB030",
+          "name": "Weber-Fechner law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB040",
+          "name": "Illusory correlation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB032",
+          "name": "Disconfirmation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB026",
+          "name": "Contrast effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB041",
+          "name": "Humor effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB038",
+          "name": "Generation effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB028",
+          "name": "Focusing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB027",
+          "name": "Distinction bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB045",
+          "name": "Reminiscence bump",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB039",
+          "name": "Google effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB050",
+          "name": "Suggestibility",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB063",
+          "name": "Cue-dependent forgetting",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB054",
+          "name": "Verbatim effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB068",
+          "name": "Anchoring",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB053",
+          "name": "Tip of the tongue phenomenon",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB055",
+          "name": "Von Restorff effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB052",
+          "name": "Testing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB057",
+          "name": "Simple, Pain-Avoiding Psychological Denial",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB058",
+          "name": "Availability heuristic",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB062",
+          "name": "Context effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB071",
+          "name": "Distinction bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB065",
+          "name": "Empathy gap",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB051",
+          "name": "Telescoping effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB060",
+          "name": "Illusory truth effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB059",
+          "name": "Attentional bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB064",
+          "name": "Frequency illusion",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB056",
+          "name": "Zeigarnik effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB066",
+          "name": "Omission bias",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB067",
+          "name": "Base rate fallacy",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB069",
+          "name": "Conservatism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB070",
+          "name": "Contrast effect",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB087",
+          "name": "Observer expectancy bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB072",
+          "name": "Focusing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB092",
+          "name": "Continued influence effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB085",
+          "name": "Choice-supportive bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB086",
+          "name": "Selective perception",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB083",
+          "name": "Congruence bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB076",
+          "name": "Bizarreness effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB094",
+          "name": "Backfire effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB084",
+          "name": "Post-purchase rationalization",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB080",
+          "name": "Self-relevance effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB077",
+          "name": "Humor effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB073",
+          "name": "Framing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB074",
+          "name": "Weber-Fechner law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB078",
+          "name": "Von Restorff effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB082",
+          "name": "Confirmation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB079",
+          "name": "Picture superiority effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB093",
+          "name": "Semmelweis reflex",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB089",
+          "name": "Observer effect",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB090",
+          "name": "Expectation bias",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB098",
+          "name": "Naïve cynicism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB096",
+          "name": "Publication bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB097",
+          "name": "Bias blind spot",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB095",
+          "name": "Doubt-Avoidance Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB112",
+          "name": "Illusion of validity",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB100",
+          "name": "Trait ascription bias",
+          "reason": "Missing embedding"
+        },
+        {
+          "id": "CB110",
+          "name": "Neglect of probability",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB111",
+          "name": "Anecdotal fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB102",
+          "name": "Group attribution error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB103",
+          "name": "Illusion of external agency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB106",
+          "name": "Excessive Self-Regard Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB114",
+          "name": "Recency illusion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB104",
+          "name": "Illusion of asymmetric insight",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB113",
+          "name": "Masked man fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB108",
+          "name": "Clustering illusion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB117",
+          "name": "Illusory correlation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB105",
+          "name": "Extrinsic incentive bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB116",
+          "name": "Hot-hand fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB115",
+          "name": "Gambler's fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB101",
+          "name": "Actor-observer bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB109",
+          "name": "Insensitivity to sample size",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB138",
+          "name": "Cross-race effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB124",
+          "name": "Stereotypical bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB140",
+          "name": "Cheerleader effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB118",
+          "name": "Pareidolia",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB119",
+          "name": "Anthropomorphism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB135",
+          "name": "Disliking/Hating Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB121",
+          "name": "Influence-from-Mere-Association Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB122",
+          "name": "Group attribution error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB131",
+          "name": "Automation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB123",
+          "name": "Ultimate attribution error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB127",
+          "name": "Moral credential effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB125",
+          "name": "Essentialism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB141",
+          "name": "Well-traveled road effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB137",
+          "name": "In-group bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB136",
+          "name": "Halo effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB133",
+          "name": "Placebo effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB139",
+          "name": "Out-group homogeneity bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB128",
+          "name": "Just-world hypothesis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB129",
+          "name": "Argument from fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB130",
+          "name": "Authority bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB132",
+          "name": "Bandwagon effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB143",
+          "name": "Reactive devaluation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB148",
+          "name": "Murphy's Law",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB144",
+          "name": "Positivity effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB145",
+          "name": "Envy/Jealousy Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB146",
+          "name": "Mental accounting",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB149",
+          "name": "Normalcy bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB154",
+          "name": "Illusion of transparency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB151",
+          "name": "Denomination effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB156",
+          "name": "Spotlight effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB152",
+          "name": "Magic number 7±2",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB155",
+          "name": "Curse of knowledge",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB160",
+          "name": "Hindsight bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB158",
+          "name": "Illusion of external agency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB153",
+          "name": "Optimistic probability bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB161",
+          "name": "Outcome bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB159",
+          "name": "Illusion of asymmetric insight",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB164",
+          "name": "Telescoping effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB165",
+          "name": "Rosy retrospection",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB162",
+          "name": "Moral luck",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB163",
+          "name": "Declinism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB157",
+          "name": "Extrinsic incentive error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB183",
+          "name": "Less-is-better effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB180",
+          "name": "Delmore effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB181",
+          "name": "Conjunction fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB168",
+          "name": "Time-saving bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB179",
+          "name": "Bike-shedding effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB182",
+          "name": "Occam's razor",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB178",
+          "name": "Law of Triviality",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB177",
+          "name": "Rhyme as reason effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB184",
+          "name": "Precision effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB176",
+          "name": "Belief bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB171",
+          "name": "Restraint bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB175",
+          "name": "Information bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB174",
+          "name": "Ambiguity bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB173",
+          "name": "Overoptimism Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB170",
+          "name": "Projection bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB169",
+          "name": "Pro-innovation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB188",
+          "name": "Decoy effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB189",
+          "name": "Reverse psychology",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB186",
+          "name": "Status quo bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB185",
+          "name": "Twaddle Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB187",
+          "name": "Social comparison bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB201",
+          "name": "IKEA effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB208",
+          "name": "Hyperbolic discounting",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB193",
+          "name": "Reciprocation Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB198",
+          "name": "Unit bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB190",
+          "name": "Reactance",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB194",
+          "name": "Sunk cost fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB197",
+          "name": "Generation effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB195",
+          "name": "Commitment bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB199",
+          "name": "Zero-sum bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB202",
+          "name": "Processing difficulty effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB196",
+          "name": "Loss aversion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB205",
+          "name": "Backfire effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB203",
+          "name": "Pseudo-certainty effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB212",
+          "name": "Negativity bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB200",
+          "name": "Disposition effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB210",
+          "name": "Identifiable victim effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB191",
+          "name": "System justification",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB204",
+          "name": "Endowment effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB213",
+          "name": "Bound awareness",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB211",
+          "name": "Present bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB224",
+          "name": "Illusion of control",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB225",
+          "name": "Dunning-Kruger effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB223",
+          "name": "Superiority bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB219",
+          "name": "Stress-Influence Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB216",
+          "name": "Mere exposure effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB226",
+          "name": "Egocentric bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB215",
+          "name": "Neglect of probability",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB214",
+          "name": "Focusing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB222",
+          "name": "Hard-easy effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB217",
+          "name": "Pseudocertainty effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB221",
+          "name": "Overconfidence effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB227",
+          "name": "False consensus effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB231",
+          "name": "Moral luck",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB230",
+          "name": "Survivorship bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB236",
+          "name": "Fundamental attribution error",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB234",
+          "name": "Self-serving bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB232",
+          "name": "Risk compensation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB235",
+          "name": "Actor-observer bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB233",
+          "name": "Peltzman effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB228",
+          "name": "Optimism bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB016",
+          "name": "Stereotypical bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB029",
+          "name": "Framing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB024",
+          "name": "Conservatism or Regressive bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB035",
+          "name": "Context effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB008",
+          "name": "Primacy effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB049",
+          "name": "Spacing effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB048",
+          "name": "Source confusion",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB061",
+          "name": "Mere exposure effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB075",
+          "name": "Confirmation bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB091",
+          "name": "Ostrich effect",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB099",
+          "name": "Naïve realism",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB081",
+          "name": "Negativity bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB088",
+          "name": "Experimenter's bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB245",
+          "name": "Lollapalooza Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB238",
+          "name": "Trait ascription bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB237",
+          "name": "Defensive attribution hypothesis",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB244",
+          "name": "Curiosity Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB242",
+          "name": "Senescence-Misinfluence Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB240",
+          "name": "Response bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB239",
+          "name": "Nonresponse bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB134",
+          "name": "Liking/Loving Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB126",
+          "name": "Functional fixedness",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB142",
+          "name": "Not invented here",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB150",
+          "name": "Zero-risk bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB172",
+          "name": "Self-consistency bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB192",
+          "name": "Kantian Fairness Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB220",
+          "name": "Drug-Misinfluence Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB229",
+          "name": "Pessimism bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB120",
+          "name": "Texas sharpshooter fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB107",
+          "name": "Confabulation",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB167",
+          "name": "Planning fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB206",
+          "name": "Deprival-Superreaction Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB218",
+          "name": "Effort justification",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB207",
+          "name": "Reward and Punishment Superresponse Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB243",
+          "name": "Use-It-or-Lose-It Tendency",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB147",
+          "name": "Appeal to probability fallacy",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB241",
+          "name": "Selection bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB166",
+          "name": "Impact bias",
+          "reason": "Invalid embedding format"
+        },
+        {
+          "id": "CB209",
+          "name": "Appeal to novelty",
+          "reason": "Invalid embedding format"
+        }
+      ],
+      "wrongDimensionRecords": []
+    }
+  ],
+  "overallSummary": {
+    "totalTables": 2,
+    "totalRecords": 543,
+    "totalWithEmbeddings": 0,
+    "totalWithoutEmbeddings": 543,
+    "overallSuccessRate": 0
+  },
+  "issues": [
+    "mental_models: 298 records missing embeddings",
+    "mental_models: 298 records have invalid embedding format",
+    "cognitive_biases: 245 records missing embeddings",
+    "cognitive_biases: 237 records have invalid embedding format"
+  ],
+  "recommendations": [
+    "Re-run embedding script for mental_models to process 298 missing embeddings",
+    "Re-run embedding script for cognitive_biases to process 245 missing embeddings"
+  ]
+}
