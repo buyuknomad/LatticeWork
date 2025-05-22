@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import BackgroundAnimation from '../components/BackgroundAnimation';
 
 // --- Type Definitions ---
 interface RecommendedTool {
@@ -391,7 +392,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
       {/* Background Animation Layer */}
-      <DashboardBackground />
+      <BackgroundAnimation />
       
       {/* Main Content */}
       <div className="relative z-10 min-h-screen">
@@ -804,90 +805,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-// Background Animation Component with subtle particles
-const DashboardBackground: React.FC = () => {
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    const particles: Array<{
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      opacity: number;
-      color: string;
-    }> = [];
-    
-    // Fewer particles for cleaner look
-    for (let i = 0; i < 30; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 1.5 + 0.5, // Slightly smaller
-        speedX: (Math.random() - 0.5) * 0.3, // Slower movement
-        speedY: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.3 + 0.1, // More subtle opacity
-        color: Math.random() > 0.5 ? '#00FFFF' : '#8B5CF6'
-      });
-    }
-    
-    const animate = () => {
-      // Increased opacity for faster fade (0.15 instead of 0.05)
-      ctx.fillStyle = 'rgba(26, 26, 26, 0.15)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      particles.forEach(particle => {
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
-        
-        // Wrap around edges instead of bouncing for smoother movement
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
-        
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `${particle.color}${Math.floor(particle.opacity * 255).toString(16).padStart(2, '0')}`;
-        ctx.fill();
-      });
-      
-      requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-  
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full"
-      style={{ zIndex: 0 }}
-    />
   );
 };
 
