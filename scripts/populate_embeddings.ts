@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file (assuming .env is in /home/project/)
-dotenv.config({ path: }); // Adjust path if .env is elsewhere relative to this script
+dotenv.config( ); // Adjust path if .env is elsewhere relative to this script
 
 async function testEmbedding() {
   const apiKey = process.env.VITE_GEMINI_API_KEY; // Using your .env variable name
