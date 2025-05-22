@@ -9,13 +9,21 @@ const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleAuthClick = () => {
-    if (user) {
-      signOut();
-    } else {
-      navigate('/login');
+const handleAuthClick = async () => {
+  if (user) {
+    try {
+      await signOut();
+      // Navigate to home page after successful logout
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout fails, navigate to home
+      navigate('/');
     }
-  };
+  } else {
+    navigate('/login');
+  }
+};
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
