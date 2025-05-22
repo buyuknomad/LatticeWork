@@ -21,7 +21,6 @@ async function testEmbedding() {
   // If both fail, this specific model ID might not be correct for API use or your key doesn't have access.
   const modelId = "gemini-embedding-exp-03-07";
   // const modelId = "models/text-embedding-004"; // A known working 768-dim model for comparison
-  embeddingDimensionality: parseInt(process.env.EMBEDDING_DIMENSIONALITY || '1536', 10),
   console.log(`Attempting to use embedding model: ${modelId}`);
 
   try {
