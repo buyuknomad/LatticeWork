@@ -1505,5 +1505,142 @@
       ],
       "embeddingColumnName": "embedding"
     }
+  },
+  "cognitive_biases": {
+    "lastSuccessfullyProcessedOffset": 0,
+    "processedRecordIds": [],
+    "failedRecordIds": [
+      {
+        "id": "CB001",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB008",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB003",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB009",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB012",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB017",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB006",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB024",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB010",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB016",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB011",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB021",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB014",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB019",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB004",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB015",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB023",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB018",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB025",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB013",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB005",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB022",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB002",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB007",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      }
+    ],
+    "lastRanAt": "2025-05-22T13:53:19.412Z",
+    "configUsedSnapshot": {
+      "embeddingModelId": "gemini-embedding-exp-03-07",
+      "targetEmbeddingDimensionality": 1536,
+      "textSourceFields": [
+        "name",
+        "category",
+        "summary"
+      ],
+      "embeddingColumnName": "embedding"
+    }
   }
 }
