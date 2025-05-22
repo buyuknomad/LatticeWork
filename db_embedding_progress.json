@@ -877,9 +877,134 @@
         "id": "ST087",
         "error": "TypeError: fetch failed",
         "attempts": 4
+      },
+      {
+        "id": "ST096",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST091",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST110",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST113",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST094",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST092",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST111",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST114",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST099",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST090",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST112",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST101",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST109",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST102",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST108",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST095",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST097",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST104",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST107",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST106",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST098",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST100",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST103",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST105",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "ST093",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
       }
     ],
-    "lastRanAt": "2025-05-22T13:52:59.160Z",
+    "lastRanAt": "2025-05-22T13:53:02.590Z",
     "configUsedSnapshot": {
       "embeddingModelId": "gemini-embedding-exp-03-07",
       "targetEmbeddingDimensionality": 1536,
