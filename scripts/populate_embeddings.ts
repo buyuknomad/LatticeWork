@@ -64,10 +64,10 @@ const config: ScriptConfig = {
       embeddingColumn: 'embedding'
     }
   ],
-  delayBetweenRequestsMs: parseInt(process.env.DELAY_BETWEEN_REQUESTS_MS || '500', 10), // 0.5 second
+  delayBetweenRequestsMs: parseInt(process.env.DELAY_BETWEEN_REQUESTS_MS || '1000', 10), // 1 second (more conservative)
   maxRetries: parseInt(process.env.MAX_RETRIES || '3', 10),
-  baseRetryDelayMs: parseInt(process.env.BASE_RETRY_DELAY_MS || '3000', 10),
-  batchSize: parseInt(process.env.DB_BATCH_SIZE || '50', 10),
+  baseRetryDelayMs: parseInt(process.env.BASE_RETRY_DELAY_MS || '5000', 10), // 5 seconds (more conservative)
+  batchSize: parseInt(process.env.DB_BATCH_SIZE || '25', 10), // Smaller batches
   progressFilePath: process.env.PROGRESS_FILE_PATH || './db_embedding_progress.json',
 };
 
@@ -293,6 +293,7 @@ async function generateEmbeddingWithRetries(
     while (retries <= config.maxRetries) {
         try {
             console.log(`Attempt ${retries + 1}/${config.maxRetries + 1}: Generating embedding for ${fieldNameForLog} of record ID ${recordIdForLog} (Text len: ${text.length}, starts: "${text.substring(0, 70)}...")`);
+            console.log(`⏱️  Applying ${config.delayBetweenRequestsMs}ms delay to respect API limits...`);
             
             const result: EmbeddingResult = await embeddingApi.embedContent({
                 content: { parts: [{ text }] },
