@@ -22,6 +22,7 @@ import {
   Layers
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import RelationshipVisualization from '../components/RelationshipVisualization';
 
 // --- Type Definitions ---
 interface RecommendedTool {
