@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import BackgroundAnimation from '../components/BackgroundAnimation';
 
 // Types
 interface QueryHistoryItem {
@@ -287,7 +288,9 @@ const History: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] pt-20">
+    <div className="min-h-screen bg-[#1A1A1A] pt-20 relative overflow-hidden">
+      {/* Background Animation Layer */}
+      <HistoryBackground />
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-[#333333]">
         <h1 className="text-lg font-bold">Query History</h1>
@@ -299,7 +302,7 @@ const History: React.FC = () => {
         </button>
       </div>
       
-      <div className="flex h-[calc(100vh-5rem)] md:h-[calc(100vh-5rem)] relative">
+              <div className="flex h-[calc(100vh-5rem)] md:h-[calc(100vh-5rem)] relative pt-20 md:pt-20">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div
@@ -536,8 +539,7 @@ const History: React.FC = () => {
           <Menu className="h-6 w-6" />
         </button>
       )}
+      </div>
     </div>
-  );
-};
 
 export default History;
