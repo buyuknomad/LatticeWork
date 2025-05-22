@@ -112,7 +112,7 @@ const Dashboard: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ query_text: query }),
+        body: JSON.stringify({ query: query }),
       });
 
       setIsLoading(false);
