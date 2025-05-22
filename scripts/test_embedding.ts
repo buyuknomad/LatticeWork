@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file (assuming .env is in the parent directory of 'scripts', e.g. /home/project/.env)
 // If your .env file is in the same directory as this script (e.g. /home/project/scripts/.env), use: dotenv.config();
 // If your .env file is in /home/project/ and this script is in /home/project/scripts/, then '../.env' is correct.
-dotenv.config({ path: '../.env' }); 
+dotenv.config(); 
 
 async function testEmbedding() {
   const apiKey = process.env.VITE_GEMINI_API_KEY; // Using your .env variable name
