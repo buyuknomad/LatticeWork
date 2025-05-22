@@ -22,7 +22,6 @@ import {
   Layers
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import RelationshipVisualization from '../components/RelationshipVisualization';
 
 // --- Type Definitions ---
 interface RecommendedTool {
@@ -344,7 +343,7 @@ const Dashboard: React.FC = () => {
       
       {/* Main Content */}
       <div className="relative z-10 min-h-screen">
-        {/* Header Section */}
+        {/* Header Section - Keep the same as before */}
         <div className="pt-20 pb-8 px-4">
           <div className="max-w-6xl mx-auto">
             <motion.div
@@ -446,7 +445,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Query Section */}
+        {/* Query Section - Keep the same as before */}
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
             <AnimatePresence mode="wait">
@@ -675,40 +674,6 @@ const Dashboard: React.FC = () => {
                     </motion.div>
                   )}
 
-                  {/* Interactive Visualization - Premium Feature */}
-                  {displayTier === 'premium' && results.recommendedTools?.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-[#252525]/50 backdrop-blur-sm rounded-xl p-6 border border-[#333333]"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-[#8B5CF6]/20 rounded-lg">
-                            <Layers className="h-5 w-5 text-[#8B5CF6]" />
-                          </div>
-                          <h3 className="text-lg font-semibold text-white">
-                            Interactive Relationship Map
-                          </h3>
-                        </div>
-                        <span className="text-xs px-2 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
-                          Premium Feature
-                        </span>
-                      </div>
-                      
-                      <RelationshipVisualization 
-                        tools={results.recommendedTools.map(tool => ({
-                          id: tool.id,
-                          name: tool.name,
-                          type: tool.type,
-                          category: tool.category
-                        }))}
-                        relationships={results.relationshipsSummary}
-                      />
-                    </motion.div>
-                  )}
-
                   {/* Premium Upgrade Prompt - Free Users */}
                   {displayTier === 'free' && (
                     <motion.div
@@ -767,7 +732,8 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// Dashboard Background Component with more subtle animation
+// Keep the same DashboardBackground component
+// Update only the DashboardBackground component in Dashboard.tsx
 const DashboardBackground: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
