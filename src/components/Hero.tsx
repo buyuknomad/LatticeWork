@@ -1,3 +1,4 @@
+// src/components/Hero.tsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -38,29 +39,29 @@ const Hero = () => {
 
       const currentExample = EXAMPLES_LIST[currentExampleIndex];
 
-      if (!isDeleting && charIndex <= currentExample.length) { // Typing phase
+      if (!isDeleting && charIndex <= currentExample.length) {
         setQuestion(currentExample.slice(0, charIndex));
         charIndex++;
         timeoutId = window.setTimeout(typeCharacter, 70);
-      } else if (isDeleting && charIndex >= 0) { // Deleting phase
+      } else if (isDeleting && charIndex >= 0) {
         setQuestion(currentExample.slice(0, charIndex));
         charIndex--;
         timeoutId = window.setTimeout(typeCharacter, 40);
-      } else if (!isDeleting) { // Done typing, pause then start deleting
+      } else if (!isDeleting) {
         timeoutId = window.setTimeout(() => {
           isDeleting = true;
           typeCharacter(); 
-        }, 2000); // Pause after typing
-      } else { // Done deleting, pause then move to next example
+        }, 2000);
+      } else {
         timeoutId = window.setTimeout(() => {
           setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLES_LIST.length);
-        }, 500); // Pause before switching to next
+        }, 500);
       }
     };
 
     charIndex = 0; 
     isDeleting = false;
-    timeoutId = window.setTimeout(typeCharacter, 100); // Initial delay
+    timeoutId = window.setTimeout(typeCharacter, 100);
 
     return () => {
       clearTimeout(timeoutId);
@@ -81,11 +82,23 @@ const Hero = () => {
 
   const handleGetStarted = () => {
     if (user) {
-      // If user is logged in, navigate to the dashboard analyze section
-      navigate('/dashboard?action=analyze');
+      // If user is logged in and has a question, pass it to dashboard
+      if (question.trim()) {
+        navigate(`/dashboard?q=${encodeURIComponent(question.trim())}`);
+      } else {
+        // No question entered, just go to dashboard
+        navigate('/dashboard');
+      }
     } else {
       // If not logged in, take them to signup
       navigate('/signup');
+    }
+  };
+
+  // Handle Enter key press in the input
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && question.trim()) {
+      handleGetStarted();
     }
   };
 
@@ -131,6 +144,7 @@ const Hero = () => {
                 value={question}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
+                onKeyPress={handleKeyPress}
                 placeholder={!isTypingAnimationActive ? "What deserves clearer thinking today?" : ""}
                 className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-4 2xl:py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-lg 2xl:text-base"
               />
@@ -161,9 +175,21 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? 'Analyze Now' : 'Get Started'}
+                  {user ? (question.trim() ? 'Analyze Now' : 'Go to Dashboard') : 'Get Started'}
                 </motion.button>
               </div>
+              
+              {/* Helper text for logged-in users */}
+              {user && question.trim() && (
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="mt-3 text-sm text-gray-400"
+                >
+                  Press Enter or click to analyze this question
+                </motion.p>
+              )}
             </div>
           </div>
         </motion.div>
