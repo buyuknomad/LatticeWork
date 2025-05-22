@@ -586,29 +586,41 @@ const Dashboard: React.FC = () => {
                   className="space-y-8"
                 >
                   {/* Results Header */}
-                  <div className="text-center">
-                    <motion.div
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-                          Lattice Insights
-                        </span>
-                      </h2>
-                      <p className="text-gray-400 text-sm sm:text-base">
-                        For: "{query}"
-                      </p>
-                      <button
-                        onClick={resetQuery}
-                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg text-sm text-gray-300 hover:text-white transition-all"
-                      >
-                        <Search size={16} />
-                        New Query
-                      </button>
-                    </motion.div>
-                  </div>
+ <div className="text-center">
+  <motion.div
+    initial={{ scale: 0.9, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    transition={{ duration: 0.3 }}
+  >
+    <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+        Lattice Insights
+      </span>
+    </h2>
+    <p className="text-gray-400 text-sm sm:text-base mb-6">
+      For: "{query}"
+    </p>
+    
+    {/* Enhanced New Query Button */}
+    <motion.div className="inline-block relative group">
+      {/* Glow effect */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+      
+      {/* Button */}
+      <motion.button
+        onClick={resetQuery}
+        className="relative inline-flex items-center gap-3 px-6 py-3 bg-[#252525] border border-[#00FFFF]/30 rounded-lg font-medium transition-all duration-300 hover:border-[#00FFFF]/50"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-[#8B5CF6]/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <Search className="w-5 h-5 text-[#00FFFF] relative z-10" />
+        <span className="text-white relative z-10">New Query</span>
+        <ArrowRight className="w-4 h-4 text-[#00FFFF] relative z-10" />
+      </motion.button>
+    </motion.div>
+  </motion.div>
+</div>
 
                   {/* Tools Grid */}
                   {results.recommendedTools && results.recommendedTools.length > 0 ? (
