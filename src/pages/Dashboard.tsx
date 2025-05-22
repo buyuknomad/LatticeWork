@@ -1,7 +1,7 @@
 // src/pages/Dashboard.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Settings,
   Search,
@@ -36,6 +36,16 @@ interface LatticeInsightResponse {
   query_id?: string;
 }
 
+// Example queries for animation
+const EXAMPLE_QUERIES = [
+  "How do I overcome procrastination?",
+  "Why do I keep making the same mistakes?",
+  "How can I make better investment decisions?",
+  "What causes team conflicts?",
+  "How to avoid confirmation bias in research?",
+  "Why do projects always take longer than expected?"
+];
+
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
   const location = useLocation();
@@ -47,6 +57,11 @@ const Dashboard: React.FC = () => {
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTierToggle, setShowTierToggle] = useState(false);
+  
+  // Animation states
+  const [isTypingAnimation, setIsTypingAnimation] = useState(true);
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState('');
 
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
@@ -65,6 +80,60 @@ const Dashboard: React.FC = () => {
     if (user.user_metadata?.username) return user.user_metadata.username;
     if (user.email) return user.email.split('@')[0];
     return 'User';
+  };
+
+  // Animated placeholder effect
+  useEffect(() => {
+    if (!isTypingAnimation) return;
+
+    let timeoutId: number;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    const typeCharacter = () => {
+      if (!isTypingAnimation) return;
+
+      const currentExample = EXAMPLE_QUERIES[currentExampleIndex];
+
+      if (!isDeleting && charIndex <= currentExample.length) {
+        setAnimatedPlaceholder(currentExample.slice(0, charIndex));
+        charIndex++;
+        timeoutId = window.setTimeout(typeCharacter, 50);
+      } else if (isDeleting && charIndex >= 0) {
+        setAnimatedPlaceholder(currentExample.slice(0, charIndex));
+        charIndex--;
+        timeoutId = window.setTimeout(typeCharacter, 30);
+      } else if (!isDeleting) {
+        timeoutId = window.setTimeout(() => {
+          isDeleting = true;
+          typeCharacter();
+        }, 2000);
+      } else {
+        timeoutId = window.setTimeout(() => {
+          setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
+        }, 300);
+      }
+    };
+
+    timeoutId = window.setTimeout(typeCharacter, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentExampleIndex, isTypingAnimation]);
+
+  const handleInputFocus = () => {
+    setIsTypingAnimation(false);
+    setAnimatedPlaceholder('');
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    setError(null);
+  };
+
+  const handleExampleClick = (example: string) => {
+    setQuery(example);
+    setError(null);
+    setIsTypingAnimation(false);
   };
 
   const handleQuerySubmit = async (e: React.FormEvent) => {
@@ -123,6 +192,7 @@ const Dashboard: React.FC = () => {
     setResults(null);
     setError(null);
     setIsLoading(false);
+    setIsTypingAnimation(true);
   };
 
   const toggleDevTier = () => {
@@ -136,7 +206,7 @@ const Dashboard: React.FC = () => {
       
       {/* Main Content */}
       <div className="relative z-10 min-h-screen">
-        {/* Header Section */}
+        {/* Header Section - Keep the same as before */}
         <div className="pt-20 pb-8 px-4">
           <div className="max-w-6xl mx-auto">
             <motion.div
@@ -145,7 +215,6 @@ const Dashboard: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
             >
-              {/* Welcome Message */}
               <div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
@@ -160,9 +229,7 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center gap-3">
-                {/* Dev Mode Toggle - Hidden on mobile */}
                 <motion.button
                   className="hidden md:flex items-center gap-2 px-3 py-2 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg text-xs text-gray-400 hover:text-gray-300 hover:border-[#444444] transition-all"
                   onClick={() => setShowTierToggle(!showTierToggle)}
@@ -173,7 +240,6 @@ const Dashboard: React.FC = () => {
                   <span>Dev Mode</span>
                 </motion.button>
 
-                {/* Settings Button */}
                 <Link to="/settings">
                   <motion.button
                     className="p-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 transition-all group"
@@ -186,7 +252,6 @@ const Dashboard: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Tier Display */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -206,7 +271,6 @@ const Dashboard: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Dev Tier Toggle Panel */}
             {showTierToggle && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -244,12 +308,148 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Placeholder for Query Section and Results - We'll add this in the next step */}
+        {/* Query Section */}
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center py-20">
-              <p className="text-gray-500">Query interface will be added in the next step...</p>
-            </div>
+            <AnimatePresence mode="wait">
+              {!results && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="max-w-3xl mx-auto"
+                >
+                  {/* Main Query Card */}
+                  <div className="bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-[#333333] relative overflow-hidden">
+                    {/* Glowing corner accents */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#00FFFF]/10 to-transparent rounded-tl-2xl pointer-events-none"></div>
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#8B5CF6]/10 to-transparent rounded-br-2xl pointer-events-none"></div>
+                    
+                    <div className="relative">
+                      <h2 className="text-xl sm:text-2xl font-semibold mb-2">
+                        What's on your mind?
+                      </h2>
+                      <p className="text-gray-400 text-sm sm:text-base mb-6">
+                        Describe a situation, decision, or challenge you're facing
+                      </p>
+
+                      {/* Search Input */}
+                      <form onSubmit={handleQuerySubmit}>
+                        <div className="relative group">
+                          {/* Glowing border effect */}
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-xl opacity-0 group-hover:opacity-20 blur transition duration-500"></div>
+                          
+                          <div className="relative flex items-center">
+                            <Search className="absolute left-4 text-gray-500 h-5 w-5 pointer-events-none" />
+                            <input
+                              type="text"
+                              value={query}
+                              onChange={handleInputChange}
+                              onFocus={handleInputFocus}
+                              placeholder={isTypingAnimation ? '' : "Ask me anything..."}
+                              className="w-full bg-[#1A1A1A]/80 text-white pl-12 pr-12 py-4 rounded-xl border border-[#444444] focus:border-[#00FFFF]/50 focus:outline-none transition-all duration-300"
+                              autoFocus={shouldFocusAnalysis}
+                            />
+                            {query && (
+                              <button
+                                type="button"
+                                onClick={() => setQuery('')}
+                                className="absolute right-12 text-gray-500 hover:text-gray-300 transition-colors"
+                              >
+                                <X size={18} />
+                              </button>
+                            )}
+                            <button
+                              type="submit"
+                              disabled={!query.trim() || isLoading}
+                              className={`absolute right-3 p-1.5 rounded-lg transition-all ${
+                                query.trim() 
+                                  ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
+                                  : 'text-gray-600 cursor-not-allowed'
+                              }`}
+                            >
+                              <ArrowRight size={20} />
+                            </button>
+                          </div>
+
+                          {/* Animated placeholder */}
+                          {isTypingAnimation && !query && (
+                            <div className="absolute left-12 top-1/2 -translate-y-1/2 pointer-events-none">
+                              <span className="text-gray-500">{animatedPlaceholder}</span>
+                              <span className="inline-block w-0.5 h-4 bg-gray-500 ml-0.5 animate-pulse"></span>
+                            </div>
+                          )}
+                        </div>
+                      </form>
+
+                      {/* Error Message */}
+                      {error && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg"
+                        >
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <p className="text-red-400 text-sm">{error}</p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Example Queries */}
+                      <div className="mt-8">
+                        <p className="text-sm text-gray-400 mb-3">Try asking about:</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {EXAMPLE_QUERIES.slice(0, 4).map((example, index) => (
+                            <motion.button
+                              key={index}
+                              onClick={() => handleExampleClick(example)}
+                              className="text-left px-4 py-3 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/80 border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg text-sm text-gray-300 hover:text-white transition-all duration-200"
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <span className="line-clamp-1">{example}</span>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Loading State */}
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="max-w-3xl mx-auto text-center py-20"
+                >
+                  <div className="relative inline-flex">
+                    <div className="w-20 h-20 rounded-full border-t-2 border-b-2 border-[#00FFFF] animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[#252525]"></div>
+                    </div>
+                  </div>
+                  <p className="mt-6 text-gray-400">Analyzing your query with Cosmic Lattice...</p>
+                  <p className="mt-2 text-sm text-gray-500">This might take a moment</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Results will be added in the next step */}
+            {results && !isLoading && (
+              <div className="text-center py-20">
+                <p className="text-gray-500">Results section will be added in the next step...</p>
+                <button onClick={resetQuery} className="mt-4 text-[#00FFFF] hover:underline">
+                  New Query
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -257,7 +457,7 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// Background Animation Component
+// Keep the same DashboardBackground component from before
 const DashboardBackground: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
@@ -281,7 +481,6 @@ const DashboardBackground: React.FC = () => {
       color: string;
     }> = [];
     
-    // Create initial particles
     for (let i = 0; i < 50; i++) {
       particles.push({
         x: Math.random() * canvas.width,
