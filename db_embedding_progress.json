@@ -1749,9 +1749,19 @@
         "id": "CB028",
         "error": "TypeError: fetch failed",
         "attempts": 4
+      },
+      {
+        "id": "CB036",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB045",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
       }
     ],
-    "lastRanAt": "2025-05-22T13:53:36.641Z",
+    "lastRanAt": "2025-05-22T13:53:40.742Z",
     "configUsedSnapshot": {
       "embeddingModelId": "gemini-embedding-exp-03-07",
       "targetEmbeddingDimensionality": 1536,
