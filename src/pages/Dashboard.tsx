@@ -11,33 +11,35 @@ import {
   ArrowRight,
   X,
   Info,
-  AlertCircle,
-  Loader2
+  ChevronDown, // Example, if needed for accordions or dropdowns
+  AlertCircle // For displaying errors
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-// Import our custom components
-import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
+// UI Components from Shadcn/ui (assuming you have them set up)
+// Example: import { Button } from "@/components/ui/button";
+// Example: import { Input } from "@/components/ui/input";
+// Example: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// For now, we'll keep the styling similar to your previous version and focus on logic.
 
 // --- Type Definitions ---
 interface RecommendedTool {
-  id: string;
+  id: string; // Or number, depending on your DB schema
   name: string;
-  category: string;
+  category: string; // e.g., "Decision Making", "Problem Solving"
   summary: string;
   type: 'mental_model' | 'cognitive_bias';
-  explanation: string;
+  explanation: string; // LLM-generated explanation
 }
 
 interface LatticeInsightResponse {
   recommendedTools: RecommendedTool[];
   relationshipsSummary?: string;
   error?: string;
-  message?: string;
-  query_id?: string;
+  message?: string; // Kept this from your interface, though my last Edge function version might not use it.
+  query_id?: string; // If your backend returns it
 }
+// --- END Type Definitions ---
 
 const EXAMPLE_QUERIES = [
   "How do I prioritize my competing tasks?",
@@ -86,14 +88,14 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
-    console.log("Attempting to submit query:", query);
+    console.log("Attempting to submit query:", query); // Added console log
 
     setIsLoading(true);
     setResults(null);
     setError(null);
 
     if (!session?.access_token) {
-      console.warn("Authentication error: No access token available.");
+      console.warn("Authentication error: No access token available."); // Added console log
       setError("Authentication error. Please log in again.");
       setIsLoading(false);
       return;
@@ -101,7 +103,7 @@ const Dashboard: React.FC = () => {
 
     try {
       const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights`;
-      console.log("Calling Edge Function URL:", edgeFunctionUrl);
+      console.log("Calling Edge Function URL:", edgeFunctionUrl); // Added console log
 
       const response = await fetch(edgeFunctionUrl, {
         method: 'POST',
@@ -112,11 +114,14 @@ const Dashboard: React.FC = () => {
         body: JSON.stringify({ query: query }),
       });
 
+      // --- ADDED CONSOLE LOG ---
       console.log("Raw response from Edge Function (status, headers):", {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
+        // headers: Object.fromEntries(response.headers.entries()) // For detailed header view
       });
+      // --- END ADDED CONSOLE LOG ---
 
       setIsLoading(false);
 
@@ -125,26 +130,35 @@ const Dashboard: React.FC = () => {
           error: "An unexpected error occurred while parsing the error response.", 
           details: response.statusText 
         }));
+        // Existing console.error is good.
         console.error("API Error Data (from !response.ok block):", errorData);
         setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
         return;
       }
 
       const data: LatticeInsightResponse = await response.json();
+
+      // --- ADDED CONSOLE LOG ---
       console.log("Parsed data from Edge Function (LatticeInsightResponse):", data);
+      // --- END ADDED CONSOLE LOG ---
 
       if (data.error) {
+        // --- ADDED CONSOLE LOG ---
         console.error("Error message received from backend logic:", data.error);
+        // --- END ADDED CONSOLE LOG ---
         setError(data.error);
       } else {
+        // --- ADDED CONSOLE LOGS ---
         console.log("Successfully received recommendedTools:", data.recommendedTools);
         if (data.relationshipsSummary) {
           console.log("Relationships summary:", data.relationshipsSummary);
         }
+        // --- END ADDED CONSOLE LOGS ---
         setResults(data);
       }
 
     } catch (err: any) {
+      // Existing console.error is good.
       console.error("Frontend Query Submit Error (catch block):", err);
       setIsLoading(false);
       setError(err.message || "Failed to fetch insights. Please try again.");
@@ -170,72 +184,58 @@ const Dashboard: React.FC = () => {
 
   const renderResultCard = (tool: RecommendedTool) => {
     const isMentalModel = tool.type === 'mental_model';
-    
+    const borderColor = isMentalModel ? 'border-[#00FFFF]/30 hover:border-[#00FFFF]/50' : 'border-yellow-500/30 hover:border-yellow-500/50';
+    const textColor = isMentalModel ? 'text-[#00FFFF]' : 'text-yellow-400';
+    const buttonBgHover = isMentalModel ? 'hover:bg-[#00FFFF]/20' : 'hover:bg-yellow-500/20';
+
     return (
-      <Card 
-        key={tool.id}
-        variant={isMentalModel ? 'mental-model' : 'cognitive-bias'}
-        interactive
-        className="h-full"
+      <motion.div
+        key={tool.id || tool.name}
+        className={`bg-[#2A2D35] p-4 rounded-lg border ${borderColor} transition-colors shadow-md`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <Card.Header>
-          <div className="flex items-center justify-between mb-3">
-            <div className={isMentalModel ? 'text-[#00FFFF]' : 'text-amber-400'}>
-              {isMentalModel ? <Lightbulb className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
-            </div>
-            <Badge variant={isMentalModel ? 'mental-model' : 'cognitive-bias'}>
-              {tool.category}
-            </Badge>
-          </div>
-          <h3 className="text-white font-semibold text-lg">{tool.name}</h3>
-        </Card.Header>
-        
-        <Card.Content>
-          <p className="text-gray-300 text-sm mb-4">{tool.summary}</p>
-          
-          {tool.explanation && (
-            <details className="mb-4">
-              <summary className={`text-sm cursor-pointer hover:underline ${isMentalModel ? 'text-[#00FFFF]' : 'text-amber-400'}`}>
-                How it applies to your situation
-              </summary>
-              <p className="text-gray-400 text-sm mt-2 pl-4 border-l-2 border-gray-600">
-                {tool.explanation}
-              </p>
-            </details>
-          )}
-        </Card.Content>
-        
-        <Card.Footer>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className={`ml-auto ${isMentalModel ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' : 'text-amber-400 hover:bg-amber-500/10'}`}
-          >
-            Learn More →
-          </Button>
-        </Card.Footer>
-      </Card>
+        <h4 className="font-semibold text-white text-lg mb-1">{tool.name}</h4>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full mb-2 inline-block ${isMentalModel ? 'bg-[#00FFFF]/10 text-[#00FFFF]' : 'bg-yellow-500/10 text-yellow-400'}`}>
+          {tool.category} - {isMentalModel ? 'Mental Model' : 'Cognitive Bias'}
+        </span>
+        <p className="text-gray-300 text-sm mb-3">{tool.summary}</p>
+        <details className="mb-3">
+            <summary className={`text-sm ${textColor} cursor-pointer hover:underline`}>
+                LLM Explanation
+            </summary>
+            <p className="text-gray-400 text-sm mt-2 bg-[#212327] p-3 rounded">
+                {tool.explanation || "No explanation provided."}
+            </p>
+        </details>
+        <div className="mt-3 flex justify-end gap-2">
+          <button className={`text-xs bg-opacity-10 ${buttonBgHover} ${textColor} px-3 py-1 rounded transition-colors`}>
+            Learn More
+          </button>
+        </div>
+      </motion.div>
     );
   };
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 bg-[#16181A] text-gray-100">
       <div className="max-w-4xl mx-auto">
-        <Card className="p-6 md:p-8 shadow-2xl mb-6">
+        <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-2xl mb-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               Welcome, {getDisplayName()}!
             </h1>
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
+              <motion.button
+                className="hidden md:flex items-center gap-1 text-xs bg-[#2D2D3A] px-2 py-1 rounded text-gray-400 hover:text-gray-300"
                 onClick={() => setShowTierToggle(!showTierToggle)}
-                className="hidden md:flex items-center gap-1 text-gray-400 hover:text-gray-300"
+                whileHover={{ scale: 1.05 }}
+                title="Developer Tier Toggle"
               >
                 <Info size={12} />
                 <span>Dev Mode: {showTierToggle ? 'ON' : 'OFF'}</span>
-              </Button>
+              </motion.button>
               <Link
                 to="/settings"
                 className="bg-[#2A2D35] p-2 rounded-lg hover:bg-[#333740] transition-colors"
@@ -247,43 +247,47 @@ const Dashboard: React.FC = () => {
           </div>
 
           {showTierToggle && (
-            <Card className="mb-4 p-4 border-[#444]">
-              <p className="text-sm text-gray-300 mb-3">Developer Mode: Toggle user tier for testing</p>
+            <div className="mb-4 p-3 bg-[#2D2D3A] rounded-lg border border-[#444]">
+              <p className="text-sm text-gray-300 mb-2">Developer Mode: Toggle user tier for testing</p>
               <div className="flex items-center gap-2">
-                <Button
+                <button
                   onClick={toggleDevTier}
                   disabled={devTestTier === 'free'}
-                  variant={devTestTier === 'free' ? 'primary' : 'secondary'}
-                  size="sm"
+                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                    devTestTier === 'free'
+                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700 cursor-not-allowed'
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                  }`}
                 >
-                  Free Tier
-                </Button>
-                <Button
+                  Set to Free
+                </button>
+                <button
                   onClick={toggleDevTier}
                   disabled={devTestTier === 'premium'}
-                  variant={devTestTier === 'premium' ? 'primary' : 'secondary'}
-                  size="sm"
+                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                    devTestTier === 'premium'
+                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700 cursor-not-allowed'
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                  }`}
                 >
-                  Premium Tier
-                </Button>
+                  Set to Premium
+                </button>
               </div>
-            </Card>
+            </div>
           )}
 
           <div className="flex items-center gap-2 mb-4">
-            <Badge variant={displayTier === 'premium' ? 'premium' : 'default'}>
-              {displayTier === 'premium' ? (
-                <>
-                  <Crown size={14} />
-                  Premium Tier
-                </>
-              ) : (
-                <>
-                  <Zap size={14} />
-                  Free Tier
-                </>
-              )}
-            </Badge>
+            {displayTier === 'premium' ? (
+              <div className="flex items-center gap-2 text-[#A78BFA] bg-[#A78BFA]/10 px-3 py-1 rounded-full text-sm border border-[#A78BFA]/30">
+                <Crown size={14} />
+                <span>Premium Tier</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-[#22D3EE] bg-[#22D3EE]/10 px-3 py-1 rounded-full text-sm border border-[#22D3EE]/30">
+                <Zap size={14} />
+                <span>Free Tier</span>
+              </div>
+            )}
           </div>
 
           <p className="text-gray-300 mb-6">
@@ -304,45 +308,38 @@ const Dashboard: React.FC = () => {
                   />
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   {query && !isLoading && (
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
-                      size="sm"
+                      className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
                       onClick={() => setQuery('')}
-                      className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200"
                     >
                       <X size={18} />
-                    </Button>
+                    </button>
                   )}
-                  <Button
+                  <button
                     type="submit"
                     disabled={!query.trim() || isLoading}
-                    variant="ghost"
-                    size="sm"
                     className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
                       query.trim() && !isLoading
                         ? 'text-[#00FFFF] hover:text-[#00CCCC]'
                         : 'text-gray-600 cursor-not-allowed'
-                    }`}
+                    } transition-colors`}
                   >
                     <ArrowRight size={20} />
-                  </Button>
+                  </button>
                 </div>
               </form>
-              
               <div>
                 <h3 className="text-sm font-medium text-gray-400 mb-3">Try asking about:</h3>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLE_QUERIES.map((example, index) => (
-                    <Button
+                    <button
                       key={index}
-                      variant="secondary"
-                      size="sm"
                       onClick={() => handleExampleClick(example)}
-                      className="text-gray-300 hover:text-white truncate max-w-[200px] sm:max-w-[250px]"
+                      className="bg-[#2A2D35] text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm hover:bg-[#333740] transition-colors truncate max-w-[200px] sm:max-w-[250px]"
                     >
                       {example}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -350,47 +347,26 @@ const Dashboard: React.FC = () => {
           )}
 
           {isLoading && (
-            <Card className="p-12">
-              <div className="flex flex-col items-center justify-center">
-                <div className="relative">
-                  <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-[#00FFFF] animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="h-10 w-10 rounded-full bg-[#212327]"></div>
-                  </div>
+            <div className="py-12 flex flex-col items-center justify-center">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-[#00FFFF] animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-[#212327]"></div>
                 </div>
-                <p className="mt-4 text-gray-400">Analyzing your query with Cosmic Lattice...</p>
               </div>
-            </Card>
+              <p className="mt-4 text-gray-400">Analyzing your query with Cosmic Lattice...</p>
+            </div>
           )}
 
           {error && !isLoading && (
-            <Card className="border-red-500/30">
-              <Card.Content className="p-4">
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="h-6 w-6 text-red-400" />
-                  <h4 className="text-lg font-semibold text-red-400">Analysis Error</h4>
-                </div>
-                <p className="text-gray-300 mb-4">{error}</p>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={resetQuery}
-                    className="text-red-400 hover:bg-red-500/10"
-                  >
-                    Try a new query
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setError(null)}
-                    className="text-gray-400"
-                  >
-                    Dismiss
-                  </Button>
-                </div>
-              </Card.Content>
-            </Card>
+            <div className="my-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 flex items-center gap-3">
+              <AlertCircle size={20} />
+              <div>
+                <h4 className="font-semibold">Analysis Error</h4>
+                <p className="text-sm">{error}</p>
+                <button onClick={resetQuery} className="text-xs underline hover:text-red-300 mt-1">Try a new query</button>
+              </div>
+            </div>
           )}
 
           {results && !isLoading && !error && (
@@ -400,15 +376,13 @@ const Dashboard: React.FC = () => {
                   <h2 className="text-2xl font-semibold text-white">Lattice Insights</h2>
                   <p className="text-gray-400 text-sm italic">For your query: "{query}"</p>
                 </div>
-                <Button
+                <button
                   onClick={resetQuery}
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#00FFFF] hover:bg-[#00FFFF]/10"
+                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1 bg-[#00FFFF]/10 px-3 py-2 rounded-lg hover:bg-[#00FFFF]/20 transition-colors"
                 >
-                  <Search size={14} className="mr-1" />
+                  <Search size={14} />
                   New Query
-                </Button>
+                </button>
               </div>
 
               <div>
@@ -416,57 +390,46 @@ const Dashboard: React.FC = () => {
                   Recommended Tools
                 </h3>
                 {results.recommendedTools && results.recommendedTools.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {results.recommendedTools
-                      .filter(tool => tool.type === 'mental_model')
-                      .map(renderResultCard)}
-                    {results.recommendedTools
-                      .filter(tool => tool.type === 'cognitive_bias')
-                      .map(renderResultCard)}
-                  </div>
-                ) : (
-                  <Card className="p-6">
-                    <div className="text-center text-gray-400">
-                      <p>No specific tools recommended for this query. Try rephrasing or asking something different.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {results.recommendedTools
+                            .filter(tool => tool.type === 'mental_model')
+                            .map(renderResultCard)}
+                        {results.recommendedTools
+                            .filter(tool => tool.type === 'cognitive_bias')
+                            .map(renderResultCard)}
                     </div>
-                  </Card>
+                ) : (
+                    <p className="text-gray-400">No specific tools recommended for this query. Try rephrasing or asking something different.</p>
                 )}
               </div>
 
               {displayTier === 'premium' && results.relationshipsSummary && (
-                <Card variant="premium" className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Zap className="h-6 w-6 text-purple-400" />
-                    <h3 className="text-lg font-medium text-purple-400">Connections & Interactions</h3>
-                    <Badge variant="premium" size="sm">PREMIUM</Badge>
-                  </div>
-                  <p className="text-gray-300 whitespace-pre-line">{results.relationshipsSummary}</p>
-                </Card>
+                <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#A78BFA]/30 shadow-md">
+                  <h3 className="flex items-center gap-2 text-lg font-medium text-[#A78BFA] mb-3">
+                    <Zap className="h-5 w-5" />
+                    Connections & Interactions
+                  </h3>
+                  <p className="text-gray-300 text-sm whitespace-pre-line">{results.relationshipsSummary}</p>
+                </div>
               )}
               
               {displayTier === 'premium' && results.recommendedTools?.length > 0 && (
-                <Card variant="premium" className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Crown className="h-6 w-6 text-purple-400" />
-                    <h3 className="text-lg font-medium text-purple-400">Interactive Visualization</h3>
-                    <Badge variant="premium" size="sm">PREMIUM</Badge>
-                  </div>
-                  <div className="bg-[#1F1F1F] rounded-lg h-48 flex items-center justify-center text-gray-500 border border-purple-500/20">
-                    <div className="text-center">
-                      <div className="h-12 w-12 rounded-full border-2 border-purple-400/30 mx-auto mb-2 flex items-center justify-center">
-                        <Crown className="h-6 w-6 text-purple-400/50" />
+                  <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#A78BFA]/30 shadow-md">
+                      <h3 className="flex items-center gap-2 text-lg font-medium text-[#A78BFA] mb-3">
+                          <Crown size={18}/>
+                          Interactive Visualization (Premium)
+                      </h3>
+                      <div className="bg-[#1F1F1F] rounded-lg h-48 flex items-center justify-center text-gray-500">
+                          Coming soon: Visual map of these tools.
                       </div>
-                      <p>Interactive visualization coming soon</p>
-                    </div>
                   </div>
-                </Card>
               )}
 
               {displayTier === 'free' && (
-                <Card className="p-6 bg-gradient-to-r from-[#1F1F1F] via-[#252525] to-[#1F1F1F] border-purple-500/30">
+                <div className="mt-10 p-6 bg-gradient-to-r from-[#1F1F1F] via-[#252525] to-[#1F1F1F] rounded-xl border border-[#333333] shadow-xl">
                   <div className="flex flex-col md:flex-row items-center text-center md:text-left gap-6">
-                    <div className="bg-purple-500/10 rounded-full p-4 border-2 border-purple-500/30">
-                      <Crown className="h-8 w-8 text-purple-400" />
+                    <div className="bg-[#A78BFA]/10 rounded-full p-3 border-2 border-[#A78BFA]/30 inline-block">
+                      <Crown className="h-8 w-8 text-[#A78BFA]" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold mb-2 text-white">
@@ -475,16 +438,19 @@ const Dashboard: React.FC = () => {
                       <p className="text-gray-300 mb-4">
                         Upgrade to Premium for more detailed insights, access to our complete library of mental models & cognitive biases, and interactive relationship visualizations.
                       </p>
-                      <Button variant="primary">
+                      <Link
+                        to="/pricing"
+                        className="bg-[#A78BFA] text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-[#9370DB] transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+                      >
                         Explore Premium Plans
-                      </Button>
+                      </Link>
                     </div>
                   </div>
-                </Card>
+                </div>
               )}
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );
