@@ -1914,9 +1914,49 @@
         "id": "CB096",
         "error": "TypeError: fetch failed",
         "attempts": 4
+      },
+      {
+        "id": "CB051",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB060",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB088",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB078",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB082",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB059",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB056",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "CB069",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
       }
     ],
-    "lastRanAt": "2025-05-22T13:13:59.538Z",
+    "lastRanAt": "2025-05-22T13:14:01.430Z",
     "configUsedSnapshot": {
       "embeddingModelId": "gemini-embedding-exp-03-07",
       "targetEmbeddingDimensionality": 1536,
