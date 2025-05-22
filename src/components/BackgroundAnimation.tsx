@@ -7,6 +7,7 @@ interface Particle {
   speedX: number;
   speedY: number;
   opacity: number;
+  color: string;
 }
 
 const BackgroundAnimation = () => {
@@ -33,13 +34,23 @@ const BackgroundAnimation = () => {
     const animate = () => {
       if (!canvas || !ctx) return;
       
-      // Clear canvas with semi-transparent background for trail effect
-      ctx.fillStyle = 'rgba(26, 26, 26, 0.05)';
+      // Increased opacity for faster fade (more subtle trails)
+      ctx.fillStyle = 'rgba(26, 26, 26, 0.15)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Update and draw particles
       particlesRef.current.forEach((particle) => {
-        // Draw particle
+        // Move particle
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+        
+        // Wrap around edges instead of bouncing for smoother movement
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+        if (particle.y > canvas.height) particle.y = 0;
+        
+        // Draw particle with gradient effect
         const gradient = ctx.createRadialGradient(
           particle.x, 
           particle.y, 
@@ -48,26 +59,13 @@ const BackgroundAnimation = () => {
           particle.y, 
           particle.size
         );
-        gradient.addColorStop(0, `rgba(0, 255, 255, ${particle.opacity})`);
-        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+        gradient.addColorStop(0, `${particle.color}${Math.floor(particle.opacity * 255).toString(16).padStart(2, '0')}`);
+        gradient.addColorStop(1, `${particle.color}00`);
         
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
-        
-        // Move particle with subtle sinusoidal movement
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
-        
-        // Boundary checking
-        if (particle.x < 0 || particle.x > canvas.width) {
-          particle.speedX = -particle.speedX * 0.5;
-        }
-        
-        if (particle.y < 0 || particle.y > canvas.height) {
-          particle.speedY = -particle.speedY * 0.5;
-        }
       });
       
       animationRef.current = requestAnimationFrame(animate);
@@ -86,16 +84,19 @@ const BackgroundAnimation = () => {
     if (!canvas) return;
     
     const particles: Particle[] = [];
-    const particleCount = Math.min(50, canvas.width * canvas.height / 25000);
+    
+    // Fewer particles for cleaner, more subtle look
+    const particleCount = 30;
     
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: 1 + Math.random() * 2,
-        speedX: (Math.random() - 0.5) * 0.2,
-        speedY: (Math.random() - 0.5) * 0.2,
-        opacity: 0.1 + Math.random() * 0.3
+        size: Math.random() * 1.5 + 0.5, // Smaller particles
+        speedX: (Math.random() - 0.5) * 0.3, // Slower movement
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.3 + 0.1, // More subtle opacity
+        color: Math.random() > 0.5 ? '#00FFFF' : '#8B5CF6' // Cyan and purple
       });
     }
     
