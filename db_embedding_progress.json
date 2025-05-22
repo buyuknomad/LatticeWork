@@ -127,9 +127,134 @@
         "id": "MM005",
         "error": "TypeError: fetch failed",
         "attempts": 4
+      },
+      {
+        "id": "MM028",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM027",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM029",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM032",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM047",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM044",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM050",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM043",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM038",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM045",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM030",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM036",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM035",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM040",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM033",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM031",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM046",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM041",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM049",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM048",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM042",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM026",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM034",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM039",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
+      },
+      {
+        "id": "MM037",
+        "error": "TypeError: fetch failed",
+        "attempts": 4
       }
     ],
-    "lastRanAt": "2025-05-22T13:52:38.314Z",
+    "lastRanAt": "2025-05-22T13:52:41.775Z",
     "configUsedSnapshot": {
       "embeddingModelId": "gemini-embedding-exp-03-07",
       "targetEmbeddingDimensionality": 1536,
