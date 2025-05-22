@@ -1,235 +1,411 @@
-// src/pages/Dashboard.tsx
-import React, { useState, useEffect, useCallback } from 'react';
-// REMOVED: import { Input } from "@/components/ui/input";
-// REMOVED: import { Button } from "@/components/ui/button";
-import { useAuth } from '../context/AuthContext'; // Ensure this path is correct
-// import { supabase } from '../lib/supabase'; // Not used in this version directly, but good to have if needed elsewhere
-// import { User } from '@supabase/supabase-js'; // Not directly used if user comes from useAuth
-import InteractiveDemo from '@/components/InteractiveDemo'; // Assuming this path is correct, if it exists. If not, comment it out too.
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { 
+  Settings, 
+  Search, 
+  Zap, 
+  Crown, 
+  Lightbulb, 
+  AlertTriangle, 
+  ArrowRight,
+  X,
+  Info
+} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
-// Define a type for the results you expect to display eventually
-interface LatticeResult {
-  id: string;
-  name: string;
-  category: string;
-  summary: string;
-  type: 'mental_model' | 'cognitive_bias';
-  explanation?: string;
-}
+// Mock data for testing
+const EXAMPLE_QUERIES = [
+  "How do I prioritize my competing tasks?",
+  "Should I trust my intuition or analyze data?",
+  "Why do team decisions often take so long?",
+  "How can I avoid confirmation bias in research?"
+];
 
 const Dashboard: React.FC = () => {
-  const { user, session } = useAuth();
-  const [userInput, setUserInput] = useState('');
-  const [results, setResults] = useState<LatticeResult[]>([]);
+  const { user } = useAuth();
+  const location = useLocation();
+  const [userTier, setUserTier] = useState<'free' | 'premium'>('free');
+  const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showTierEffect, setShowTierEffect] = useState(false);
-
-  const [queryResponse, setQueryResponse] = useState<string | null>(null);
-  const [isLoadingQuery, setIsLoadingQuery] = useState(false);
-
-  const [currentUserTier, setCurrentUserTier] = useState<'free' | 'premium'>('free');
-  const [devTestTier, setDevTestTier] = useState<'free' | 'premium' | null>(null);
-  const displayTier = devTestTier || currentUserTier;
-
-  useEffect(() => {
-    if (user?.user_metadata?.tier) {
-      setCurrentUserTier(user.user_metadata.tier as 'free' | 'premium');
+  const [showResults, setShowResults] = useState(false);
+  const [showTierToggle, setShowTierToggle] = useState(false);
+  
+  // Check if we should automatically focus on analysis (from landing page)
+  const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
+  
+  // Extract username from either metadata or email
+  const getDisplayName = () => {
+    if (!user) return 'User';
+    
+    if (user.user_metadata?.username) {
+      return user.user_metadata.username;
     }
-  }, [user]);
-
-  useEffect(() => {
-    if (devTestTier) {
-      setShowTierEffect(true);
-      const timer = setTimeout(() => setShowTierEffect(false), 300);
-      return () => clearTimeout(timer);
+    
+    if (user.email) {
+      return user.email.split('@')[0];
     }
-  }, [devTestTier]);
+    
+    return 'User';
+  };
 
-  const handleQuerySubmit = useCallback(async () => {
-    // This is your placeholder submit, we'll leave it for now
-    if (!userInput.trim()) {
-      setError("Please enter a query.");
-      return;
-    }
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
+  const handleQuerySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    
     setIsLoading(true);
-    setError(null);
-    setResults([]);
+    
+    // Simulate API call timing
     setTimeout(() => {
-      const mockMentalModels: LatticeResult[] = [
-        { id: 'mm1', name: 'First Principles Thinking', category: 'Problem Solving', summary: 'Break down complex problems into basic elements.', type: 'mental_model' },
-        { id: 'mm2', name: 'Second-Order Thinking', category: 'Decision Making', summary: 'Consider the consequences of the consequences.', type: 'mental_model' },
-        { id: 'mm3', name: 'Inversion', category: 'Problem Solving', summary: 'Approach a problem by considering the opposite.', type: 'mental_model' },
-      ];
-      const mockCognitiveBiases: LatticeResult[] = [
-        { id: 'cb1', name: 'Confirmation Bias', category: 'Decision Making', summary: 'Favor information that confirms existing beliefs.', type: 'cognitive_bias' },
-        { id: 'cb2', name: 'Availability Heuristic', category: 'Decision Making', summary: 'Overestimate the likelihood of events that are easily recalled.', type: 'cognitive_bias' },
-      ];
-      let newResults: LatticeResult[] = [];
-      if (displayTier === 'free') {
-        newResults = [mockMentalModels[0], mockCognitiveBiases[0]];
-      } else {
-        newResults = [...mockMentalModels.slice(0, 3), ...mockCognitiveBiases.slice(0, 2)];
-      }
-      setResults(newResults);
       setIsLoading(false);
-    }, 1000);
-  }, [userInput, displayTier]);
-
-  const handleTestEdgeFunction = async () => {
-    if (!session) {
-      alert("You must be logged in to test the function.");
-      setQueryResponse("Error: You must be logged in.");
-      return;
-    }
-    if (!userInput.trim()) {
-      alert("Please enter something in the 'What's on your mind?' field to send as a query.");
-      setQueryResponse("Error: Please enter a query in the input field above.");
-      return;
-    }
-    setIsLoadingQuery(true);
-    setQueryResponse(null);
-    setError(null);
-
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aGF1Z2xwbmV3dHd6dGNwanhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NzUyMjgsImV4cCI6MjA2MzM1MTIyOH0.UDo0SzmylY3VW2JR6-42P3F7BY8HPQ2jSiVkVn3aixc";
-    const edgeFunctionUrl = "https://ywhauglpnewtwztcpjxp.supabase.co/functions/v1/get-lattice-insights";
-    const jwt = session.access_token;
-
-    try {
-      const response = await fetch(edgeFunctionUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${jwt}`,
-          'apikey': supabaseAnonKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: userInput }),
-      });
-      const responseData = await response.json();
-      if (!response.ok) {
-        console.error("Error from Edge Function:", responseData);
-        setQueryResponse(`Error ${response.status}: ${responseData.error || response.statusText}`);
-      } else {
-        console.log("Success from Edge Function:", responseData);
-        setQueryResponse(JSON.stringify(responseData, null, 2));
-      }
-    } catch (error: any) {
-      console.error("Network or other error calling Edge Function:", error);
-      setQueryResponse(`Client-side error: ${error.message}`);
-    } finally {
-      setIsLoadingQuery(false);
-    }
+      setShowResults(true);
+    }, 1500);
   };
 
-  const toggleDevTier = () => {
-    if (devTestTier === null) setDevTestTier('premium');
-    else if (devTestTier === 'premium') setDevTestTier('free');
-    else setDevTestTier(null);
+  const handleExampleClick = (example: string) => {
+    setQuery(example);
   };
 
-  // Basic styling for temporary HTML elements
-  const basicInputStyle: React.CSSProperties = {
-    border: '1px solid #ccc',
-    padding: '8px',
-    fontSize: '16px',
-    flexGrow: 1,
-  };
-  const basicButtonStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    marginLeft: '8px'
-  };
-   const destructiveButtonStyle: React.CSSProperties = {
-    ...basicButtonStyle,
-    backgroundColor: '#dc3545', // A red color for destructive/test
+  const resetQuery = () => {
+    setQuery('');
+    setShowResults(false);
   };
 
+  const toggleTier = () => {
+    setUserTier(userTier === 'free' ? 'premium' : 'free');
+  };
 
   return (
-    <div className={`container mx-auto p-4 transition-all duration-300 ease-in-out ${showTierEffect ? (displayTier === 'premium' ? 'bg-blue-50' : 'bg-orange-50') : ''}`}>
-      <h1 className="text-3xl font-bold text-center mb-6">Cosmic Lattice Dashboard</h1>
-      
-      <div className="fixed top-4 right-4 bg-gray-700 text-white p-2 rounded shadow-lg z-50">
-        <label className="block text-xs">Dev Tier Override:</label>
-        {/* Using basic button for toggle too */}
-        <button onClick={toggleDevTier} style={{...basicButtonStyle, fontSize: '12px', backgroundColor: '#6c757d'}}>
-          {devTestTier ? `Testing as ${devTestTier}` : `Actual: ${currentUserTier}`} (Toggle)
-        </button>
-      </div>
-
-      <div className="mb-8 p-6 bg-white shadow-xl rounded-lg">
-        <div className="flex items-center space-x-2 mb-4">
-          {/* Using basic HTML input */}
-          <input
-            type="text"
-            placeholder="What's on your mind? Describe a situation or ask a question..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            style={basicInputStyle}
-            onKeyPress={(e) => { if (e.key === 'Enter') handleQuerySubmit(); }}
-          />
-          {/* Using basic HTML button */}
-          <button 
-            onClick={handleQuerySubmit} 
-            disabled={isLoading || !userInput.trim()}
-            style={isLoading ? {...basicButtonStyle, backgroundColor: '#6c757d'} : basicButtonStyle }
-          >
-            {isLoading ? 'Thinking...' : 'Get Insights'}
-          </button>
-        </div>
-        {error && <p style={{color: 'red', fontSize: '14px', marginTop: '8px'}}>{error}</p>}
-      </div>
-
-      <div className="my-8 p-6 bg-gray-100 shadow-lg rounded-lg">
-        <h2 className="text-xl font-semibold mb-3 text-gray-700">Temporary Edge Function Tester</h2>
-        <p className="text-sm text-gray-600 mb-3">
-          The input field above ("What's on your mind?") will be used as the query for this test.
-          Ensure you are logged in as the correct user.
-        </p>
-        {/* Using basic HTML button */}
-        <button onClick={handleTestEdgeFunction} disabled={isLoadingQuery} style={isLoadingQuery ? {...destructiveButtonStyle, backgroundColor: '#6c757d'} : destructiveButtonStyle}>
-          {isLoadingQuery ? "Calling Edge Function..." : "TEST: Call get-lattice-insights Function"}
-        </button>
-        {queryResponse && (
-          <div className="mt-4 p-3 border bg-white rounded shadow">
-            <h3 className="font-semibold text-gray-700">Edge Function Response:</h3>
-            <pre className="text-sm whitespace-pre-wrap break-all bg-gray-50 p-2 rounded mt-1">{queryResponse}</pre>
+    <div className="min-h-screen pt-24 pb-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section with User Welcome and Settings */}
+        <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-lg mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Welcome, {getDisplayName()}!
+            </h1>
+            <div className="flex items-center gap-3">
+              {/* Dev-only tier toggle button */}
+              <motion.button
+                className="hidden md:flex items-center gap-1 text-xs bg-[#2D2D3A] px-2 py-1 rounded text-gray-400 hover:text-gray-300"
+                onClick={() => setShowTierToggle(!showTierToggle)}
+                whileHover={{ scale: 1.05 }}
+                title="Developer Toggle"
+              >
+                <Info size={12} />
+                <span>Dev</span>
+              </motion.button>
+              
+              <Link 
+                to="/settings" 
+                className="bg-[#2A2D35] p-2 rounded-lg hover:bg-[#333740] transition-colors"
+                title="Profile Settings"
+              >
+                <Settings className="h-5 w-5 text-[#00FFFF]" />
+              </Link>
+            </div>
           </div>
-        )}
-      </div>
-
-      {results.length > 0 && (
-         <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Recommended Tools: ({displayTier} view)</h2>
-          {/* ... result display ... this part will also need styling adjustments if Button/Input were heavily used inside */}
-        </div>
-      )}
-
-      {/* Commenting out InteractiveDemo if it's not set up yet */}
-      {/* {displayTier === 'premium' && results.length > 0 && (
-        <div className="mt-12 p-6 bg-white shadow-xl rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Interactive Relationship Map (Premium)</h2>
-          <div className="h-96 border rounded-md">
-            <InteractiveDemo data={results.map(r => ({id: r.id, label: r.name, group: r.type === 'mental_model' ? 1 : 2}))} />
+          
+          {/* Dev Mode Tier Toggle */}
+          {showTierToggle && (
+            <div className="mb-4 p-3 bg-[#2D2D3A] rounded-lg border border-[#444]">
+              <p className="text-sm text-gray-300 mb-2">Developer Mode: Toggle user tier for testing</p>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={toggleTier}
+                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                    userTier === 'free' 
+                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700' 
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                  }`}
+                >
+                  Free Tier
+                </button>
+                <button 
+                  onClick={toggleTier}
+                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                    userTier === 'premium' 
+                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700' 
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                  }`}
+                >
+                  Premium Tier
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Current User Tier */}
+          <div className="flex items-center gap-2 mb-4">
+            {userTier === 'premium' ? (
+              <div className="flex items-center gap-2 text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-1 rounded-full text-sm border border-[#8B5CF6]/30">
+                <Crown size={14} />
+                <span>Premium</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-[#00FFFF] bg-[#00FFFF]/10 px-3 py-1 rounded-full text-sm border border-[#00FFFF]/30">
+                <Zap size={14} />
+                <span>Free Tier • 2 queries/day</span>
+              </div>
+            )}
           </div>
+          
+          <p className="text-gray-300 mb-6">
+            Use your mental models toolkit to analyze situations, make better decisions, and avoid cognitive biases.
+          </p>
+          
+          {/* Query form */}
+          {!showResults && (
+            <div className="space-y-6">
+              <form onSubmit={handleQuerySubmit}>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="What's on your mind? Ask any question..."
+                    value={query}
+                    onChange={handleQueryChange}
+                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] transition-shadow duration-300"
+                    autoFocus={shouldFocusAnalysis}
+                  />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  
+                  {query && (
+                    <button
+                      type="button"
+                      className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
+                      onClick={() => setQuery('')}
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    disabled={!query.trim() || isLoading}
+                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
+                      query.trim() && !isLoading 
+                        ? 'text-[#00FFFF] hover:text-[#00CCCC]' 
+                        : 'text-gray-600 cursor-not-allowed'
+                    } transition-colors`}
+                  >
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+              </form>
+              
+              {/* Example queries */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-400 mb-3">Try asking about:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {EXAMPLE_QUERIES.map((example, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleExampleClick(example)}
+                      className="bg-[#2A2D35] text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm hover:bg-[#333740] transition-colors truncate max-w-[200px] sm:max-w-[250px]"
+                    >
+                      {example}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Loading state */}
+          {isLoading && (
+            <div className="py-12 flex flex-col items-center justify-center">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-t-2 border-b-2 border-[#00FFFF] animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-[#212327]"></div>
+                </div>
+              </div>
+              <p className="mt-4 text-gray-400">Analyzing your query...</p>
+            </div>
+          )}
+          
+          {/* Results Display */}
+          {showResults && !isLoading && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-white">Results for your query</h2>
+                <button
+                  onClick={resetQuery}
+                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1"
+                >
+                  <X size={14} /> 
+                  New Query
+                </button>
+              </div>
+              
+              <div className="p-3 bg-[#2A2D35]/50 rounded-lg border border-[#444] mb-6">
+                <p className="text-gray-300 italic">"{query}"</p>
+              </div>
+              
+              {/* Mental Models Section */}
+              <div className="space-y-4">
+                <h3 className="flex items-center gap-2 text-lg font-medium text-[#00FFFF]">
+                  <Lightbulb className="h-5 w-5" />
+                  Mental Models
+                  <span className="text-sm font-normal text-gray-400">
+                    ({userTier === 'premium' ? '3 of 300' : '1 of 75'} available)
+                  </span>
+                </h3>
+                
+                {/* Premium Tier: 3 models */}
+                {userTier === 'premium' ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((item) => (
+                      <div 
+                        key={item}
+                        className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors"
+                      >
+                        <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
+                        <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
+                        <div className="mt-3 flex justify-end gap-2">
+                          <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
+                            Learn More
+                          </button>
+                          <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
+                            How to Apply
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // Free Tier: 1 model
+                  <div className="space-y-3">
+                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors">
+                      <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
+                      <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
+                          Learn More
+                        </button>
+                        <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
+                          How to Apply
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Premium Teaser */}
+                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
+                        <h4 className="font-medium text-[#8B5CF6]">Premium Models</h4>
+                      </div>
+                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 3-4 mental models per query and our full library of 300 models.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Cognitive Biases Section */}
+              <div className="space-y-4 mt-8">
+                <h3 className="flex items-center gap-2 text-lg font-medium text-yellow-400">
+                  <AlertTriangle className="h-5 w-5" />
+                  Cognitive Biases
+                  <span className="text-sm font-normal text-gray-400">
+                    ({userTier === 'premium' ? '2 of 246' : '1 of 40'} available)
+                  </span>
+                </h3>
+                
+                {/* Premium Tier: 2 biases */}
+                {userTier === 'premium' ? (
+                  <div className="space-y-3">
+                    {[1, 2].map((item) => (
+                      <div 
+                        key={item}
+                        className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors"
+                      >
+                        <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
+                        <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
+                        <div className="mt-3 flex justify-end gap-2">
+                          <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
+                            How to Recognize
+                          </button>
+                          <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
+                            How to Mitigate
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // Free Tier: 1 bias
+                  <div className="space-y-3">
+                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+                      <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
+                      <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
+                          How to Recognize
+                        </button>
+                        <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
+                          How to Mitigate
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Premium Teaser */}
+                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
+                        <h4 className="font-medium text-[#8B5CF6]">Premium Biases</h4>
+                      </div>
+                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 2-3 cognitive biases per query and our full library of 246 biases.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Visualization Section (Premium only) */}
+              {userTier === 'premium' && (
+                <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#8B5CF6]/30">
+                  <h3 className="flex items-center gap-2 text-lg font-medium text-[#8B5CF6] mb-3">
+                    <Crown className="h-5 w-5" /> 
+                    Relationships Visualization
+                  </h3>
+                  <div className="bg-[#1F1F1F] rounded-lg h-40 flex items-center justify-center">
+                    <p className="text-gray-400">Premium visualization will appear here</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Premium Upgrade CTA (Free tier only) */}
+              {userTier === 'free' && (
+                <div className="mt-8 p-6 bg-gradient-to-r from-[#1F1F1F] to-[#252525] rounded-xl border border-[#333333]">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-[#8B5CF6]/10 rounded-full p-3 border border-[#8B5CF6]/30">
+                      <Crown className="h-6 w-6 text-[#8B5CF6]" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2">
+                        Upgrade to Premium
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        Get unlimited queries, access to all 300 mental models, 246 biases, and the relationship visualization.
+                      </p>
+                      <button 
+                        className="bg-[#8B5CF6] text-white py-2 px-4 rounded-lg hover:bg-[#8B5CF6]/90 transition-colors"
+                      >
+                        View Premium Plans
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )} */}
-
-      {displayTier === 'free' && results.length > 0 && (
-         <div className="mt-10 p-6" style={{background: 'linear-gradient(to right, #6d28d9, #4f46e5)', color: 'white', borderRadius: '8px', textAlign: 'center'}}>
-          <h3 className="text-2xl font-bold mb-3">Unlock More Insights & Visualizations!</h3>
-          <p className="mb-4">Upgrade to Premium to get more recommendations and explore the interactive relationship map.</p>
-          {/* Using basic HTML button */}
-          <button style={{...basicButtonStyle, backgroundColor: 'white', color: '#4f46e5'}}>
-            Upgrade to Premium
-          </button>
-        </div>
-      )}
+        
+        {/* Query history or additional components could go here */}
+      </div>
     </div>
   );
 };
