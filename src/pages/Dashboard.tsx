@@ -14,7 +14,12 @@ import {
   Info,
   ChevronDown,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Brain,
+  Eye,
+  ChevronUp,
+  ExternalLink,
+  Layers
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -62,6 +67,7 @@ const Dashboard: React.FC = () => {
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
   const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState('');
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
@@ -136,6 +142,16 @@ const Dashboard: React.FC = () => {
     setIsTypingAnimation(false);
   };
 
+  const toggleCardExpansion = (toolId: string) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(toolId)) {
+      newExpanded.delete(toolId);
+    } else {
+      newExpanded.add(toolId);
+    }
+    setExpandedCards(newExpanded);
+  };
+
   const handleQuerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
@@ -143,6 +159,7 @@ const Dashboard: React.FC = () => {
     setIsLoading(true);
     setResults(null);
     setError(null);
+    setExpandedCards(new Set());
 
     if (!session?.access_token) {
       setError("Authentication error. Please log in again.");
@@ -193,10 +210,130 @@ const Dashboard: React.FC = () => {
     setError(null);
     setIsLoading(false);
     setIsTypingAnimation(true);
+    setExpandedCards(new Set());
   };
 
   const toggleDevTier = () => {
     setDevTestTier(prev => prev === 'free' ? 'premium' : 'free');
+  };
+
+  const renderToolCard = (tool: RecommendedTool, index: number) => {
+    const isMentalModel = tool.type === 'mental_model';
+    const isExpanded = expandedCards.has(tool.id);
+    
+    return (
+      <motion.div
+        key={tool.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.1 }}
+        className="group"
+      >
+        <div
+          className={`relative bg-[#252525]/80 backdrop-blur-sm rounded-xl border transition-all duration-300 overflow-hidden ${
+            isMentalModel 
+              ? 'border-[#00FFFF]/20 hover:border-[#00FFFF]/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.15)]' 
+              : 'border-amber-500/20 hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]'
+          }`}
+        >
+          {/* Card Glow Effect */}
+          <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+            isMentalModel 
+              ? 'bg-gradient-to-br from-[#00FFFF]/5 via-transparent to-[#00FFFF]/5' 
+              : 'bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5'
+          }`}></div>
+
+          {/* Card Content */}
+          <div className="relative p-6">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  {isMentalModel ? (
+                    <div className="p-2 bg-[#00FFFF]/10 rounded-lg">
+                      <Brain className="h-5 w-5 text-[#00FFFF]" />
+                    </div>
+                  ) : (
+                    <div className="p-2 bg-amber-500/10 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    </div>
+                  )}
+                  <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                </div>
+                
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    isMentalModel 
+                      ? 'bg-[#00FFFF]/10 text-[#00FFFF]' 
+                      : 'bg-amber-500/10 text-amber-500'
+                  }`}>
+                    {tool.category}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {isMentalModel ? 'Mental Model' : 'Cognitive Bias'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Summary */}
+            <p className="text-gray-300 text-sm leading-relaxed mb-4">
+              {tool.summary}
+            </p>
+
+            {/* Explanation Section */}
+            <div className="border-t border-[#333333] pt-4">
+              <button
+                onClick={() => toggleCardExpansion(tool.id)}
+                className={`w-full flex items-center justify-between p-3 -m-3 rounded-lg transition-colors ${
+                  isMentalModel 
+                    ? 'hover:bg-[#00FFFF]/5' 
+                    : 'hover:bg-amber-500/5'
+                }`}
+              >
+                <span className={`text-sm font-medium flex items-center gap-2 ${
+                  isMentalModel ? 'text-[#00FFFF]' : 'text-amber-500'
+                }`}>
+                  <Eye size={16} />
+                  How this applies to your situation
+                </span>
+                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-4 pl-1">
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {tool.explanation || "No specific explanation provided."}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Learn More Button */}
+            <div className="mt-4 flex justify-end">
+              <button className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all ${
+                isMentalModel 
+                  ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
+                  : 'text-amber-500 hover:bg-amber-500/10'
+              }`}>
+                Learn More
+                <ExternalLink size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
   };
 
   return (
@@ -308,7 +445,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Query Section */}
+        {/* Query Section - Keep the same as before */}
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
             <AnimatePresence mode="wait">
@@ -439,17 +576,155 @@ const Dashboard: React.FC = () => {
                   <p className="mt-2 text-sm text-gray-500">This might take a moment</p>
                 </motion.div>
               )}
-            </AnimatePresence>
 
-            {/* Results will be added in the next step */}
-            {results && !isLoading && (
-              <div className="text-center py-20">
-                <p className="text-gray-500">Results section will be added in the next step...</p>
-                <button onClick={resetQuery} className="mt-4 text-[#00FFFF] hover:underline">
-                  New Query
-                </button>
-              </div>
-            )}
+              {/* Results Section */}
+              {results && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="space-y-8"
+                >
+                  {/* Results Header */}
+                  <div className="text-center">
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+                          Lattice Insights
+                        </span>
+                      </h2>
+                      <p className="text-gray-400 text-sm sm:text-base">
+                        For: "{query}"
+                      </p>
+                      <button
+                        onClick={resetQuery}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg text-sm text-gray-300 hover:text-white transition-all"
+                      >
+                        <Search size={16} />
+                        New Query
+                      </button>
+                    </motion.div>
+                  </div>
+
+                  {/* Tools Grid */}
+                  {results.recommendedTools && results.recommendedTools.length > 0 ? (
+                    <div>
+                      {/* Mental Models Section */}
+                      {results.recommendedTools.filter(t => t.type === 'mental_model').length > 0 && (
+                        <div className="mb-8">
+                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <Brain className="h-5 w-5 text-[#00FFFF]" />
+                            Mental Models to Apply
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {results.recommendedTools
+                              .filter(tool => tool.type === 'mental_model')
+                              .map((tool, index) => renderToolCard(tool, index))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cognitive Biases Section */}
+                      {results.recommendedTools.filter(t => t.type === 'cognitive_bias').length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                            Cognitive Biases to Watch For
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {results.recommendedTools
+                              .filter(tool => tool.type === 'cognitive_bias')
+                              .map((tool, index) => renderToolCard(tool, index))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-gray-400">No specific tools found for this query. Try rephrasing your question.</p>
+                    </div>
+                  )}
+
+                  {/* Relationships Summary - Premium Feature */}
+                  {displayTier === 'premium' && results.relationshipsSummary && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5 backdrop-blur-sm rounded-xl p-6 border border-[#8B5CF6]/30"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-[#8B5CF6]/20 rounded-lg">
+                          <Layers className="h-5 w-5 text-[#8B5CF6]" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white">
+                          How These Connect
+                        </h3>
+                        <span className="ml-auto text-xs px-2 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
+                          Premium Insight
+                        </span>
+                      </div>
+                      <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                        {results.relationshipsSummary}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* Premium Upgrade Prompt - Free Users */}
+                  {displayTier === 'free' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      className="bg-gradient-to-r from-[#252525] to-[#2A2A2A] rounded-xl p-8 border border-[#333333] relative overflow-hidden"
+                    >
+                      {/* Background decoration */}
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-[#8B5CF6]/10 rounded-full filter blur-3xl"></div>
+                      
+                      <div className="relative flex flex-col md:flex-row items-center gap-6">
+                        <div className="p-4 bg-[#8B5CF6]/10 rounded-full">
+                          <Crown className="h-12 w-12 text-[#8B5CF6]" />
+                        </div>
+                        
+                        <div className="flex-1 text-center md:text-left">
+                          <h3 className="text-2xl font-bold mb-3">
+                            Unlock Deeper Insights
+                          </h3>
+                          <p className="text-gray-300 mb-4">
+                            Get 3-4 mental models, 2-3 biases per query, relationship analysis, and interactive visualizations with Premium.
+                          </p>
+                          <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <span className="text-xs px-3 py-1 bg-[#333333] rounded-full text-gray-300">
+                              Unlimited Queries
+                            </span>
+                            <span className="text-xs px-3 py-1 bg-[#333333] rounded-full text-gray-300">
+                              300+ Mental Models
+                            </span>
+                            <span className="text-xs px-3 py-1 bg-[#333333] rounded-full text-gray-300">
+                              246 Cognitive Biases
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <Link to="/pricing">
+                          <motion.button
+                            className="px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold rounded-lg transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Upgrade Now
+                          </motion.button>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -457,7 +732,7 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// Keep the same DashboardBackground component from before
+// Keep the same DashboardBackground component
 const DashboardBackground: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
