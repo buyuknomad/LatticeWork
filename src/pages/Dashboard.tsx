@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-// UI Components from Shadcn/ui (assuming you have them set up)
-// Example: import { Button } from "@/components/ui/button";
-// Example: import { Input } from "@/components/ui/input";
+// UI Components from Shadcn/ui
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 // Example: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // For now, we'll keep the styling similar to your previous version and focus on logic.
 
@@ -36,8 +36,8 @@ interface LatticeInsightResponse {
   recommendedTools: RecommendedTool[];
   relationshipsSummary?: string;
   error?: string;
-  message?: string; // Kept this from your interface, though my last Edge function version might not use it.
-  query_id?: string; // If your backend returns it
+  message?: string;
+  query_id?: string;
 }
 // --- END Type Definitions ---
 
@@ -88,14 +88,14 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
-    console.log("Attempting to submit query:", query); // Added console log
+    console.log("Attempting to submit query:", query);
 
     setIsLoading(true);
     setResults(null);
     setError(null);
 
     if (!session?.access_token) {
-      console.warn("Authentication error: No access token available."); // Added console log
+      console.warn("Authentication error: No access token available.");
       setError("Authentication error. Please log in again.");
       setIsLoading(false);
       return;
@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
 
     try {
       const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights`;
-      console.log("Calling Edge Function URL:", edgeFunctionUrl); // Added console log
+      console.log("Calling Edge Function URL:", edgeFunctionUrl);
 
       const response = await fetch(edgeFunctionUrl, {
         method: 'POST',
@@ -114,51 +114,39 @@ const Dashboard: React.FC = () => {
         body: JSON.stringify({ query: query }),
       });
 
-      // --- ADDED CONSOLE LOG ---
       console.log("Raw response from Edge Function (status, headers):", {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
-        // headers: Object.fromEntries(response.headers.entries()) // For detailed header view
       });
-      // --- END ADDED CONSOLE LOG ---
 
       setIsLoading(false);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ 
-          error: "An unexpected error occurred while parsing the error response.", 
-          details: response.statusText 
+        const errorData = await response.json().catch(() => ({
+          error: "An unexpected error occurred while parsing the error response.",
+          details: response.statusText
         }));
-        // Existing console.error is good.
         console.error("API Error Data (from !response.ok block):", errorData);
         setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
         return;
       }
 
       const data: LatticeInsightResponse = await response.json();
-
-      // --- ADDED CONSOLE LOG ---
       console.log("Parsed data from Edge Function (LatticeInsightResponse):", data);
-      // --- END ADDED CONSOLE LOG ---
 
       if (data.error) {
-        // --- ADDED CONSOLE LOG ---
         console.error("Error message received from backend logic:", data.error);
-        // --- END ADDED CONSOLE LOG ---
         setError(data.error);
       } else {
-        // --- ADDED CONSOLE LOGS ---
         console.log("Successfully received recommendedTools:", data.recommendedTools);
         if (data.relationshipsSummary) {
           console.log("Relationships summary:", data.relationshipsSummary);
         }
-        // --- END ADDED CONSOLE LOGS ---
         setResults(data);
       }
 
     } catch (err: any) {
-      // Existing console.error is good.
       console.error("Frontend Query Submit Error (catch block):", err);
       setIsLoading(false);
       setError(err.message || "Failed to fetch insights. Please try again.");
@@ -210,6 +198,7 @@ const Dashboard: React.FC = () => {
             </p>
         </details>
         <div className="mt-3 flex justify-end gap-2">
+          {/* Consider replacing this with Shadcn Button if a specific variant is desired, e.g., <Button variant="link" className="...">Learn More</Button> */}
           <button className={`text-xs bg-opacity-10 ${buttonBgHover} ${textColor} px-3 py-1 rounded transition-colors`}>
             Learn More
           </button>
@@ -250,28 +239,32 @@ const Dashboard: React.FC = () => {
             <div className="mb-4 p-3 bg-[#2D2D3A] rounded-lg border border-[#444]">
               <p className="text-sm text-gray-300 mb-2">Developer Mode: Toggle user tier for testing</p>
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={toggleDevTier}
                   disabled={devTestTier === 'free'}
                   className={`px-3 py-1 rounded-lg text-sm transition-colors ${
                     devTestTier === 'free'
-                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700 cursor-not-allowed'
-                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                      ? 'bg-cyan-700/30 text-cyan-300 border-cyan-700 cursor-not-allowed'
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444] border-[#555]'
                   }`}
                 >
                   Set to Free
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={toggleDevTier}
                   disabled={devTestTier === 'premium'}
                   className={`px-3 py-1 rounded-lg text-sm transition-colors ${
                     devTestTier === 'premium'
-                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700 cursor-not-allowed'
-                      : 'bg-[#333] text-gray-400 hover:bg-[#444]'
+                      ? 'bg-purple-700/30 text-purple-300 border-purple-700 cursor-not-allowed'
+                      : 'bg-[#333] text-gray-400 hover:bg-[#444] border-[#555]'
                   }`}
                 >
                   Set to Premium
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -298,48 +291,54 @@ const Dashboard: React.FC = () => {
             <div className="space-y-6">
               <form onSubmit={handleQuerySubmit}>
                 <div className="relative">
-                  <input
+                  <Input
                     type="text"
                     placeholder="What's on your mind? Ask any question..."
                     value={query}
                     onChange={handleQueryChange}
-                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] transition-shadow duration-300 shadow-sm"
+                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 pr-28 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00FFFF] transition-shadow duration-300 shadow-sm h-14 text-base" // Increased pr for buttons
                     autoFocus={shouldFocusAnalysis}
                   />
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 pointer-events-none" />
                   {query && !isLoading && (
-                    <button
+                    <Button
                       type="button"
-                      className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-14 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 h-9 w-9" // Adjusted positioning
                       onClick={() => setQuery('')}
                     >
                       <X size={18} />
-                    </button>
+                    </Button>
                   )}
-                  <button
+                  <Button
                     type="submit"
+                    variant="ghost"
+                    size="icon"
                     disabled={!query.trim() || isLoading}
-                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-9 w-9 ${ // Adjusted positioning
                       query.trim() && !isLoading
                         ? 'text-[#00FFFF] hover:text-[#00CCCC]'
                         : 'text-gray-600 cursor-not-allowed'
-                    } transition-colors`}
+                    }`}
                   >
                     <ArrowRight size={20} />
-                  </button>
+                  </Button>
                 </div>
               </form>
               <div>
                 <h3 className="text-sm font-medium text-gray-400 mb-3">Try asking about:</h3>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLE_QUERIES.map((example, index) => (
-                    <button
+                    <Button
                       key={index}
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleExampleClick(example)}
-                      className="bg-[#2A2D35] text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm hover:bg-[#333740] transition-colors truncate max-w-[200px] sm:max-w-[250px]"
+                      className="bg-[#2A2D35] text-gray-300 hover:text-white hover:bg-[#333740] border-[#444444] hover:border-[#00FFFF]/70 truncate max-w-[200px] sm:max-w-[250px]"
                     >
                       {example}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -364,7 +363,13 @@ const Dashboard: React.FC = () => {
               <div>
                 <h4 className="font-semibold">Analysis Error</h4>
                 <p className="text-sm">{error}</p>
-                <button onClick={resetQuery} className="text-xs underline hover:text-red-300 mt-1">Try a new query</button>
+                <Button
+                  variant="link"
+                  onClick={resetQuery}
+                  className="text-xs text-red-400 hover:text-red-300 mt-1 px-0 py-0 h-auto" // Shadcn link variant for "Try a new query"
+                >
+                  Try a new query
+                </Button>
               </div>
             </div>
           )}
@@ -376,13 +381,15 @@ const Dashboard: React.FC = () => {
                   <h2 className="text-2xl font-semibold text-white">Lattice Insights</h2>
                   <p className="text-gray-400 text-sm italic">For your query: "{query}"</p>
                 </div>
-                <button
+                <Button
+                  variant="outline" // Or another suitable variant
+                  size="sm"
                   onClick={resetQuery}
-                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1 bg-[#00FFFF]/10 px-3 py-2 rounded-lg hover:bg-[#00FFFF]/20 transition-colors"
+                  className="text-sm text-[#00FFFF] hover:text-white flex items-center gap-1 bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 border-[#00FFFF]/30 hover:border-[#00FFFF]/50"
                 >
                   <Search size={14} />
                   New Query
-                </button>
+                </Button>
               </div>
 
               <div>
@@ -440,7 +447,7 @@ const Dashboard: React.FC = () => {
                       </p>
                       <Link
                         to="/pricing"
-                        className="bg-[#A78BFA] text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-[#9370DB] transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="bg-[#A78BFA] text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-[#9370DB] transition-colors shadow-md hover:shadow-lg transform hover:scale-105 inline-block" // Added inline-block for proper styling of Link as button
                       >
                         Explore Premium Plans
                       </Link>
