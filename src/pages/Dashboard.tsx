@@ -733,6 +733,38 @@ const Dashboard: React.FC = () => {
   );
 };
 
+{displayTier === 'premium' && results.recommendedTools?.length > 0 && (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.4 }}
+    className="bg-[#252525]/50 backdrop-blur-sm rounded-xl p-6 border border-[#333333]"
+  >
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-[#8B5CF6]/20 rounded-lg">
+          <Layers className="h-5 w-5 text-[#8B5CF6]" />
+        </div>
+        <h3 className="text-lg font-semibold text-white">
+          Interactive Relationship Map
+        </h3>
+      </div>
+      <span className="text-xs px-2 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
+        Premium Feature
+      </span>
+    </div>
+    
+    <RelationshipVisualization 
+      tools={results.recommendedTools.map(tool => ({
+        id: tool.id,
+        name: tool.name,
+        type: tool.type,
+        category: tool.category
+      }))}
+      relationships={results.relationshipsSummary}
+    />
+  </motion.div>
+)}
 // Keep the same DashboardBackground component
 // Update only the DashboardBackground component in Dashboard.tsx
 const DashboardBackground: React.FC = () => {
