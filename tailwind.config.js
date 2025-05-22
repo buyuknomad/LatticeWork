@@ -1,12 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-export default { // Or module.exports = for CommonJS, but you use ES modules
-  darkMode: "class", // From your config
+export default {
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    container: { // From your config
+    container: {
       center: true,
       padding: "2rem",
       screens: {
@@ -14,18 +14,18 @@ export default { // Or module.exports = for CommonJS, but you use ES modules
       },
     },
     extend: {
-      colors: { // From your config
+      colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        // ... other colors
+        // Ensure your actual color definitions from index.css are here or remove if not used directly in config
       },
-      borderRadius: { // From your config
+      borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      keyframes: { // From your config
+      keyframes: {
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -35,11 +35,11 @@ export default { // Or module.exports = for CommonJS, but you use ES modules
           to: { height: "0" },
         },
       },
-      animation: { // From your config
+      animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")], // From your config
+  plugins: [ /* require("tailwindcss-animate") */ ], // Temporarily remove/comment out
 }
