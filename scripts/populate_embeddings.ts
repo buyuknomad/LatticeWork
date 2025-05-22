@@ -4,19 +4,19 @@ import { GoogleGenerativeAI, TaskType } from 'https://esm.sh/@google/generative-
 // --- Configuration ---
 // IMPORTANT: Use environment variables for sensitive keys, especially the service role key.
 // For Deno, you might load these from a .env file or set them directly in your run command.
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"); // Use Service Role Key for admin operations
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+const SUPABASE_URL = Deno.env.get("VITE_SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_KEY"); // Use Service Role Key for admin operations
+const GEMINI_API_KEY = Deno.env.get("VITE_GEMINI_API_KEY");
 
 const EMBEDDING_MODEL_NAME = "text-embedding-004"; // Google's embedding model
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
-  console.error("ERROR: Missing one or more required environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY).");
+  console.error("ERROR: Missing one or more required environment variables (VITE_SUPABASE_URL, SUPABASE_SERVICE_KEY, VITE_GEMINI_API_KEY).");
   Deno.exit(1);
 }
 
 // Initialize Supabase client with Service Role Key for admin access
-const supabaseAdmin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+const supabaseAdmin: SupabaseClient = createClient(VITE_SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: {
     persistSession: false, // Optional: prevent saving session to localStorage
     autoRefreshToken: false, // Optional: prevent auto-refreshing token
@@ -24,7 +24,7 @@ const supabaseAdmin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVIC
 });
 
 // Initialize Google Generative AI
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(VITE_GEMINI_API_KEY);
 const embeddingModel = genAI.getGenerativeModel({ model: EMBEDDING_MODEL_NAME });
 
 interface DataRecord {
