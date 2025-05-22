@@ -36,7 +36,7 @@ interface TableProgress {
   processedRecordIds: (string | number)[];
   failedRecordIds: Array<{ id: string | number; error: string; attempts: number }>;
   lastRanAt: string;
-  configUsedSnapshot: Pick<ScriptConfig, 'embeddingModelId' | 'targetEmbeddingDimensionality' | 'textSourceFields' | 'embeddingColumnName'>; // Per-table config snapshot
+  configUsedSnapshot: Pick<ScriptConfig, 'embeddingModelId' | 'targetEmbeddingDimensionality'> & { textSourceFields: Array<keyof DbRecord>; embeddingColumnName: string }; // Per-table config snapshot
 }
 
 interface ProcessingProgress {
@@ -103,7 +103,7 @@ function validateConfig(config: ScriptConfig): void {
     throw new Error('tablesToProcess cannot be empty');
   }
   
-  console.log('✓ Configuration validation passed');
+  console.log('✅ Configuration validation passed');
 }
 
 // --- Client Initialization ---
@@ -118,7 +118,7 @@ function initializeClients(): void {
     // Initialize Supabase client
     supabase = createClient(config.supabaseUrl, config.supabaseServiceKey);
     
-    console.log('✓ API clients initialized successfully');
+    console.log('✅ API clients initialized successfully');
   } catch (error: any) {
     throw new Error(`Failed to initialize clients: ${error.message}`);
   }
@@ -297,7 +297,7 @@ async function generateEmbeddingWithRetries(
             const result: EmbeddingResult = await embeddingApi.embedContent({
                 content: { parts: [{ text }] },
                 taskType: TaskType.RETRIEVAL_DOCUMENT,
-                outputDimensionality: config.targetEmbeddingDimensionality, // Requesting 1536
+                outputDimensionality: config.targetEmbeddingDimensionality,
             });
 
             const embeddingValues = result.embedding?.values;
@@ -414,8 +414,14 @@ async function processTableBackfill(
             const embeddingVector = await generateEmbeddingWithRetries(textToEmbed, recordId, "Combined Source Text");
 
             if (embeddingVector) {
+                console.log(`🔍 About to store embedding for ${recordId}:`);
+                console.log(`   Type: ${typeof embeddingVector}`);
+                console.log(`   Is Array: ${Array.isArray(embeddingVector)}`);
+                console.log(`   Length: ${embeddingVector.length}`);
+                console.log(`   Sample: [${embeddingVector.slice(0, 3).map(v => v.toFixed(6)).join(', ')}...]`);
+
                 const updatePayload: { [key: string]: any } = {};
-                updatePayload[embeddingColumn] = embeddingVector;
+                updatePayload[embeddingColumn] = embeddingVector; // Store raw array
 
                 const { error: updateError } = await supabase
                     .from(tableName)
@@ -427,7 +433,20 @@ async function processTableBackfill(
                     progressTracker.markFailed(tableName, recordId, updateError.message, config.maxRetries + 1);
                     itemsFailedInThisRun++;
                 } else {
-                    console.log(`Successfully generated and stored embedding for ID ${recordId} (${record.name}) in ${tableName}.`);
+                    console.log(`✅ Successfully generated and stored embedding for ID ${recordId} (${record.name}) in ${tableName}.`);
+                    
+                    // Quick verification of what was stored
+                    const { data: verifyData, error: verifyError } = await supabase
+                        .from(tableName)
+                        .select(`${idColumn}, ${embeddingColumn}`)
+                        .eq(idColumn, recordId)
+                        .single();
+                    
+                    if (verifyData && !verifyError) {
+                        const storedEmbedding = verifyData[embeddingColumn];
+                        console.log(`🔍 Verification - Stored as: ${typeof storedEmbedding}, Is Array: ${Array.isArray(storedEmbedding)}`);
+                    }
+                    
                     progressTracker.markProcessed(tableName, recordId, currentOffset + records.indexOf(record) + 1); // Update offset based on actual position
                     itemsProcessedInThisRun++;
                 }
