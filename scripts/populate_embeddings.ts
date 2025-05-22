@@ -17,8 +17,8 @@ const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
 // const EMBEDDING_DIMENSION = 768;
 
 // Option 2: The experimental 1536-dimension model you mentioned
-const EMBEDDING_MODEL_NAME = "models/embedding-001"; // Official model name for recent text embeddings from Google
-const EMBEDDING_DIMENSION = 768; // Standard output for embedding-001, if you meant a 1536 one, ensure correct model name
+const EMBEDDING_MODEL_NAME = "gemini-embedding-exp-03-07"; // Official model name for recent text embeddings from Google
+const EMBEDDING_DIMENSION = 1536; // Standard output for embedding-001, if you meant a 1536 one, ensure correct model name
 
 // If you specifically found a "gemini-embedding-exp-03-07" that outputs 1536,
 // and it's available via the API key you have, you could use that:
