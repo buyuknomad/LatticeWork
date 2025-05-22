@@ -73,18 +73,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Attempting to sign out');
       setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
       
-      if (error) {
-        console.error('Error signing out:', error);
+      // Check if there's actually a session to sign out from
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        console.log('No active session to sign out from');
+        // Clear local state anyway
+        setSession(null);
+        setUser(null);
+        setIsLoading(false);
         return;
       }
       
-      console.log('Successfully signed out');
-      setSession(null);
-      setUser(null);
+      // Attempt to sign out
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        // If error is about missing session, just clear local state
+        if (error.message.includes('session') || error.message.includes('Session')) {
+          console.log('Session already expired, clearing local state');
+          setSession(null);
+          setUser(null);
+        } else {
+          console.error('Error signing out:', error);
+          throw error;
+        }
+      } else {
+        console.log('Successfully signed out');
+        setSession(null);
+        setUser(null);
+      }
     } catch (err) {
       console.error('Unexpected error during sign out:', err);
+      // Even on error, clear local state to ensure user can "sign out"
+      setSession(null);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
