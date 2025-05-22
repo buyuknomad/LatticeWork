@@ -733,6 +733,7 @@ const Dashboard: React.FC = () => {
 };
 
 // Keep the same DashboardBackground component
+// Update only the DashboardBackground component in Dashboard.tsx
 const DashboardBackground: React.FC = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
@@ -756,28 +757,33 @@ const DashboardBackground: React.FC = () => {
       color: string;
     }> = [];
     
-    for (let i = 0; i < 50; i++) {
+    // Fewer particles for cleaner look
+    for (let i = 0; i < 30; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.1,
+        size: Math.random() * 1.5 + 0.5, // Slightly smaller
+        speedX: (Math.random() - 0.5) * 0.3, // Slower movement
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.3 + 0.1, // More subtle opacity
         color: Math.random() > 0.5 ? '#00FFFF' : '#8B5CF6'
       });
     }
     
     const animate = () => {
-      ctx.fillStyle = 'rgba(26, 26, 26, 0.05)';
+      // Increased opacity for faster fade (0.15 instead of 0.05)
+      ctx.fillStyle = 'rgba(26, 26, 26, 0.15)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       particles.forEach(particle => {
         particle.x += particle.speedX;
         particle.y += particle.speedY;
         
-        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+        // Wrap around edges instead of bouncing for smoother movement
+        if (particle.x < 0) particle.x = canvas.width;
+        if (particle.x > canvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = canvas.height;
+        if (particle.y > canvas.height) particle.y = 0;
         
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
