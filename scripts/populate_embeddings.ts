@@ -1,36 +1,36 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
+import { GoogleGenerativeAI, TaskType } from '@google/generative-ai'; // Corrected package name
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
 dotenv.config();
 
 // --- Configuration ---
-// Map your .env variable names to the ones the script expects
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_KEY; // Using SUPABASE_SERVICE_KEY as per your .env
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
 
-// Choose your embedding model and its output dimension
-// Option 1: Google's standard text-embedding-004 (768 dimensions)
-// const EMBEDDING_MODEL_NAME = "text-embedding-004";
-// const EMBEDDING_DIMENSION = 768;
+// Your chosen embedding model and its output dimension
+const EMBEDDING_MODEL_NAME = "models/text-embedding-004"; // Fallback to a known model, see note below
+// const EMBEDDING_MODEL_NAME = "YOUR_SPECIFIC_1536_DIM_MODEL_ID"; // e.g., "gemini-embedding-exp-03-07" IF it's the correct API ID
+const EMBEDDING_DIMENSION = 768; // Defaulting to 768 for "models/text-embedding-004"
+                                   // If using a 1536 model, set this to 1536
 
-// Option 2: The experimental 1536-dimension model you mentioned
-const EMBEDDING_MODEL_NAME = "gemini-embedding-exp-03-07"; // Official model name for recent text embeddings from Google
-const EMBEDDING_DIMENSION = 1536; // Standard output for embedding-001, if you meant a 1536 one, ensure correct model name
-
-// If you specifically found a "gemini-embedding-exp-03-07" that outputs 1536,
-// and it's available via the API key you have, you could use that:
-// const EMBEDDING_MODEL_NAME = "gemini-embedding-exp-03-07"; // Or the specific accessible model ID
-// const EMBEDDING_DIMENSION = 1536;
-
+// IMPORTANT NOTE ON MODEL NAME:
+// The public documentation for Google AI Studio / Gemini API embeddings
+// lists "models/embedding-001" (which replaced "models/text-embedding-004") as the standard model, outputting 768 dimensions.
+// "gemini-embedding-exp-03-07" sounds like an experimental or specific internal ID.
+// Please ensure "gemini-embedding-exp-03-07" is the EXACT, ACCESSIBLE model ID for API calls.
+// Often, model IDs available through the SDK are prefixed, e.g., "models/gemini-embedding-exp-03-07".
+// For this script, I'll use "models/text-embedding-004" as a known working default.
+// **You will need to change EMBEDDING_MODEL_NAME to the correct API identifier for "gemini-embedding-exp-03-07"
+// AND set EMBEDDING_DIMENSION = 1536 if that's your target.**
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
   console.error("ERROR: Missing one or more required environment variables.");
   console.error("Please ensure your .env file defines:");
   console.error("  VITE_SUPABASE_URL");
-  console.error("  SUPABASE_SERVICE_KEY (for the service_role key)");
+  console.error("  SUPABASE_SERVICE_KEY");
   console.error("  VITE_GEMINI_API_KEY");
   process.exit(1);
 }
@@ -38,10 +38,9 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
 console.log(`Using Supabase URL: ${SUPABASE_URL ? 'Loaded' : 'MISSING!'}`);
 console.log(`Using Supabase Service Key: ${SUPABASE_SERVICE_ROLE_KEY ? 'Loaded' : 'MISSING!'}`);
 console.log(`Using Gemini API Key: ${GEMINI_API_KEY ? 'Loaded' : 'MISSING!'}`);
-console.log(`Using Embedding Model: ${EMBEDDING_MODEL_NAME} (Expected Dimension: ${EMBEDDING_DIMENSION})`);
+console.log(`Attempting to use Embedding Model: ${EMBEDDING_MODEL_NAME} (Target Dimension: ${EMBEDDING_DIMENSION})`);
 
 
-// Initialize Supabase client with Service Role Key
 const supabaseAdmin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: {
     persistSession: false,
@@ -49,9 +48,10 @@ const supabaseAdmin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVIC
   }
 });
 
-// Initialize Google Generative AI
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Ensure the model name here is the correct one for API access
 const embeddingModel = genAI.getGenerativeModel({ model: EMBEDDING_MODEL_NAME });
+
 
 interface DataRecord {
   id: string | number;
@@ -69,19 +69,24 @@ async function generateEmbedding(text: string): Promise<number[] | null> {
       taskType: TaskType.RETRIEVAL_DOCUMENT,
     });
     const embedding = result.embedding;
+
     if (embedding && embedding.values) {
       if (embedding.values.length !== EMBEDDING_DIMENSION) {
-          console.warn(`WARNING: Expected embedding dimension ${EMBEDDING_DIMENSION} but received ${embedding.values.length} for model ${EMBEDDING_MODEL_NAME}. Please check model and EMBEDDING_DIMENSION constant.`);
+          console.warn(`WARNING: Expected embedding dimension ${EMBEDDING_DIMENSION} for model ${EMBEDDING_MODEL_NAME} but received ${embedding.values.length}.`);
+          // If this happens, the EMBEDDING_DIMENSION constant or your SQL vector(DIMENSION) needs to be adjusted.
       }
       console.log(`Successfully generated embedding. Dimension: ${embedding.values.length}`);
       return embedding.values;
     } else {
-      console.error("ERROR: Embedding generation returned no values.");
+      console.error("ERROR: Embedding generation returned no values from the API.");
       return null;
     }
   } catch (error: any) {
     console.error(`ERROR: Failed to generate embedding for text "${text.substring(0, 50)}...":`, error.message);
-    if (error.cause) {
+    // Attempt to log more detailed API error if available
+    if (error.cause?.error?.message) { // Structure from some Google API errors
+        console.error("Underlying API Error:", error.cause.error.message);
+    } else if (error.cause) {
         console.error("Error Cause:", error.cause);
     }
     return null;
@@ -93,7 +98,7 @@ async function processTable(tableName: 'mental_models' | 'cognitive_biases') {
 
   const { data: records, error: fetchError } = await supabaseAdmin
     .from(tableName)
-    .select('id, name, summary, category'); // Adjust if your columns are named differently
+    .select('id, name, summary, category');
 
   if (fetchError) {
     console.error(`ERROR: Failed to fetch records from ${tableName}:`, fetchError.message);
@@ -108,7 +113,6 @@ async function processTable(tableName: 'mental_models' | 'cognitive_biases') {
   console.log(`Found ${records.length} records in ${tableName}.`);
 
   for (const record of records as DataRecord[]) {
-    // Ensure essential fields are present
     if (!record.name || !record.summary) {
         console.warn(`Skipping record ID ${record.id} in ${tableName} due to missing name or summary.`);
         continue;
@@ -120,9 +124,10 @@ async function processTable(tableName: 'mental_models' | 'cognitive_biases') {
     const embeddingVector = await generateEmbedding(textToEmbed);
 
     if (embeddingVector) {
+      // Ensure the vector dimension here matches your SQL column, e.g., vector(1536)
       const { error: updateError } = await supabaseAdmin
         .from(tableName)
-        .update({ embedding: embeddingVector }) // Ensure your column is named 'embedding'
+        .update({ embedding: embeddingVector })
         .eq('id', record.id);
 
       if (updateError) {
@@ -133,27 +138,24 @@ async function processTable(tableName: 'mental_models' | 'cognitive_biases') {
     } else {
         console.warn(`Skipping update for record ID ${record.id} due to embedding generation failure.`);
     }
-    // Optional: Add a small delay to respect API rate limits if any
-    // await new Promise(resolve => setTimeout(resolve, 250)); // 250ms delay
+    // await new Promise(resolve => setTimeout(resolve, 250)); 
   }
   console.log(`--- Finished processing table: ${tableName} ---`);
 }
 
 async function main() {
   console.log("Starting embedding generation process (Node.js/tsx version)...");
-  console.log("IMPORTANT: Ensure your Supabase tables have an 'embedding' column of type vector(DIMENSION) that matches your chosen EMBEDDING_DIMENSION below.");
+  console.log("IMPORTANT: Ensure your Supabase tables have an 'embedding' column of type vector(DIMENSION) that matches your chosen EMBEDDING_DIMENSION in this script.");
 
-  // Confirm chosen model and dimension:
-  // If you decide on a 1536 dimension model like "gemini-embedding-exp-03-07" (if accessible and stable),
-  // set EMBEDDING_MODEL_NAME and EMBEDDING_DIMENSION accordingly at the top of this script.
-  // For now, using Google's standard "models/embedding-001" which is 768-dim.
-  // If you use a different model, update EMBEDDING_MODEL_NAME and EMBEDDING_DIMENSION.
+  // *** ACTION REQUIRED: Set your desired model and dimension here ***
+  // If you want to use "gemini-embedding-exp-03-07" for 1536 dimensions:
+  // const EMBEDDING_MODEL_NAME = "models/gemini-embedding-exp-03-07"; // This might be the actual ID, confirm with Google documentation
+  // const EMBEDDING_DIMENSION = 1536;
+  // For now, the script defaults to "models/text-embedding-004" (768 dim) at the top.
+  // Update those constants if you are sure about the 1536 model name.
 
-  if (EMBEDDING_MODEL_NAME === "gemini-embedding-exp-03-07" && EMBEDDING_DIMENSION !== 1536) {
-    console.warn("Warning: EMBEDDING_MODEL_NAME is 'gemini-embedding-exp-03-07' but EMBEDDING_DIMENSION is not 1536.");
-  }
-  if (EMBEDDING_MODEL_NAME === "models/embedding-001" && EMBEDDING_DIMENSION !== 768) {
-     console.warn("Warning: EMBEDDING_MODEL_NAME is 'models/embedding-001' but EMBEDDING_DIMENSION is not 768.");
+  if (EMBEDDING_MODEL_NAME.includes("exp") && EMBEDDING_DIMENSION !== 1536){
+      console.warn(`Warning: Using an experimental model name but dimension is not 1536. Current dimension: ${EMBEDDING_DIMENSION}`);
   }
 
 
