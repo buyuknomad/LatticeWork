@@ -1,20 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // MODIFIED: Added useEffect
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { 
-  Settings, 
-  Search, 
-  Zap, 
-  Crown, 
-  Lightbulb, 
-  AlertTriangle, 
+import {
+  Settings,
+  Search,
+  Zap,
+  Crown,
+  Lightbulb,
+  AlertTriangle,
   ArrowRight,
   X,
-  Info
+  Info,
+  ChevronDown, // Example, if needed for accordions or dropdowns
+  AlertCircle // For displaying errors
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-// Mock data for testing
+// UI Components from Shadcn/ui (assuming you have them set up)
+// Example: import { Button } from "@/components/ui/button";
+// Example: import { Input } from "@/components/ui/input";
+// Example: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// For now, we'll keep the styling similar to your previous version and focus on logic.
+
+// --- NEW: Type Definitions ---
+interface RecommendedTool {
+  id: string; // Or number, depending on your DB schema
+  name: string;
+  category: string; // e.g., "Decision Making", "Problem Solving"
+  summary: string;
+  type: 'mental_model' | 'cognitive_bias';
+  explanation: string; // LLM-generated explanation
+}
+
+interface LatticeInsightResponse {
+  recommendedTools: RecommendedTool[];
+  relationshipsSummary?: string;
+  error?: string;
+  message?: string;
+  query_id?: string; // If your backend returns it
+}
+// --- END NEW: Type Definitions ---
+
 const EXAMPLE_QUERIES = [
   "How do I prioritize my competing tasks?",
   "Should I trust my intuition or analyze data?",
@@ -23,85 +49,177 @@ const EXAMPLE_QUERIES = [
 ];
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth(); // MODIFIED: Added session for JWT
   const location = useLocation();
-  const [userTier, setUserTier] = useState<'free' | 'premium'>('free');
+
+  // MODIFIED: State variables
+  const [actualUserTier, setActualUserTier] = useState<'free' | 'premium'>('free');
+  const [devTestTier, setDevTestTier] = useState<'free' | 'premium'>('free');
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [showTierToggle, setShowTierToggle] = useState(false);
-  
-  // Check if we should automatically focus on analysis (from landing page)
+  const [results, setResults] = useState<LatticeInsightResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showTierToggle, setShowTierToggle] = useState(false); // For dev mode
+
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
-  
-  // Extract username from either metadata or email
+
+  // NEW: Determine actual user tier from AuthContext
+  useEffect(() => {
+    if (user?.user_metadata?.tier) {
+      const tier = user.user_metadata.tier as 'free' | 'premium';
+      setActualUserTier(tier);
+      setDevTestTier(tier); // Initialize devTestTier with actual tier
+    }
+  }, [user]);
+
+  // This is the tier used for UI rendering (can be overridden by dev toggle)
+  const displayTier = showTierToggle ? devTestTier : actualUserTier;
+
   const getDisplayName = () => {
     if (!user) return 'User';
-    
-    if (user.user_metadata?.username) {
-      return user.user_metadata.username;
-    }
-    
-    if (user.email) {
-      return user.email.split('@')[0];
-    }
-    
+    if (user.user_metadata?.username) return user.user_metadata.username;
+    if (user.email) return user.email.split('@')[0];
     return 'User';
   };
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
+    setError(null); // Clear previous errors on new input
   };
 
-  const handleQuerySubmit = (e: React.FormEvent) => {
+  // --- MODIFIED: handleQuerySubmit ---
+  const handleQuerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
-    
+    if (!query.trim() || isLoading) return;
+
     setIsLoading(true);
-    
-    // Simulate API call timing
-    setTimeout(() => {
+    setResults(null);
+    setError(null);
+
+    if (!session?.access_token) {
+      setError("Authentication error. Please log in again.");
       setIsLoading(false);
-      setShowResults(true);
-    }, 1500);
+      return;
+    }
+
+    try {
+      // IMPORTANT: Replace with your actual Supabase Edge Function URL
+      const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights`;
+
+      const response = await fetch(edgeFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ query_text: query }),
+      });
+
+      setIsLoading(false);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "An unexpected error occurred.", details: response.statusText }));
+        console.error("API Error Data:", errorData);
+        setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
+        return;
+      }
+
+      const data: LatticeInsightResponse = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResults(data);
+      }
+
+    } catch (err: any) {
+      console.error("Frontend Query Submit Error:", err);
+      setIsLoading(false);
+      setError(err.message || "Failed to fetch insights. Please try again.");
+    }
   };
+  // --- END MODIFIED: handleQuerySubmit ---
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
+    setError(null);
+    setResults(null);
   };
 
   const resetQuery = () => {
     setQuery('');
-    setShowResults(false);
+    setResults(null);
+    setError(null);
+    setIsLoading(false);
   };
 
-  const toggleTier = () => {
-    setUserTier(userTier === 'free' ? 'premium' : 'free');
+  const toggleDevTier = () => {
+    setDevTestTier(prev => prev === 'free' ? 'premium' : 'free');
   };
+
+
+  // --- NEW: Helper to render result cards ---
+  const renderResultCard = (tool: RecommendedTool) => {
+    const isMentalModel = tool.type === 'mental_model';
+    const borderColor = isMentalModel ? 'border-[#00FFFF]/30 hover:border-[#00FFFF]/50' : 'border-yellow-500/30 hover:border-yellow-500/50';
+    const textColor = isMentalModel ? 'text-[#00FFFF]' : 'text-yellow-400';
+    const buttonBgHover = isMentalModel ? 'hover:bg-[#00FFFF]/20' : 'hover:bg-yellow-500/20';
+
+    return (
+      <motion.div
+        key={tool.id || tool.name} // Prefer ID if unique and stable
+        className={`bg-[#2A2D35] p-4 rounded-lg border ${borderColor} transition-colors shadow-md`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h4 className="font-semibold text-white text-lg mb-1">{tool.name}</h4>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full mb-2 inline-block ${isMentalModel ? 'bg-[#00FFFF]/10 text-[#00FFFF]' : 'bg-yellow-500/10 text-yellow-400'}`}>
+          {tool.category} - {isMentalModel ? 'Mental Model' : 'Cognitive Bias'}
+        </span>
+        <p className="text-gray-300 text-sm mb-3">{tool.summary}</p>
+        <details className="mb-3">
+            <summary className={`text-sm ${textColor} cursor-pointer hover:underline`}>
+                LLM Explanation
+            </summary>
+            <p className="text-gray-400 text-sm mt-2 bg-[#212327] p-3 rounded">
+                {tool.explanation || "No explanation provided."}
+            </p>
+        </details>
+        <div className="mt-3 flex justify-end gap-2">
+          <button className={`text-xs bg-opacity-10 ${buttonBgHover} ${textColor} px-3 py-1 rounded transition-colors`}>
+            Learn More
+          </button>
+          {/* <button className={`text-xs bg-opacity-20 ${buttonBgHover} ${textColor} px-3 py-1 rounded transition-colors`}>
+            How to Apply
+          </button> */}
+        </div>
+      </motion.div>
+    );
+  };
+  // --- END NEW: Helper to render result cards ---
+
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4 bg-[#16181A] text-gray-100"> {/* MODIFIED: Added bg and text color */}
       <div className="max-w-4xl mx-auto">
-        {/* Header Section with User Welcome and Settings */}
-        <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-lg mb-6">
+        <div className="bg-[#212327] rounded-xl p-6 md:p-8 shadow-2xl mb-6"> {/* MODIFIED: shadow */}
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl md:text-3xl font-bold">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
               Welcome, {getDisplayName()}!
             </h1>
             <div className="flex items-center gap-3">
-              {/* Dev-only tier toggle button */}
               <motion.button
                 className="hidden md:flex items-center gap-1 text-xs bg-[#2D2D3A] px-2 py-1 rounded text-gray-400 hover:text-gray-300"
                 onClick={() => setShowTierToggle(!showTierToggle)}
                 whileHover={{ scale: 1.05 }}
-                title="Developer Toggle"
+                title="Developer Tier Toggle"
               >
                 <Info size={12} />
-                <span>Dev</span>
+                <span>Dev Mode: {showTierToggle ? 'ON' : 'OFF'}</span>
               </motion.button>
-              
-              <Link 
-                to="/settings" 
+              <Link
+                to="/settings"
                 className="bg-[#2A2D35] p-2 rounded-lg hover:bg-[#333740] transition-colors"
                 title="Profile Settings"
               >
@@ -109,71 +227,69 @@ const Dashboard: React.FC = () => {
               </Link>
             </div>
           </div>
-          
-          {/* Dev Mode Tier Toggle */}
+
           {showTierToggle && (
             <div className="mb-4 p-3 bg-[#2D2D3A] rounded-lg border border-[#444]">
               <p className="text-sm text-gray-300 mb-2">Developer Mode: Toggle user tier for testing</p>
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={toggleTier}
+                <button
+                  onClick={toggleDevTier}
+                  disabled={devTestTier === 'free'}
                   className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                    userTier === 'free' 
-                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700' 
+                    devTestTier === 'free'
+                      ? 'bg-cyan-700/30 text-cyan-300 border border-cyan-700 cursor-not-allowed'
                       : 'bg-[#333] text-gray-400 hover:bg-[#444]'
                   }`}
                 >
-                  Free Tier
+                  Set to Free
                 </button>
-                <button 
-                  onClick={toggleTier}
+                <button
+                  onClick={toggleDevTier}
+                  disabled={devTestTier === 'premium'}
                   className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                    userTier === 'premium' 
-                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700' 
+                    devTestTier === 'premium'
+                      ? 'bg-purple-700/30 text-purple-300 border border-purple-700 cursor-not-allowed'
                       : 'bg-[#333] text-gray-400 hover:bg-[#444]'
                   }`}
                 >
-                  Premium Tier
+                  Set to Premium
                 </button>
               </div>
             </div>
           )}
-          
-          {/* Current User Tier */}
+
           <div className="flex items-center gap-2 mb-4">
-            {userTier === 'premium' ? (
-              <div className="flex items-center gap-2 text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-1 rounded-full text-sm border border-[#8B5CF6]/30">
+            {displayTier === 'premium' ? (
+              <div className="flex items-center gap-2 text-[#A78BFA] bg-[#A78BFA]/10 px-3 py-1 rounded-full text-sm border border-[#A78BFA]/30"> {/* MODIFIED: Color */}
                 <Crown size={14} />
-                <span>Premium</span>
+                <span>Premium Tier</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-[#00FFFF] bg-[#00FFFF]/10 px-3 py-1 rounded-full text-sm border border-[#00FFFF]/30">
+              <div className="flex items-center gap-2 text-[#22D3EE] bg-[#22D3EE]/10 px-3 py-1 rounded-full text-sm border border-[#22D3EE]/30"> {/* MODIFIED: Color */}
                 <Zap size={14} />
-                <span>Free Tier • 2 queries/day</span>
+                <span>Free Tier</span> {/* Query limit info can be dynamic if fetched */}
               </div>
             )}
           </div>
-          
+
           <p className="text-gray-300 mb-6">
-            Use your mental models toolkit to analyze situations, make better decisions, and avoid cognitive biases.
+            Describe your challenge or question. Cosmic Lattice will analyze it and suggest relevant mental models and cognitive biases.
           </p>
-          
-          {/* Query form */}
-          {!showResults && (
+
+          {!results && !isLoading && ( // MODIFIED: Show form if no results and not loading
             <div className="space-y-6">
               <form onSubmit={handleQuerySubmit}>
                 <div className="relative">
-                  <input
+                  <input // CONSIDER: Replace with Shadcn Input
                     type="text"
                     placeholder="What's on your mind? Ask any question..."
                     value={query}
                     onChange={handleQueryChange}
-                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] transition-shadow duration-300"
+                    className="w-full bg-[#2A2D35] text-white rounded-xl px-5 py-4 pl-12 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] transition-shadow duration-300 shadow-sm" // MODIFIED: Shadow
                     autoFocus={shouldFocusAnalysis}
                   />
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  
-                  {query && (
+                  {query && !isLoading && (
                     <button
                       type="button"
                       className="absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
@@ -182,13 +298,12 @@ const Dashboard: React.FC = () => {
                       <X size={18} />
                     </button>
                   )}
-                  
-                  <button
+                  <button // CONSIDER: Replace with Shadcn Button
                     type="submit"
                     disabled={!query.trim() || isLoading}
                     className={`absolute right-4 top-1/2 transform -translate-y-1/2 ${
-                      query.trim() && !isLoading 
-                        ? 'text-[#00FFFF] hover:text-[#00CCCC]' 
+                      query.trim() && !isLoading
+                        ? 'text-[#00FFFF] hover:text-[#00CCCC]'
                         : 'text-gray-600 cursor-not-allowed'
                     } transition-colors`}
                   >
@@ -196,13 +311,11 @@ const Dashboard: React.FC = () => {
                   </button>
                 </div>
               </form>
-              
-              {/* Example queries */}
               <div>
                 <h3 className="text-sm font-medium text-gray-400 mb-3">Try asking about:</h3>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLE_QUERIES.map((example, index) => (
-                    <button
+                    <button // CONSIDER: Replace with Shadcn Button (variant="outline")
                       key={index}
                       onClick={() => handleExampleClick(example)}
                       className="bg-[#2A2D35] text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm hover:bg-[#333740] transition-colors truncate max-w-[200px] sm:max-w-[250px]"
@@ -214,8 +327,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           )}
-          
-          {/* Loading state */}
+
           {isLoading && (
             <div className="py-12 flex flex-col items-center justify-center">
               <div className="relative">
@@ -224,178 +336,107 @@ const Dashboard: React.FC = () => {
                   <div className="h-10 w-10 rounded-full bg-[#212327]"></div>
                 </div>
               </div>
-              <p className="mt-4 text-gray-400">Analyzing your query...</p>
+              <p className="mt-4 text-gray-400">Analyzing your query with Cosmic Lattice...</p>
             </div>
           )}
-          
-          {/* Results Display */}
-          {showResults && !isLoading && (
-            <div className="space-y-6">
+
+          {/* --- MODIFIED: Error Display --- */}
+          {error && !isLoading && (
+            <div className="my-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 flex items-center gap-3">
+              <AlertCircle size={20} />
+              <div>
+                <h4 className="font-semibold">Analysis Error</h4>
+                <p className="text-sm">{error}</p>
+                <button onClick={resetQuery} className="text-xs underline hover:text-red-300 mt-1">Try a new query</button>
+              </div>
+            </div>
+          )}
+          {/* --- END MODIFIED: Error Display --- */}
+
+
+          {/* --- MODIFIED: Results Display --- */}
+          {results && !isLoading && !error && (
+            <div className="space-y-8 mt-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">Results for your query</h2>
+                <div>
+                    <h2 className="text-2xl font-semibold text-white">Lattice Insights</h2>
+                    <p className="text-gray-400 text-sm italic">For your query: "{query}"</p>
+                </div>
                 <button
                   onClick={resetQuery}
-                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1"
+                  className="text-sm text-[#00FFFF] hover:underline flex items-center gap-1 bg-[#00FFFF]/10 px-3 py-2 rounded-lg hover:bg-[#00FFFF]/20 transition-colors" // MODIFIED: Style
                 >
-                  <X size={14} /> 
+                  <Search size={14} />
                   New Query
                 </button>
               </div>
-              
-              <div className="p-3 bg-[#2A2D35]/50 rounded-lg border border-[#444] mb-6">
-                <p className="text-gray-300 italic">"{query}"</p>
-              </div>
-              
-              {/* Mental Models Section */}
-              <div className="space-y-4">
-                <h3 className="flex items-center gap-2 text-lg font-medium text-[#00FFFF]">
-                  <Lightbulb className="h-5 w-5" />
-                  Mental Models
-                  <span className="text-sm font-normal text-gray-400">
-                    ({userTier === 'premium' ? '3 of 300' : '1 of 75'} available)
-                  </span>
+
+              {/* Recommended Tools Section */}
+              <div>
+                <h3 className="flex items-center gap-2 text-xl font-medium text-white mb-4">
+                  Recommended Tools
                 </h3>
-                
-                {/* Premium Tier: 3 models */}
-                {userTier === 'premium' ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((item) => (
-                      <div 
-                        key={item}
-                        className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors"
-                      >
-                        <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
-                        <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                            Learn More
-                          </button>
-                          <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                            How to Apply
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {results.recommendedTools && results.recommendedTools.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {results.recommendedTools
+                            .filter(tool => tool.type === 'mental_model')
+                            .map(renderResultCard)}
+                        {results.recommendedTools
+                            .filter(tool => tool.type === 'cognitive_bias')
+                            .map(renderResultCard)}
+                    </div>
                 ) : (
-                  // Free Tier: 1 model
-                  <div className="space-y-3">
-                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-[#00FFFF]/20 hover:border-[#00FFFF]/40 transition-colors">
-                      <h4 className="font-medium text-white mb-2">First Principles Thinking</h4>
-                      <p className="text-gray-300 text-sm">Breaking down complex problems into their most fundamental truths and building solutions from the ground up.</p>
-                      <div className="mt-3 flex justify-end gap-2">
-                        <button className="text-xs bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                          Learn More
-                        </button>
-                        <button className="text-xs bg-[#00FFFF]/20 hover:bg-[#00FFFF]/30 text-[#00FFFF] px-3 py-1 rounded transition-colors">
-                          How to Apply
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Premium Teaser */}
-                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
-                        <h4 className="font-medium text-[#8B5CF6]">Premium Models</h4>
-                      </div>
-                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 3-4 mental models per query and our full library of 300 models.</p>
-                    </div>
-                  </div>
+                    <p className="text-gray-400">No specific tools recommended for this query. Try rephrasing or asking something different.</p>
                 )}
               </div>
-              
-              {/* Cognitive Biases Section */}
-              <div className="space-y-4 mt-8">
-                <h3 className="flex items-center gap-2 text-lg font-medium text-yellow-400">
-                  <AlertTriangle className="h-5 w-5" />
-                  Cognitive Biases
-                  <span className="text-sm font-normal text-gray-400">
-                    ({userTier === 'premium' ? '2 of 246' : '1 of 40'} available)
-                  </span>
-                </h3>
-                
-                {/* Premium Tier: 2 biases */}
-                {userTier === 'premium' ? (
-                  <div className="space-y-3">
-                    {[1, 2].map((item) => (
-                      <div 
-                        key={item}
-                        className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors"
-                      >
-                        <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
-                        <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
-                            How to Recognize
-                          </button>
-                          <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
-                            How to Mitigate
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Free Tier: 1 bias
-                  <div className="space-y-3">
-                    <div className="bg-[#2A2D35] p-4 rounded-lg border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                      <h4 className="font-medium text-white mb-2">Confirmation Bias</h4>
-                      <p className="text-gray-300 text-sm">The tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs or hypotheses.</p>
-                      <div className="mt-3 flex justify-end gap-2">
-                        <button className="text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded transition-colors">
-                          How to Recognize
-                        </button>
-                        <button className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 px-3 py-1 rounded transition-colors">
-                          How to Mitigate
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Premium Teaser */}
-                    <div className="bg-[#2A2D35]/50 p-4 rounded-lg border border-[#8B5CF6]/20 border-dashed">
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-[#8B5CF6]" />
-                        <h4 className="font-medium text-[#8B5CF6]">Premium Biases</h4>
-                      </div>
-                      <p className="text-gray-400 text-sm mt-1">Upgrade to Premium to access 2-3 cognitive biases per query and our full library of 246 biases.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Visualization Section (Premium only) */}
-              {userTier === 'premium' && (
-                <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#8B5CF6]/30">
-                  <h3 className="flex items-center gap-2 text-lg font-medium text-[#8B5CF6] mb-3">
-                    <Crown className="h-5 w-5" /> 
-                    Relationships Visualization
+
+
+              {/* Relationships Summary (Premium only) */}
+              {displayTier === 'premium' && results.relationshipsSummary && (
+                <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#A78BFA]/30 shadow-md">
+                  <h3 className="flex items-center gap-2 text-lg font-medium text-[#A78BFA] mb-3">
+                    <Zap className="h-5 w-5" /> {/* Changed icon */}
+                    Connections & Interactions
                   </h3>
-                  <div className="bg-[#1F1F1F] rounded-lg h-40 flex items-center justify-center">
-                    <p className="text-gray-400">Premium visualization will appear here</p>
-                  </div>
+                  <p className="text-gray-300 text-sm whitespace-pre-line">{results.relationshipsSummary}</p>
                 </div>
               )}
               
-              {/* Premium Upgrade CTA (Free tier only) */}
-              {userTier === 'free' && (
-                <div className="mt-8 p-6 bg-gradient-to-r from-[#1F1F1F] to-[#252525] rounded-xl border border-[#333333]">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-[#8B5CF6]/10 rounded-full p-3 border border-[#8B5CF6]/30">
-                      <Crown className="h-6 w-6 text-[#8B5CF6]" />
+              {/* Placeholder for Interactive Visualization if it's a separate component and data exists */}
+              {displayTier === 'premium' && results.recommendedTools?.length > 0 && (
+                 <div className="mt-8 p-4 bg-[#2A2D35] rounded-lg border border-[#A78BFA]/30 shadow-md">
+                    <h3 className="flex items-center gap-2 text-lg font-medium text-[#A78BFA] mb-3">
+                        <Crown size={18}/>
+                        Interactive Visualization (Premium)
+                    </h3>
+                    <div className="bg-[#1F1F1F] rounded-lg h-48 flex items-center justify-center text-gray-500">
+                        {/* You would integrate your <InteractiveDemo /> here, passing relevant data */}
+                        Coming soon: Visual map of these tools.
+                    </div>
+                </div>
+              )}
+
+
+              {/* Premium Upgrade CTA (Free tier only, if results shown) */}
+              {displayTier === 'free' && (
+                <div className="mt-10 p-6 bg-gradient-to-r from-[#1F1F1F] via-[#252525] to-[#1F1F1F] rounded-xl border border-[#333333] shadow-xl">
+                  <div className="flex flex-col md:flex-row items-center text-center md:text-left gap-6">
+                    <div className="bg-[#A78BFA]/10 rounded-full p-3 border-2 border-[#A78BFA]/30 inline-block">
+                      <Crown className="h-8 w-8 text-[#A78BFA]" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2">
-                        Upgrade to Premium
+                      <h3 className="text-xl font-semibold mb-2 text-white">
+                        Unlock the Full Power of Cosmic Lattice
                       </h3>
                       <p className="text-gray-300 mb-4">
-                        Get unlimited queries, access to all 300 mental models, 246 biases, and the relationship visualization.
+                        Upgrade to Premium for more detailed insights, access to our complete library of mental models & cognitive biases, and interactive relationship visualizations.
                       </p>
-                      <button 
-                        className="bg-[#8B5CF6] text-white py-2 px-4 rounded-lg hover:bg-[#8B5CF6]/90 transition-colors"
+                      <Link // MODIFIED: Changed to Link
+                        to="/pricing" // Assuming you have a pricing page route
+                        className="bg-[#A78BFA] text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-[#9370DB] transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
                       >
-                        View Premium Plans
-                      </button>
+                        Explore Premium Plans
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -403,8 +444,6 @@ const Dashboard: React.FC = () => {
             </div>
           )}
         </div>
-        
-        {/* Query history or additional components could go here */}
       </div>
     </div>
   );
