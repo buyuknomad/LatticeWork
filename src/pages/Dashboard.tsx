@@ -233,22 +233,7 @@ const Dashboard: React.FC = () => {
       } else {
         setResults(data);
         
-        // Save to query history
-        try {
-          await supabase
-            .from('query_history')
-            .insert({
-              user_id: user?.id,
-              query_text: query,
-              recommended_tools: data.recommendedTools || [],
-              relationships_summary: data.relationshipsSummary || null,
-              full_response: data,
-              tier_at_query: displayTier
-            });
-        } catch (saveError) {
-          console.error('Error saving to history:', saveError);
-          // Don't show error to user - saving history is not critical
-        }
+
       }
 
     } catch (err: any) {
