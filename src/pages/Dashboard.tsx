@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
         .select('*')
         .eq('active', true)
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(10);  // Changed from 4 to 10
       
       if (error) throw error;
       
@@ -704,72 +704,77 @@ const Dashboard: React.FC = () => {
                         
                         {loadingTrending ? (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {[...Array(4)].map((_, i) => (
+                            {[...Array(8)].map((_, i) => (
                               <div key={i} className="h-16 bg-[#1A1A1A]/50 rounded-lg animate-pulse" />
                             ))}
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {trendingQuestions.map((trending, index) => (
-                              <motion.button
-                                key={trending.id}
-                                onClick={() => handleTrendingClick(trending)}
-                                className={`relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border rounded-lg text-sm transition-all duration-200 group ${
-                                  displayTier === 'premium' 
-                                    ? 'border-[#333333] hover:border-[#00FFFF]/30' 
-                                    : 'border-[#333333] hover:border-[#8B5CF6]/30'
-                                }`}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                              >
-                                {/* Premium/Hot badge */}
-                                <div className={`absolute -top-1 -right-1 px-2 py-0.5 text-xs font-medium rounded-full transition-opacity ${
-                                  displayTier === 'premium'
-                                    ? 'bg-[#00FFFF] text-[#1A1A1A] opacity-0 group-hover:opacity-100'
-                                    : 'bg-[#8B5CF6] text-white opacity-100 flex items-center gap-1'
-                                }`}>
-                                  {displayTier === 'premium' ? '🔥 Hot' : (
-                                    <>
-                                      <Crown size={10} />
-                                      <span>Premium</span>
-                                    </>
-                                  )}
-                                </div>
-                                
-                                {/* Instant badge for premium users */}
-                                {displayTier === 'premium' && trending.pre_generated_analysis && (
-                                  <div className="absolute -top-1 -left-1 px-2 py-0.5 bg-[#00FFFF]/20 text-[#00FFFF] text-xs font-medium rounded-full flex items-center gap-1">
-                                    <Zap size={10} />
-                                    Instant
-                                  </div>
-                                )}
-                                
-                                {/* Question text */}
-                                <span className="text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
-                                  {trending.question}
-                                </span>
-                                
-                                {/* Category and view count */}
-                                <div className="mt-1 flex items-center gap-2">
-                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                    trending.category === 'business' ? 'bg-blue-500/10 text-blue-400' :
-                                    trending.category === 'technology' ? 'bg-purple-500/10 text-purple-400' :
-                                    trending.category === 'personal' ? 'bg-green-500/10 text-green-400' :
-                                    'bg-orange-500/10 text-orange-400'
+                          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {trendingQuestions.map((trending, index) => (
+                                <motion.button
+                                  key={trending.id}
+                                  onClick={() => handleTrendingClick(trending)}
+                                  className={`relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border rounded-lg text-sm transition-all duration-200 group ${
+                                    displayTier === 'premium' 
+                                      ? 'border-[#333333] hover:border-[#00FFFF]/30' 
+                                      : 'border-[#333333] hover:border-[#8B5CF6]/30'
+                                  }`}
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: index * 0.05 }} // Faster stagger for 10 items
+                                >
+                                  {/* Premium/Hot badge */}
+                                  <div className={`absolute -top-1 -right-1 px-2 py-0.5 text-xs font-medium rounded-full transition-opacity ${
+                                    displayTier === 'premium'
+                                      ? 'bg-[#00FFFF] text-[#1A1A1A] opacity-0 group-hover:opacity-100'
+                                      : 'bg-[#8B5CF6] text-white opacity-100 flex items-center gap-1'
                                   }`}>
-                                    {trending.category}
+                                    {displayTier === 'premium' ? '🔥 Hot' : (
+                                      <>
+                                        <Crown size={10} />
+                                        <span>Premium</span>
+                                      </>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Question text */}
+                                  <span className="text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
+                                    {trending.question}
                                   </span>
-                                  {trending.click_count > 0 && (
-                                    <span className="text-xs text-gray-500">
-                                      {trending.click_count} {trending.click_count === 1 ? 'view' : 'views'}
+                                  
+                                  {/* Category and metadata */}
+                                  <div className="mt-1 flex items-center gap-2 flex-wrap">
+                                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                      trending.category === 'business' ? 'bg-green-500/10 text-green-400' :
+                                      trending.category === 'technology' ? 'bg-purple-500/10 text-purple-400' :
+                                      trending.category === 'personal' ? 'bg-yellow-500/10 text-yellow-400' :
+                                      trending.category === 'society' ? 'bg-blue-500/10 text-blue-400' :
+                                      'bg-gray-500/10 text-gray-400'
+                                    }`}>
+                                      {trending.category}
                                     </span>
-                                  )}
-                                </div>
-                              </motion.button>
-                            ))}
+                                    
+                                    {/* Source - always visible but subtle, with separator */}
+                                    <span className="text-xs text-gray-500">•</span>
+                                    <span 
+                                      className="text-xs text-gray-500 truncate max-w-[120px] sm:max-w-[180px]"
+                                      title={trending.topic_source}
+                                    >
+                                      {trending.topic_source}
+                                    </span>
+                                    
+                                    {trending.click_count > 0 && (
+                                      <span className="text-xs text-gray-500 ml-auto">
+                                        {trending.click_count}
+                                      </span>
+                                    )}
+                                  </div>
+                                </motion.button>
+                              ))}
+                            </div>
                           </div>
                         )}
                         
