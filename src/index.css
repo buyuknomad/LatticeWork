@@ -102,3 +102,35 @@
     max-width: var(--container-max-width);
   }
 }
+
+/* Add this to your existing index.css file */
+
+/* Custom scrollbar for trending questions */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 #1A1A1A;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1A1A1A;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Optional: Hide scrollbar on hover for cleaner look */
+.custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  background: transparent;
+}
