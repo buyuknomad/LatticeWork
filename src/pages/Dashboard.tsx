@@ -53,6 +53,7 @@ interface TrendingQuestion {
   category: string;
   click_count: number;
   created_at: string;
+  pre_generated_analysis?: any; // This contains the cached analysis
 }
 
 // Example queries for animation
@@ -86,6 +87,7 @@ const Dashboard: React.FC = () => {
   // Trending questions states
   const [trendingQuestions, setTrendingQuestions] = useState<TrendingQuestion[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
+  const [currentTrendingQuestionId, setCurrentTrendingQuestionId] = useState<string | null>(null);
 
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
@@ -128,14 +130,24 @@ const Dashboard: React.FC = () => {
       .update({ click_count: question.click_count + 1 })
       .eq('id', question.id);
     
-    // Set the query and trigger analysis
+    // Set the query and track which trending question was clicked
     setQuery(question.question);
     setError(null);
     setIsTypingAnimation(false);
+    setCurrentTrendingQuestionId(question.id);
     
-    // Optional: Auto-submit for premium users
-    if (displayTier === 'premium') {
-      // Small delay to show the question being set
+    // For premium users with pre-generated analysis, show instant results
+    if (displayTier === 'premium' && question.pre_generated_analysis) {
+      console.log('Using pre-generated analysis for trending question');
+      
+      // Set results immediately from cached analysis
+      setResults(question.pre_generated_analysis as LatticeInsightResponse);
+      
+      // Clear the query parameter from URL to prevent re-submission
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    } else if (displayTier === 'premium') {
+      // Premium user but no pre-generated analysis, auto-submit
       setTimeout(() => {
         const form = document.querySelector('form');
         if (form) {
@@ -143,6 +155,7 @@ const Dashboard: React.FC = () => {
         }
       }, 100);
     }
+    // For free users, just fill the input - they'll see upgrade prompt when submitting
   };
 
   const displayTier = showTierToggle ? devTestTier : actualUserTier;
@@ -229,6 +242,10 @@ const Dashboard: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     setError(null);
+    // Clear trending question tracking when user types their own query
+    if (currentTrendingQuestionId && e.target.value !== query) {
+      setCurrentTrendingQuestionId(null);
+    }
   };
 
   const handleExampleClick = (example: string) => {
@@ -251,6 +268,18 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
+    // Check if this is a trending question being submitted by a free user
+    if (displayTier === 'free' && currentTrendingQuestionId) {
+      // Find the trending question
+      const trendingQuestion = trendingQuestions.find(q => q.id === currentTrendingQuestionId);
+      
+      if (trendingQuestion) {
+        // Show upgrade prompt for free users trying to analyze trending questions
+        setError("Trending question analysis is a Premium feature. Upgrade to instantly analyze trending topics and get deeper insights!");
+        return;
+      }
+    }
+
     // Clear the query parameter from URL to prevent re-submission on page refresh
     const newUrl = window.location.pathname;
     window.history.replaceState({}, '', newUrl);
@@ -259,6 +288,7 @@ const Dashboard: React.FC = () => {
     setResults(null);
     setError(null);
     setExpandedCards(new Set());
+    setCurrentTrendingQuestionId(null); // Reset trending question tracking
 
     if (!session?.access_token) {
       setError("Authentication error. Please log in again.");
@@ -310,6 +340,7 @@ const Dashboard: React.FC = () => {
     setIsLoading(false);
     setIsTypingAnimation(true);
     setExpandedCards(new Set());
+    setCurrentTrendingQuestionId(null); // Reset trending question tracking
   };
 
   const toggleDevTier = () => {
@@ -641,6 +672,11 @@ const Dashboard: React.FC = () => {
                             <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                               <p className="text-red-400 text-sm">{error}</p>
+                              {error.includes('Premium feature') && (
+                                <Link to="/pricing" className="inline-flex items-center gap-1 mt-2 text-[#8B5CF6] hover:text-[#8B5CF6]/80 text-sm font-medium">
+                                  Upgrade to Premium <ArrowRight size={14} />
+                                </Link>
+                              )}
                             </div>
                           </div>
                         </motion.div>
@@ -652,6 +688,12 @@ const Dashboard: React.FC = () => {
                           <div className="flex items-center gap-2">
                             <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
                             <p className="text-sm font-medium text-[#00FFFF]">Trending Now</p>
+                            {displayTier === 'free' && (
+                              <span className="text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full flex items-center gap-1">
+                                <Crown size={10} />
+                                Premium
+                              </span>
+                            )}
                           </div>
                           {trendingQuestions.length > 0 && (
                             <p className="text-xs text-gray-500">
@@ -672,24 +714,45 @@ const Dashboard: React.FC = () => {
                               <motion.button
                                 key={trending.id}
                                 onClick={() => handleTrendingClick(trending)}
-                                className="relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg text-sm transition-all duration-200 group"
+                                className={`relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border rounded-lg text-sm transition-all duration-200 group ${
+                                  displayTier === 'premium' 
+                                    ? 'border-[#333333] hover:border-[#00FFFF]/30' 
+                                    : 'border-[#333333] hover:border-[#8B5CF6]/30'
+                                }`}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                               >
-                                {/* Trending badge */}
-                                <div className="absolute -top-1 -right-1 px-2 py-0.5 bg-[#00FFFF] text-[#1A1A1A] text-xs font-medium rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                  🔥 Hot
+                                {/* Premium/Hot badge */}
+                                <div className={`absolute -top-1 -right-1 px-2 py-0.5 text-xs font-medium rounded-full transition-opacity ${
+                                  displayTier === 'premium'
+                                    ? 'bg-[#00FFFF] text-[#1A1A1A] opacity-0 group-hover:opacity-100'
+                                    : 'bg-[#8B5CF6] text-white opacity-100 flex items-center gap-1'
+                                }`}>
+                                  {displayTier === 'premium' ? '🔥 Hot' : (
+                                    <>
+                                      <Crown size={10} />
+                                      <span>Premium</span>
+                                    </>
+                                  )}
                                 </div>
+                                
+                                {/* Instant badge for premium users */}
+                                {displayTier === 'premium' && trending.pre_generated_analysis && (
+                                  <div className="absolute -top-1 -left-1 px-2 py-0.5 bg-[#00FFFF]/20 text-[#00FFFF] text-xs font-medium rounded-full flex items-center gap-1">
+                                    <Zap size={10} />
+                                    Instant
+                                  </div>
+                                )}
                                 
                                 {/* Question text */}
                                 <span className="text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
                                   {trending.question}
                                 </span>
                                 
-                                {/* Category indicator */}
+                                {/* Category and view count */}
                                 <div className="mt-1 flex items-center gap-2">
                                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                                     trending.category === 'business' ? 'bg-blue-500/10 text-blue-400' :
@@ -708,6 +771,13 @@ const Dashboard: React.FC = () => {
                               </motion.button>
                             ))}
                           </div>
+                        )}
+                        
+                        {/* Free user helper text */}
+                        {displayTier === 'free' && (
+                          <p className="mt-3 text-xs text-gray-500 text-center">
+                            Click to preview • Premium members get instant AI analysis
+                          </p>
                         )}
                       </div>
 
