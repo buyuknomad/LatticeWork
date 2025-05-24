@@ -133,7 +133,7 @@ const Pricing = () => {
             price="Free"
             description="Perfect for occasional use and getting started with mental models."
             features={[
-              "2 queries per day",
+              "1 query per day",
               "1 mental model and 1 bias per query",
               "Access to 75 models and 40 biases",
               "Basic application guidance"
