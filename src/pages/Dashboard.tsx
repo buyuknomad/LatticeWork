@@ -123,6 +123,40 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // NEW FUNCTION: Log pre-generated analysis to query history
+  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse) => {
+    if (!user?.id) return;
+    
+    try {
+      console.log('Logging pre-generated analysis to query history');
+      
+      // Extract summary from recommended tools
+      const llmSummary = analysis.recommendedTools?.map(t => t.name).join(', ') || "No tools";
+      
+      // Create the history entry
+      const { error: logError } = await supabase
+        .from('query_history')
+        .insert({
+          user_id: user.id,
+          query_text: question,
+          llm_response_summary: llmSummary.substring(0, 250),
+          recommended_tools: analysis.recommendedTools || [],
+          relationships_summary: analysis.relationshipsSummary || null,
+          full_response: analysis,
+          created_at: new Date().toISOString(),
+          tier_at_query: displayTier
+        });
+        
+      if (logError) {
+        console.error('Error logging pre-generated analysis:', logError);
+      } else {
+        console.log('Successfully logged pre-generated analysis to history');
+      }
+    } catch (error) {
+      console.error('Unexpected error logging pre-generated analysis:', error);
+    }
+  };
+
   const handleTrendingClick = async (question: TrendingQuestion) => {
     // Track the click
     await supabase
@@ -142,6 +176,9 @@ const Dashboard: React.FC = () => {
       
       // Set results immediately from cached analysis
       setResults(question.pre_generated_analysis as LatticeInsightResponse);
+      
+      // LOG TO HISTORY - This is the fix for Phase 1
+      await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
       
       // Clear the query parameter from URL to prevent re-submission
       const newUrl = window.location.pathname;
