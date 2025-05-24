@@ -58,12 +58,12 @@ interface TrendingQuestion {
 
 // Example queries for animation
 const EXAMPLE_QUERIES = [
-  "How do I overcome procrastination?",
-  "Why do I keep making the same mistakes?",
-  "How can I make better investment decisions?",
-  "What causes team conflicts?",
-  "How to avoid confirmation bias in research?",
-  "Why do projects always take longer than expected?"
+  "Why do I procrastinate even when I know the consequences?",
+  "What drives people to repeat the same mistakes?",
+  "How do successful investors think differently about risk?",
+  "Why do teams fall into predictable conflict patterns?",
+  "What causes us to ignore evidence that contradicts our beliefs?",
+  "Why do we consistently underestimate how long things take?"
 ];
 
 const Dashboard: React.FC = () => {
@@ -275,7 +275,7 @@ const Dashboard: React.FC = () => {
       
       if (trendingQuestion) {
         // Show upgrade prompt for free users trying to analyze trending questions
-        setError("Trending question analysis is a Premium feature. Upgrade to instantly analyze trending topics and get deeper insights!");
+        setError("Trending pattern analysis is a Premium feature. Upgrade to instantly decode trending topics and uncover deeper insights!");
         return;
       }
     }
@@ -425,7 +425,7 @@ const Dashboard: React.FC = () => {
                   isMentalModel ? 'text-[#00FFFF]' : 'text-amber-500'
                 }`}>
                   <Eye size={16} />
-                  How this applies to your situation
+                  How this explains the pattern
                 </span>
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
@@ -492,7 +492,7 @@ const Dashboard: React.FC = () => {
                   </span>
                 </h1>
                 <p className="text-gray-400 text-sm sm:text-base">
-                  Let's explore your thinking patterns today
+                  Let's decode the patterns shaping your world
                 </p>
               </div>
 
@@ -586,7 +586,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Query Section */}
+        {/* Pattern Discovery Section */}
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
             <AnimatePresence mode="wait">
@@ -598,7 +598,7 @@ const Dashboard: React.FC = () => {
                   transition={{ duration: 0.5 }}
                   className="max-w-3xl mx-auto"
                 >
-                  {/* Main Query Card */}
+                  {/* Pattern Discovery Card */}
                   <div className="bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-[#333333] relative overflow-hidden">
                     {/* Glowing corner accents */}
                     <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#00FFFF]/10 to-transparent rounded-tl-2xl pointer-events-none"></div>
@@ -606,13 +606,13 @@ const Dashboard: React.FC = () => {
                     
                     <div className="relative">
                       <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                        What's on your mind?
+                        What patterns are you trying to understand?
                       </h2>
                       <p className="text-gray-400 text-sm sm:text-base mb-6">
-                        Describe a situation, decision, or challenge you're facing
+                        Uncover the mental models that explain what's happening and biases that might cloud your view
                       </p>
 
-                      {/* Search Input */}
+                      {/* Pattern Search Input */}
                       <form onSubmit={handleQuerySubmit}>
                         <div className="relative group">
                           {/* Glowing border effect */}
@@ -625,7 +625,7 @@ const Dashboard: React.FC = () => {
                               value={query}
                               onChange={handleInputChange}
                               onFocus={handleInputFocus}
-                              placeholder={isTypingAnimation ? '' : "Ask me anything..."}
+                              placeholder={isTypingAnimation ? '' : "What patterns or behaviors are puzzling you?"}
                               className="w-full bg-[#1A1A1A]/80 text-white pl-12 pr-12 py-4 rounded-xl border border-[#444444] focus:border-[#00FFFF]/50 focus:outline-none transition-all duration-300"
                               autoFocus={shouldFocusAnalysis}
                             />
@@ -682,12 +682,12 @@ const Dashboard: React.FC = () => {
                         </motion.div>
                       )}
 
-                      {/* Trending Questions Section */}
+                      {/* Trending Patterns Section */}
                       <div className="mt-8">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
-                            <p className="text-sm font-medium text-[#00FFFF]">Trending Now</p>
+                            <p className="text-sm font-medium text-[#00FFFF]">Trending Patterns</p>
                             {displayTier === 'free' && (
                               <span className="text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full flex items-center gap-1">
                                 <Crown size={10} />
@@ -732,7 +732,7 @@ const Dashboard: React.FC = () => {
                                       ? 'bg-[#00FFFF] text-[#1A1A1A] opacity-0 group-hover:opacity-100'
                                       : 'bg-[#8B5CF6] text-white opacity-100 flex items-center gap-1'
                                   }`}>
-                                    {displayTier === 'premium' ? '🔥 Hot' : (
+                                    {displayTier === 'premium' ? '🔥 Trending' : (
                                       <>
                                         <Crown size={10} />
                                         <span>Premium</span>
@@ -781,14 +781,14 @@ const Dashboard: React.FC = () => {
                         {/* Free user helper text */}
                         {displayTier === 'free' && (
                           <p className="mt-3 text-xs text-gray-500 text-center">
-                            Click to preview • Premium members get instant AI analysis
+                            Click to explore • Premium members get instant pattern analysis
                           </p>
                         )}
                       </div>
 
-                      {/* Keep the original example queries section below trending */}
+                      {/* Pattern Examples Section */}
                       <div className="mt-6">
-                        <p className="text-sm text-gray-400 mb-3">Or try these examples:</p>
+                        <p className="text-sm text-gray-400 mb-3">Or explore these common patterns:</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {EXAMPLE_QUERIES.slice(0, 4).map((example, index) => (
                             <motion.button
@@ -822,12 +822,12 @@ const Dashboard: React.FC = () => {
                       <div className="w-12 h-12 rounded-full bg-[#252525]"></div>
                     </div>
                   </div>
-                  <p className="mt-6 text-gray-400">Analyzing your query with Cosmic Lattice...</p>
-                  <p className="mt-2 text-sm text-gray-500">This might take a moment</p>
+                  <p className="mt-6 text-gray-400">Analyzing patterns and uncovering insights...</p>
+                  <p className="mt-2 text-sm text-gray-500">Identifying mental models and biases at play</p>
                 </motion.div>
               )}
 
-              {/* Results Section */}
+              {/* Pattern Analysis Results */}
               {results && !isLoading && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -835,7 +835,7 @@ const Dashboard: React.FC = () => {
                   transition={{ duration: 0.5 }}
                   className="space-y-8"
                 >
-                  {/* Results Header */}
+                  {/* Pattern Analysis Results Header */}
                   <div className="text-center">
                     <motion.div
                       initial={{ scale: 0.9, opacity: 0 }}
@@ -844,14 +844,14 @@ const Dashboard: React.FC = () => {
                     >
                       <h2 className="text-2xl sm:text-3xl font-bold mb-2">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-                          Lattice Insights
+                          Pattern Analysis
                         </span>
                       </h2>
                       <p className="text-gray-400 text-sm sm:text-base mb-6">
-                        For: "{query}"
+                        Understanding: "{query}"
                       </p>
                       
-                      {/* Enhanced New Query Button */}
+                      {/* Enhanced Explore New Pattern Button */}
                       <motion.div className="inline-block relative group">
                         {/* Glow effect */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-lg blur-sm opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
@@ -865,22 +865,22 @@ const Dashboard: React.FC = () => {
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-[#8B5CF6]/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <Search className="w-5 h-5 text-[#00FFFF] relative z-10" />
-                          <span className="text-white relative z-10">New Query</span>
+                          <span className="text-white relative z-10">Explore New Pattern</span>
                           <ArrowRight className="w-4 h-4 text-[#00FFFF] relative z-10" />
                         </motion.button>
                       </motion.div>
                     </motion.div>
                   </div>
 
-                  {/* Tools Grid */}
+                  {/* Pattern Analysis Grid */}
                   {results.recommendedTools && results.recommendedTools.length > 0 ? (
                     <div>
-                      {/* Mental Models Section */}
+                      {/* Mental Models Explaining the Pattern */}
                       {results.recommendedTools.filter(t => t.type === 'mental_model').length > 0 && (
                         <div className="mb-8">
                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <Brain className="h-5 w-5 text-[#00FFFF]" />
-                            Mental Models to Apply
+                            Mental Models That Explain This Pattern
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {results.recommendedTools
@@ -890,12 +890,12 @@ const Dashboard: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Cognitive Biases Section */}
+                      {/* Cognitive Biases Affecting Perception */}
                       {results.recommendedTools.filter(t => t.type === 'cognitive_bias').length > 0 && (
                         <div>
                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <AlertTriangle className="h-5 w-5 text-amber-500" />
-                            Cognitive Biases to Watch For
+                            Biases That Might Cloud Your View
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {results.recommendedTools
@@ -907,11 +907,11 @@ const Dashboard: React.FC = () => {
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <p className="text-gray-400">No specific tools found for this query. Try rephrasing your question.</p>
+                      <p className="text-gray-400">No clear patterns identified. Try describing what you're observing in more detail.</p>
                     </div>
                   )}
 
-                  {/* Relationships Summary - Premium Feature */}
+                  {/* Pattern Connections Summary - Premium Feature */}
                   {displayTier === 'premium' && results.relationshipsSummary && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -924,10 +924,10 @@ const Dashboard: React.FC = () => {
                           <Layers className="h-5 w-5 text-[#8B5CF6]" />
                         </div>
                         <h3 className="text-lg font-semibold text-white">
-                          How These Connect
+                          How These Patterns Connect
                         </h3>
                         <span className="ml-auto text-xs px-2 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
-                          Premium Insight
+                          Premium Pattern Insight
                         </span>
                       </div>
                       <p className="text-gray-300 leading-relaxed whitespace-pre-line">
@@ -936,7 +936,7 @@ const Dashboard: React.FC = () => {
                     </motion.div>
                   )}
 
-                  {/* Premium Upgrade Prompt - Free Users */}
+                  {/* Pattern Analysis Upgrade Prompt - Free Users */}
                   {displayTier === 'free' && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -954,14 +954,14 @@ const Dashboard: React.FC = () => {
                         
                         <div className="flex-1 text-center md:text-left">
                           <h3 className="text-2xl font-bold mb-3">
-                            Unlock Deeper Insights
+                            Unlock Deeper Pattern Analysis
                           </h3>
                           <p className="text-gray-300 mb-4">
-                            Get 3-4 mental models, 2-3 biases per query, relationship analysis, and interactive visualizations with Premium.
+                            Discover 3-4 mental models, 2-3 biases per pattern, see how they interconnect, and gain deeper understanding with Premium.
                           </p>
                           <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                             <span className="text-xs px-3 py-1 bg-[#333333] rounded-full text-gray-300">
-                              Unlimited Queries
+                              Unlimited Pattern Analysis
                             </span>
                             <span className="text-xs px-3 py-1 bg-[#333333] rounded-full text-gray-300">
                               300+ Mental Models
