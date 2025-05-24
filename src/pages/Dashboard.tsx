@@ -20,11 +20,13 @@ import {
   ChevronUp,
   ExternalLink,
   Layers,
-  Clock
+  Clock,
+  TrendingUp
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import { formatDistanceToNow } from 'date-fns';
 
 // --- Type Definitions ---
 interface RecommendedTool {
@@ -42,6 +44,15 @@ interface LatticeInsightResponse {
   error?: string;
   message?: string;
   query_id?: string;
+}
+
+interface TrendingQuestion {
+  id: string;
+  question: string;
+  topic_source: string;
+  category: string;
+  click_count: number;
+  created_at: string;
 }
 
 // Example queries for animation
@@ -72,6 +83,10 @@ const Dashboard: React.FC = () => {
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState('');
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
+  // Trending questions states
+  const [trendingQuestions, setTrendingQuestions] = useState<TrendingQuestion[]>([]);
+  const [loadingTrending, setLoadingTrending] = useState(true);
+
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
   useEffect(() => {
@@ -81,6 +96,54 @@ const Dashboard: React.FC = () => {
       setDevTestTier(tier);
     }
   }, [user]);
+
+  // Fetch trending questions
+  useEffect(() => {
+    fetchTrendingQuestions();
+  }, []);
+
+  const fetchTrendingQuestions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('trending_questions')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(4);
+      
+      if (error) throw error;
+      
+      setTrendingQuestions(data || []);
+    } catch (error) {
+      console.error('Error fetching trending questions:', error);
+    } finally {
+      setLoadingTrending(false);
+    }
+  };
+
+  const handleTrendingClick = async (question: TrendingQuestion) => {
+    // Track the click
+    await supabase
+      .from('trending_questions')
+      .update({ click_count: question.click_count + 1 })
+      .eq('id', question.id);
+    
+    // Set the query and trigger analysis
+    setQuery(question.question);
+    setError(null);
+    setIsTypingAnimation(false);
+    
+    // Optional: Auto-submit for premium users
+    if (displayTier === 'premium') {
+      // Small delay to show the question being set
+      setTimeout(() => {
+        const form = document.querySelector('form');
+        if (form) {
+          form.dispatchEvent(new Event('submit', { bubbles: true }));
+        }
+      }, 100);
+    }
+  };
 
   const displayTier = showTierToggle ? devTestTier : actualUserTier;
 
@@ -232,8 +295,6 @@ const Dashboard: React.FC = () => {
         setError(data.error);
       } else {
         setResults(data);
-        
-
       }
 
     } catch (err: any) {
@@ -585,9 +646,74 @@ const Dashboard: React.FC = () => {
                         </motion.div>
                       )}
 
-                      {/* Example Queries */}
+                      {/* Trending Questions Section */}
                       <div className="mt-8">
-                        <p className="text-sm text-gray-400 mb-3">Try asking about:</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
+                            <p className="text-sm font-medium text-[#00FFFF]">Trending Now</p>
+                          </div>
+                          {trendingQuestions.length > 0 && (
+                            <p className="text-xs text-gray-500">
+                              Updated {formatDistanceToNow(new Date(trendingQuestions[0].created_at))} ago
+                            </p>
+                          )}
+                        </div>
+                        
+                        {loadingTrending ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {[...Array(4)].map((_, i) => (
+                              <div key={i} className="h-16 bg-[#1A1A1A]/50 rounded-lg animate-pulse" />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {trendingQuestions.map((trending, index) => (
+                              <motion.button
+                                key={trending.id}
+                                onClick={() => handleTrendingClick(trending)}
+                                className="relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg text-sm transition-all duration-200 group"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                              >
+                                {/* Trending badge */}
+                                <div className="absolute -top-1 -right-1 px-2 py-0.5 bg-[#00FFFF] text-[#1A1A1A] text-xs font-medium rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                  🔥 Hot
+                                </div>
+                                
+                                {/* Question text */}
+                                <span className="text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
+                                  {trending.question}
+                                </span>
+                                
+                                {/* Category indicator */}
+                                <div className="mt-1 flex items-center gap-2">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    trending.category === 'business' ? 'bg-blue-500/10 text-blue-400' :
+                                    trending.category === 'technology' ? 'bg-purple-500/10 text-purple-400' :
+                                    trending.category === 'personal' ? 'bg-green-500/10 text-green-400' :
+                                    'bg-orange-500/10 text-orange-400'
+                                  }`}>
+                                    {trending.category}
+                                  </span>
+                                  {trending.click_count > 0 && (
+                                    <span className="text-xs text-gray-500">
+                                      {trending.click_count} {trending.click_count === 1 ? 'view' : 'views'}
+                                    </span>
+                                  )}
+                                </div>
+                              </motion.button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Keep the original example queries section below trending */}
+                      <div className="mt-6">
+                        <p className="text-sm text-gray-400 mb-3">Or try these examples:</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {EXAMPLE_QUERIES.slice(0, 4).map((example, index) => (
                             <motion.button
