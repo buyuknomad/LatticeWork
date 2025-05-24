@@ -1,7 +1,7 @@
 // src/components/Dashboard/TrendingQuestions.tsx
-import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, Crown } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrendingUp, Crown, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { TrendingQuestion, UserTier } from './types';
 
@@ -18,6 +18,9 @@ const TrendingQuestions: React.FC<TrendingQuestionsProps> = ({
   displayTier,
   onTrendingClick,
 }) => {
+  const [showAll, setShowAll] = useState(false);
+  const questionsToShow = showAll ? trendingQuestions : trendingQuestions.slice(0, 6);
+
   const getCategoryStyles = (category: string) => {
     switch (category) {
       case 'business':
@@ -39,12 +42,6 @@ const TrendingQuestions: React.FC<TrendingQuestionsProps> = ({
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
           <p className="text-sm font-medium text-[#00FFFF]">Trending Patterns</p>
-          {displayTier === 'free' && (
-            <span className="text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full flex items-center gap-1">
-              <Crown size={10} />
-              Premium
-            </span>
-          )}
         </div>
         {trendingQuestions.length > 0 && (
           <p className="text-xs text-gray-500">
@@ -54,81 +51,91 @@ const TrendingQuestions: React.FC<TrendingQuestionsProps> = ({
       </div>
       
       {loadingTrending ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-16 bg-[#1A1A1A]/50 rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-20 bg-[#1A1A1A]/50 rounded-lg animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {trendingQuestions.map((trending, index) => (
-              <motion.button
-                key={trending.id}
-                onClick={() => onTrendingClick(trending)}
-                className={`relative text-left px-4 py-3 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border rounded-lg text-sm transition-all duration-200 group ${
-                  displayTier === 'premium' 
-                    ? 'border-[#333333] hover:border-[#00FFFF]/30' 
-                    : 'border-[#333333] hover:border-[#8B5CF6]/30'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                {/* Premium/Hot badge */}
-                <div className={`absolute -top-1 -right-1 px-2 py-0.5 text-xs font-medium rounded-full transition-opacity ${
-                  displayTier === 'premium'
-                    ? 'bg-[#00FFFF] text-[#1A1A1A] opacity-0 group-hover:opacity-100'
-                    : 'bg-[#8B5CF6] text-white opacity-100 flex items-center gap-1'
-                }`}>
-                  {displayTier === 'premium' ? '🔥 Trending' : (
-                    <>
-                      <Crown size={10} />
-                      <span>Premium</span>
-                    </>
-                  )}
-                </div>
-                
-                {/* Question text */}
-                <span className="text-gray-300 group-hover:text-white line-clamp-2 transition-colors">
-                  {trending.question}
-                </span>
-                
-                {/* Category and metadata */}
-                <div className="mt-1 flex items-center gap-2 flex-wrap">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getCategoryStyles(trending.category)}`}>
-                    {trending.category}
-                  </span>
-                  
-                  {/* Source - always visible but subtle, with separator */}
-                  <span className="text-xs text-gray-500">•</span>
-                  <span 
-                    className="text-xs text-gray-500 truncate max-w-[120px] sm:max-w-[180px]"
-                    title={trending.topic_source}
-                  >
-                    {trending.topic_source}
-                  </span>
-                  
-                  {trending.click_count > 0 && (
-                    <span className="text-xs text-gray-500 ml-auto">
-                      {trending.click_count}
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <AnimatePresence mode="popLayout">
+              {questionsToShow.map((trending, index) => (
+                <motion.button
+                  key={trending.id}
+                  onClick={() => onTrendingClick(trending)}
+                  className="text-left p-4 bg-gradient-to-r from-[#1A1A1A]/50 to-[#1A1A1A]/30 hover:from-[#252525]/80 hover:to-[#252525]/60 border border-[#333333] hover:border-[#00FFFF]/30 rounded-lg transition-all duration-200 group"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
+                  layout
+                >
+                  {/* Header with category and premium indicator */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${getCategoryStyles(trending.category)}`}>
+                      {trending.category}
                     </span>
+                    
+                    {displayTier === 'free' && (
+                      <span className="text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full flex items-center gap-1 flex-shrink-0">
+                        <Crown size={10} />
+                        <span>Premium</span>
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Question text */}
+                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2 mb-2">
+                    {trending.question}
+                  </p>
+                  
+                  {/* Source and metadata */}
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span className="truncate max-w-[150px]" title={trending.topic_source}>
+                      {trending.topic_source}
+                    </span>
+                    {trending.click_count > 0 && (
+                      <span className="flex-shrink-0">{trending.click_count} views</span>
+                    )}
+                  </div>
+                  
+                  {/* Hover indicator for premium users */}
+                  {displayTier === 'premium' && (
+                    <div className="absolute inset-0 rounded-lg border-2 border-[#00FFFF] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                   )}
-                </div>
-              </motion.button>
-            ))}
+                </motion.button>
+              ))}
+            </AnimatePresence>
           </div>
-        </div>
+          
+          {/* Show More/Less Button */}
+          {trendingQuestions.length > 6 && (
+            <motion.button
+              onClick={() => setShowAll(!showAll)}
+              className="mt-4 w-full py-2 text-sm text-[#00FFFF] hover:text-[#00FFFF]/80 flex items-center justify-center gap-2 transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {showAll ? (
+                <>Show Less <ChevronUp size={16} /></>
+              ) : (
+                <>Show {trendingQuestions.length - 6} More <ChevronDown size={16} /></>
+              )}
+            </motion.button>
+          )}
+        </>
       )}
       
-      {/* Free user helper text */}
-      {displayTier === 'free' && (
-        <p className="mt-3 text-xs text-gray-500 text-center">
-          Click to explore • Premium members get instant pattern analysis
-        </p>
-      )}
+      {/* Helper text based on tier */}
+      <p className="mt-3 text-xs text-gray-500 text-center">
+        {displayTier === 'free' 
+          ? 'You have 1 free analysis per day • Use it on any question'
+          : 'Click any trending pattern for instant analysis'
+        }
+      </p>
     </div>
   );
 };
