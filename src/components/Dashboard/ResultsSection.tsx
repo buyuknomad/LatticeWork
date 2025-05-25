@@ -146,84 +146,80 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           ) : (
             /* Premium Tier Layout - Bento Box Style */
             <div className="space-y-8">
-              {/* Primary Insights - Hero Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="relative"
-              >
-                {/* Featured Mental Models */}
-                {mentalModels.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2 bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10 rounded-xl">
-                        <Brain className="h-6 w-6 text-[#00FFFF]" />
-                      </div>
-                      <h3 className="text-xl font-semibold">Core Mental Models</h3>
-                      <span className="ml-auto text-sm text-gray-400">{mentalModels.length} models identified</span>
+              {/* Mental Models Section */}
+              {mentalModels.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10 rounded-xl">
+                      <Brain className="h-6 w-6 text-[#00FFFF]" />
                     </div>
-                    
-                    {/* Bento Grid for Mental Models */}
-                    <div className={`grid gap-6 ${
-                      mentalModels.length === 1 ? 'grid-cols-1' :
-                      mentalModels.length === 2 ? 'grid-cols-1 lg:grid-cols-2' :
-                      'grid-cols-1 lg:grid-cols-3'
-                    }`}>
-                      {mentalModels.slice(0, 3).map((tool, index) => (
-                        <motion.div
-                          key={tool.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                          className={index === 0 && mentalModels.length > 2 ? 'lg:col-span-2' : ''}
-                        >
-                          <ToolCard tool={tool} index={index} />
-                        </motion.div>
-                      ))}
-                    </div>
-                    
-                    {/* Additional models if any */}
-                    {mentalModels.length > 3 && (
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {mentalModels.slice(3).map((tool, index) => (
-                          <ToolCard key={tool.id} tool={tool} index={index + 3} />
-                        ))}
-                      </div>
-                    )}
+                    <h3 className="text-xl font-semibold">Core Mental Models</h3>
+                    <span className="ml-auto text-sm text-gray-400">{mentalModels.length} models identified</span>
                   </div>
-                )}
-
-                {/* Cognitive Biases Section with Visual Separation */}
-                {cognitiveBiases.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="relative"
-                  >
-                    {/* Decorative separator */}
-                    <div className="absolute -top-4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
-                    
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-xl">
-                        <AlertTriangle className="h-6 w-6 text-amber-500" />
-                      </div>
-                      <h3 className="text-xl font-semibold">Critical Biases to Consider</h3>
-                      <span className="ml-auto text-sm text-gray-400">{cognitiveBiases.length} biases detected</span>
-                    </div>
-                    
-                    <div className={`grid gap-6 ${
-                      cognitiveBiases.length === 1 ? 'grid-cols-1 max-w-2xl' :
-                      'grid-cols-1 lg:grid-cols-2'
-                    }`}>
-                      {cognitiveBiases.map((tool, index) => (
-                        <ToolCard key={tool.id} tool={tool} index={index + mentalModels.length} />
+                  
+                  {/* Bento Grid for Mental Models */}
+                  <div className={`grid gap-6 ${
+                    mentalModels.length === 1 ? 'grid-cols-1' :
+                    mentalModels.length === 2 ? 'grid-cols-1 lg:grid-cols-2' :
+                    'grid-cols-1 lg:grid-cols-3'
+                  }`}>
+                    {mentalModels.slice(0, 3).map((tool, index) => (
+                      <motion.div
+                        key={tool.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className={index === 0 && mentalModels.length > 2 ? 'lg:col-span-2' : ''}
+                      >
+                        <ToolCard tool={tool} index={index} />
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  {/* Additional models if any */}
+                  {mentalModels.length > 3 && (
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {mentalModels.slice(3).map((tool, index) => (
+                        <ToolCard key={tool.id} tool={tool} index={index + 3} />
                       ))}
                     </div>
-                  </motion.div>
-                )}
-              </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Cognitive Biases Section */}
+              {cognitiveBiases.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="relative"
+                >
+                  {/* Decorative separator */}
+                  <div className="absolute -top-4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                  
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-xl">
+                      <AlertTriangle className="h-6 w-6 text-amber-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold">Critical Biases to Consider</h3>
+                    <span className="ml-auto text-sm text-gray-400">{cognitiveBiases.length} biases detected</span>
+                  </div>
+                  
+                  <div className={`grid gap-6 ${
+                    cognitiveBiases.length === 1 ? 'grid-cols-1 max-w-2xl' :
+                    'grid-cols-1 lg:grid-cols-2'
+                  }`}>
+                    {cognitiveBiases.map((tool, index) => (
+                      <ToolCard key={tool.id} tool={tool} index={index + mentalModels.length} />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
           )}
         </div>
