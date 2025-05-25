@@ -76,19 +76,15 @@ const SearchSection: React.FC<SearchSectionProps> = ({
             transition={{ duration: 0.3 }}
             className="mb-6 flex justify-center"
           >
-            <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-full text-sm font-medium ${
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
               remainingQueries > 0 
                 ? 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30'
                 : 'bg-red-500/10 text-red-400 border border-red-500/30'
             }`}>
-              <div className="relative">
-                <div className={`w-2 h-2 rounded-full ${
-                  remainingQueries > 0 ? 'bg-[#00FFFF]' : 'bg-red-400'
-                } animate-pulse`}></div>
-              </div>
+              <span className="text-base">⚡</span>
               <span>
                 {remainingQueries > 0 
-                  ? `${remainingQueries} analysis remaining today`
+                  ? `${remainingQueries} analysis left today`
                   : 'Daily limit reached'
                 }
               </span>
