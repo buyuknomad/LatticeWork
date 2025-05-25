@@ -140,7 +140,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               </div>
             </div>
           ) : (
-            /* Premium Tier Layout - Bento Box Style */
+            /* Premium Tier Layout - Clean Hierarchy */
             <div className="space-y-8">
               {/* Mental Models Section */}
               {mentalModels.length > 0 && (
@@ -157,31 +157,69 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                     <span className="ml-auto text-sm text-gray-400">{mentalModels.length} models identified</span>
                   </div>
                   
-                  {/* Bento Grid for Mental Models */}
-                  <div className={`grid gap-6 ${
-                    mentalModels.length === 1 ? 'grid-cols-1' :
-                    mentalModels.length === 2 ? 'grid-cols-1 lg:grid-cols-2' :
-                    'grid-cols-1 lg:grid-cols-3'
-                  }`}>
-                    {mentalModels.slice(0, 3).map((tool, index) => (
+                  {/* Layout based on count */}
+                  {mentalModels.length === 1 && (
+                    <div className="max-w-3xl mx-auto">
+                      <ToolCard tool={mentalModels[0]} index={0} />
+                    </div>
+                  )}
+                  
+                  {mentalModels.length === 2 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {mentalModels.map((tool, index) => (
+                        <motion.div
+                          key={tool.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                        >
+                          <ToolCard tool={tool} index={index} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {mentalModels.length >= 3 && (
+                    <div className="space-y-6">
+                      {/* First model - full width */}
                       <motion.div
-                        key={tool.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className={index === 0 && mentalModels.length > 2 ? 'lg:col-span-2' : ''}
+                        transition={{ duration: 0.3 }}
+                        className="max-w-3xl mx-auto"
                       >
-                        <ToolCard tool={tool} index={index} />
+                        <ToolCard tool={mentalModels[0]} index={0} />
                       </motion.div>
-                    ))}
-                  </div>
-                  
-                  {/* Additional models if any */}
-                  {mentalModels.length > 3 && (
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mentalModels.slice(3).map((tool, index) => (
-                        <ToolCard key={tool.id} tool={tool} index={index + 3} />
-                      ))}
+                      
+                      {/* Remaining models - side by side */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {mentalModels.slice(1, 3).map((tool, index) => (
+                          <motion.div
+                            key={tool.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: (index + 1) * 0.1 }}
+                          >
+                            <ToolCard tool={tool} index={index + 1} />
+                          </motion.div>
+                        ))}
+                      </div>
+                      
+                      {/* If more than 3, show the rest in pairs */}
+                      {mentalModels.length > 3 && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {mentalModels.slice(3).map((tool, index) => (
+                            <motion.div
+                              key={tool.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: (index + 3) * 0.1 }}
+                            >
+                              <ToolCard tool={tool} index={index + 3} />
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </motion.div>
@@ -206,14 +244,43 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                     <span className="ml-auto text-sm text-gray-400">{cognitiveBiases.length} biases detected</span>
                   </div>
                   
-                  <div className={`grid gap-6 ${
-                    cognitiveBiases.length === 1 ? 'grid-cols-1 max-w-2xl' :
-                    'grid-cols-1 lg:grid-cols-2'
-                  }`}>
-                    {cognitiveBiases.map((tool, index) => (
-                      <ToolCard key={tool.id} tool={tool} index={index + mentalModels.length} />
-                    ))}
-                  </div>
+                  {/* Layout based on count - only 1 or 2 side by side */}
+                  {cognitiveBiases.length === 1 && (
+                    <div className="max-w-3xl mx-auto">
+                      <ToolCard tool={cognitiveBiases[0]} index={mentalModels.length} />
+                    </div>
+                  )}
+                  
+                  {cognitiveBiases.length >= 2 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {cognitiveBiases.slice(0, 2).map((tool, index) => (
+                        <motion.div
+                          key={tool.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: (mentalModels.length + index) * 0.1 }}
+                        >
+                          <ToolCard tool={tool} index={mentalModels.length + index} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* If more than 2 biases, show the rest in pairs */}
+                  {cognitiveBiases.length > 2 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                      {cognitiveBiases.slice(2).map((tool, index) => (
+                        <motion.div
+                          key={tool.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: (mentalModels.length + index + 2) * 0.1 }}
+                        >
+                          <ToolCard tool={tool} index={mentalModels.length + index + 2} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </div>
