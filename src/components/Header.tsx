@@ -1,5 +1,6 @@
+// src/components/Header.tsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Brain, Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -7,23 +8,40 @@ import { useAuth } from '../context/AuthContext';
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-const handleAuthClick = async () => {
-  if (user) {
-    try {
-      await signOut();
-      // Navigate to home page after successful logout
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Even if logout fails, navigate to home
-      navigate('/');
+  const handleAuthClick = async () => {
+    if (user) {
+      try {
+        await signOut();
+        // Navigate to home page after successful logout
+        navigate('/');
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Even if logout fails, navigate to home
+        navigate('/');
+      }
+    } else {
+      navigate('/login');
     }
-  } else {
-    navigate('/login');
-  }
-};
+  };
+
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // If we're already on the dashboard, force a reset by navigating with a timestamp
+    if (location.pathname === '/dashboard') {
+      // Add a query parameter to trigger a reset
+      navigate('/dashboard?reset=' + Date.now());
+    } else {
+      // Otherwise, just navigate normally
+      navigate('/dashboard');
+    }
+    
+    // Close mobile menu if open
+    setIsMenuOpen(false);
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -61,12 +79,13 @@ const handleAuthClick = async () => {
             
             {/* Dashboard Link - Only visible when user is logged in */}
             {user && (
-              <Link 
-                to="/dashboard" 
-                className="text-white hover:text-[#00FFFF] transition-colors font-medium"
+              <a 
+                href="/dashboard"
+                onClick={handleDashboardClick}
+                className="text-white hover:text-[#00FFFF] transition-colors font-medium cursor-pointer"
               >
                 Dashboard
-              </Link>
+              </a>
             )}
             
             {/* Login/Logout Button */}
@@ -135,13 +154,13 @@ const handleAuthClick = async () => {
               
               {/* Dashboard Link - Only visible when user is logged in */}
               {user && (
-                <Link 
-                  to="/dashboard" 
-                  className="text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35]"
-                  onClick={() => setIsMenuOpen(false)}
+                <a 
+                  href="/dashboard"
+                  onClick={handleDashboardClick}
+                  className="text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35] cursor-pointer"
                 >
                   Dashboard
-                </Link>
+                </a>
               )}
               
               <div className="pt-2 flex flex-col space-y-2">
