@@ -5,6 +5,7 @@ import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, ChevronRigh
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
 import { LatticeInsightResponse, UserTier } from './types';
+import ReactMarkdown from 'react-markdown';
 
 interface ResultsSectionProps {
   results: LatticeInsightResponse;
