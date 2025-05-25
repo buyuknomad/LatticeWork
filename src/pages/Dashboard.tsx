@@ -22,13 +22,11 @@ const Dashboard: React.FC = () => {
   const location = useLocation();
 
   // State management
-  const [actualUserTier, setActualUserTier] = useState<UserTier>('free');
-  const [devTestTier, setDevTestTier] = useState<UserTier>('free');
+  const [userTier, setUserTier] = useState<UserTier>('free');
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showTierToggle, setShowTierToggle] = useState(false);
   
   // Animation states
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
@@ -40,7 +38,6 @@ const Dashboard: React.FC = () => {
   const [loadingTrending, setLoadingTrending] = useState(true);
 
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
-  const displayTier = showTierToggle ? devTestTier : actualUserTier;
 
   // Example queries for animation
   const EXAMPLE_QUERIES = [
@@ -54,9 +51,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (user?.user_metadata?.tier) {
-      const tier = user.user_metadata.tier as UserTier;
-      setActualUserTier(tier);
-      setDevTestTier(tier);
+      setUserTier(user.user_metadata.tier as UserTier);
     }
   }, [user]);
 
@@ -125,8 +120,8 @@ const Dashboard: React.FC = () => {
           relationships_summary: analysis.relationshipsSummary || null,
           full_response: analysis,
           created_at: new Date().toISOString(),
-          tier_at_query: displayTier,
-          is_trending: isTrending  // New field
+          tier_at_query: userTier,
+          is_trending: isTrending
         });
         
       if (logError) {
@@ -154,11 +149,10 @@ const Dashboard: React.FC = () => {
     // Check if pre-generated analysis exists
     if (question.pre_generated_analysis) {
       // For both free and premium users with pre-generated analysis
-      if (displayTier === 'premium') {
+      if (userTier === 'premium') {
         // Premium users get instant results without any checks
         console.log('Using pre-generated analysis for trending question (premium user)');
         setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        // Pass true for isTrending parameter
         await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
         
         // Clear URL parameter
@@ -191,7 +185,6 @@ const Dashboard: React.FC = () => {
         // User has queries remaining, show pre-generated results
         console.log('Free user has queries remaining, showing pre-generated analysis');
         setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        // Pass true for isTrending parameter
         await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
         
         // Clear URL parameter
@@ -200,7 +193,7 @@ const Dashboard: React.FC = () => {
       }
     } else {
       // No pre-generated analysis available
-      if (displayTier === 'premium') {
+      if (userTier === 'premium') {
         // Premium user - auto-submit for new analysis
         setTimeout(() => {
           const form = document.querySelector('form');
@@ -352,10 +345,6 @@ const Dashboard: React.FC = () => {
     setIsTypingAnimation(true);
   };
 
-  const toggleDevTier = () => {
-    setDevTestTier(prev => prev === 'free' ? 'premium' : 'free');
-  };
-
   return (
     <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
       <BackgroundAnimation />
@@ -363,11 +352,7 @@ const Dashboard: React.FC = () => {
       <div className="relative z-10 min-h-screen">
         <DashboardHeader
           user={user}
-          displayTier={displayTier}
-          showTierToggle={showTierToggle}
-          devTestTier={devTestTier}
-          onToggleTierToggle={() => setShowTierToggle(!showTierToggle)}
-          onToggleDevTier={toggleDevTier}
+          displayTier={userTier}
         />
 
         <div className="px-4 pb-20">
@@ -383,7 +368,7 @@ const Dashboard: React.FC = () => {
                   animatedPlaceholder={animatedPlaceholder}
                   trendingQuestions={trendingQuestions}
                   loadingTrending={loadingTrending}
-                  displayTier={displayTier}
+                  displayTier={userTier}
                   onSubmit={handleQuerySubmit}
                   onInputFocus={handleInputFocus}
                   onInputChange={handleInputChange}
@@ -399,7 +384,7 @@ const Dashboard: React.FC = () => {
                 <ResultsSection
                   results={results}
                   query={query}
-                  displayTier={displayTier}
+                  displayTier={userTier}
                   onResetQuery={resetQuery}
                 />
               )}
