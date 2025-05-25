@@ -276,30 +276,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Upgrade Prompt - Redesigned for Free Users */}
-      {displayTier === 'free' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="relative">
-            {/* Preview of locked content */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1A1A1A] pointer-events-none z-10"></div>
-            <div className="filter blur-sm opacity-50 pointer-events-none">
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="h-32 bg-[#252525] rounded-xl animate-pulse"></div>
-                <div className="h-32 bg-[#252525] rounded-xl animate-pulse"></div>
-              </div>
-            </div>
-            
-            {/* Upgrade CTA Overlay */}
-            <div className="absolute inset-x-0 bottom-0 z-20">
-              <UpgradePrompt />
-            </div>
-          </div>
-        </motion.div>
-      )}
+      {/* Upgrade Prompt for Free Users */}
+      {displayTier === 'free' && <UpgradePrompt />}
     </motion.div>
   );
 };
