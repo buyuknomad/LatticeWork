@@ -1,7 +1,7 @@
 // src/components/Dashboard/ToolCard.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink, Sparkles } from 'lucide-react';
 import { RecommendedTool } from './types';
 
 interface ToolCardProps {
@@ -11,6 +11,7 @@ interface ToolCardProps {
 
 const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const isMentalModel = tool.type === 'mental_model';
   
   return (
@@ -18,65 +19,136 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="group"
+      className="group relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`relative bg-[#252525]/80 backdrop-blur-sm rounded-xl border transition-all duration-300 overflow-hidden ${
+      {/* Animated glow effect on hover */}
+      <motion.div
+        className={`absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 ${
           isMentalModel 
-            ? 'border-[#00FFFF]/20 hover:border-[#00FFFF]/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.15)]' 
-            : 'border-amber-500/20 hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]'
+            ? 'bg-gradient-to-r from-[#00FFFF] to-[#00FFFF]/50' 
+            : 'bg-gradient-to-r from-amber-500 to-amber-500/50'
+        }`}
+        animate={{ opacity: isHovered ? 0.3 : 0 }}
+      />
+      
+      <div
+        className={`relative h-full bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl border transition-all duration-300 overflow-hidden ${
+          isMentalModel 
+            ? 'border-[#00FFFF]/20 hover:border-[#00FFFF]/40' 
+            : 'border-amber-500/20 hover:border-amber-500/40'
         }`}
       >
-        {/* Card Glow Effect */}
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+        {/* Animated background gradient */}
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${
           isMentalModel 
             ? 'bg-gradient-to-br from-[#00FFFF]/5 via-transparent to-[#00FFFF]/5' 
             : 'bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5'
-        }`}></div>
+        }`}>
+          {/* Moving particles effect */}
+          <div className="absolute inset-0">
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                className={`absolute w-1 h-1 rounded-full ${
+                  isMentalModel ? 'bg-[#00FFFF]/40' : 'bg-amber-500/40'
+                }`}
+                initial={{ 
+                  x: Math.random() * 100 + '%',
+                  y: Math.random() * 100 + '%'
+                }}
+                animate={{
+                  x: Math.random() * 100 + '%',
+                  y: Math.random() * 100 + '%',
+                }}
+                transition={{
+                  duration: 10 + i * 5,
+                  repeat: Infinity,
+                  repeatType: 'reverse',
+                  ease: 'linear'
+                }}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Card Content */}
         <div className="relative p-6">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                {isMentalModel ? (
-                  <div className="p-2 bg-[#00FFFF]/10 rounded-lg">
+              <div className="flex items-center gap-3 mb-3">
+                <motion.div 
+                  className={`relative p-2.5 rounded-xl ${
+                    isMentalModel 
+                      ? 'bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10' 
+                      : 'bg-gradient-to-br from-amber-500/20 to-amber-500/10'
+                  }`}
+                  animate={{ 
+                    rotate: isHovered ? [0, -5, 5, 0] : 0,
+                  }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {isMentalModel ? (
                     <Brain className="h-5 w-5 text-[#00FFFF]" />
-                  </div>
-                ) : (
-                  <div className="p-2 bg-amber-500/10 rounded-lg">
+                  ) : (
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
-                  </div>
-                )}
-                <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                  )}
+                  
+                  {/* Pulse effect on icon */}
+                  <motion.div
+                    className={`absolute inset-0 rounded-xl ${
+                      isMentalModel ? 'bg-[#00FFFF]/20' : 'bg-amber-500/20'
+                    }`}
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 0, 0.5],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </motion.div>
+                
+                <h3 className="text-lg font-semibold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 transition-all duration-300">
+                  {tool.name}
+                </h3>
               </div>
               
-              <div className="flex items-center gap-2 mb-3">
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  isMentalModel 
-                    ? 'bg-[#00FFFF]/10 text-[#00FFFF]' 
-                    : 'bg-amber-500/10 text-amber-500'
-                }`}>
+              <div className="flex items-center gap-2 mb-4">
+                <motion.span 
+                  className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    isMentalModel 
+                      ? 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/20' 
+                      : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                >
                   {tool.category}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {isMentalModel ? 'Mental Model' : 'Cognitive Bias'}
+                </motion.span>
+                <span className="text-xs text-gray-500 flex items-center gap-1">
+                  <Sparkles size={12} className="opacity-50" />
+                  {isMentalModel ? 'Framework' : 'Bias Pattern'}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Summary */}
-          <p className="text-gray-300 text-sm leading-relaxed mb-4">
+          {/* Summary with enhanced typography */}
+          <p className="text-gray-300 text-sm leading-relaxed mb-6">
             {tool.summary}
           </p>
 
-          {/* Explanation Section */}
-          <div className="border-t border-[#333333] pt-4">
+          {/* Explanation Section - Redesigned */}
+          <div className={`border-t pt-4 transition-colors duration-300 ${
+            isExpanded ? 'border-[#444444]' : 'border-[#333333]'
+          }`}>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`w-full flex items-center justify-between p-3 -m-3 rounded-lg transition-colors ${
+              className={`w-full flex items-center justify-between p-3 -m-3 rounded-xl transition-all duration-300 ${
                 isMentalModel 
                   ? 'hover:bg-[#00FFFF]/5' 
                   : 'hover:bg-amber-500/5'
@@ -85,10 +157,20 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
               <span className={`text-sm font-medium flex items-center gap-2 ${
                 isMentalModel ? 'text-[#00FFFF]' : 'text-amber-500'
               }`}>
-                <Eye size={16} />
-                How this explains the pattern
+                <motion.div
+                  animate={{ scale: isExpanded ? 1.1 : 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Eye size={16} />
+                </motion.div>
+                Application to your situation
               </span>
-              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown size={16} className={isMentalModel ? 'text-[#00FFFF]' : 'text-amber-500'} />
+              </motion.div>
             </button>
             
             <AnimatePresence>
@@ -97,31 +179,62 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                   className="overflow-hidden"
                 >
-                  <div className="pt-4 pl-1">
-                    <p className="text-gray-400 text-sm leading-relaxed">
-                      {tool.explanation || "No specific explanation provided."}
-                    </p>
+                  <div className="pt-4 px-1">
+                    <div className={`relative pl-4 ${
+                      isMentalModel ? 'border-l-2 border-[#00FFFF]/30' : 'border-l-2 border-amber-500/30'
+                    }`}>
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {tool.explanation || "Analysis pending..."}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Learn More Button */}
-          <div className="mt-4 flex justify-end">
-            <button className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all ${
-              isMentalModel 
-                ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
-                : 'text-amber-500 hover:bg-amber-500/10'
-            }`}>
-              Learn More
-              <ExternalLink size={14} />
-            </button>
-          </div>
+          {/* Enhanced Learn More Section */}
+          <motion.div 
+            className="mt-6 pt-4 border-t border-[#333333]/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="flex items-center justify-between">
+              <button className={`group/learn flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 ${
+                isMentalModel 
+                  ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
+                  : 'text-amber-500 hover:bg-amber-500/10'
+              }`}>
+                <span>Deep Dive</span>
+                <ExternalLink size={14} className="group-hover/learn:translate-x-0.5 group-hover/learn:-translate-y-0.5 transition-transform" />
+              </button>
+              
+              {/* Visual indicator of tool type */}
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  isMentalModel ? 'bg-[#00FFFF]' : 'bg-amber-500'
+                } animate-pulse`}></div>
+                <span className="text-xs text-gray-500">
+                  {isMentalModel ? 'Pattern Model' : 'Cognitive Trap'}
+                </span>
+              </div>
+            </div>
+          </motion.div>
         </div>
+
+        {/* Corner accent */}
+        <div className={`absolute top-0 right-0 w-20 h-20 opacity-10 pointer-events-none ${
+          isMentalModel 
+            ? 'bg-gradient-to-bl from-[#00FFFF]' 
+            : 'bg-gradient-to-bl from-amber-500'
+        }`} style={{
+          maskImage: 'radial-gradient(circle at top right, black, transparent)',
+          WebkitMaskImage: 'radial-gradient(circle at top right, black, transparent)'
+        }}></div>
       </div>
     </motion.div>
   );
