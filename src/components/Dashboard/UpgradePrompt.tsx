@@ -125,7 +125,7 @@ const UpgradePrompt: React.FC = () => {
                 </span>
               </h3>
               <p className="text-gray-300 mb-6 leading-relaxed">
-                You're seeing just the surface. Premium reveals the full pattern landscape with multiple interconnected models and biases.
+                Discover 3-4 mental models, 2-3 biases per pattern, see how they interconnect, and gain deeper understanding with Premium.
               </p>
               
               {/* Feature Pills */}
