@@ -134,3 +134,16 @@
 .custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
   background: transparent;
 }
+
+@keyframes gradient-x {
+  0%, 100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s ease infinite;
+}
