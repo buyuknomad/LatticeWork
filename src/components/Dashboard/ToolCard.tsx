@@ -44,10 +44,16 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
     ),
   };
 
-  // Process the explanation to handle *** syntax
+  // Process the explanation to handle various markdown syntax
   const processExplanation = (text: string): string => {
-    // Convert ***text*** to **text** for proper bold rendering
-    return text.replace(/\*\*\*(.*?)\*\*\*/g, '**$1**');
+    // First, convert ***text*** to **text** for proper bold rendering
+    let processed = text.replace(/\*\*\*(.*?)\*\*\*/g, '**$1**');
+    
+    // Optionally, convert single *text* to **text** if you want everything bold
+    // Uncomment the line below if you want single asterisks to render as bold instead of italic
+    // processed = processed.replace(/\*([^*]+)\*/g, '**$1**');
+    
+    return processed;
   };
   
   return (
