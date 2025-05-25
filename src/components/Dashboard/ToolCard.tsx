@@ -69,14 +69,14 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Animated glow effect on hover */}
+      {/* Animated glow effect on hover - REDUCED OPACITY */}
       <motion.div
         className={`absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 ${
           isMentalModel 
             ? 'bg-gradient-to-r from-[#00FFFF] to-[#00FFFF]/50' 
             : 'bg-gradient-to-r from-amber-500 to-amber-500/50'
         }`}
-        animate={{ opacity: isHovered ? 0.3 : 0 }}
+        animate={{ opacity: isHovered ? 0.15 : 0 }}
       />
       
       <div
@@ -86,19 +86,19 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             : 'border-amber-500/20 hover:border-amber-500/40'
         }`}
       >
-        {/* Animated background gradient */}
-        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${
+        {/* Animated background gradient - MORE SUBTLE */}
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-50 transition-opacity duration-700 ${
           isMentalModel 
             ? 'bg-gradient-to-br from-[#00FFFF]/5 via-transparent to-[#00FFFF]/5' 
             : 'bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5'
         }`}>
-          {/* Moving particles effect */}
+          {/* Moving particles effect - SLOWER MOVEMENT */}
           <div className="absolute inset-0">
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
                 className={`absolute w-1 h-1 rounded-full ${
-                  isMentalModel ? 'bg-[#00FFFF]/40' : 'bg-amber-500/40'
+                  isMentalModel ? 'bg-[#00FFFF]/20' : 'bg-amber-500/20'
                 }`}
                 initial={{ 
                   x: Math.random() * 100 + '%',
@@ -109,7 +109,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                   y: Math.random() * 100 + '%',
                 }}
                 transition={{
-                  duration: 10 + i * 5,
+                  duration: 20 + i * 10, // Increased duration for slower movement
                   repeat: Infinity,
                   repeatType: 'reverse',
                   ease: 'linear'
@@ -132,9 +132,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                       : 'bg-gradient-to-br from-amber-500/20 to-amber-500/10'
                   }`}
                   animate={{ 
-                    rotate: isHovered ? [0, -5, 5, 0] : 0,
+                    rotate: isHovered ? [0, -2, 2, 0] : 0, // Reduced rotation
                   }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.8 }} // Slower animation
                 >
                   {isMentalModel ? (
                     <Brain className="h-5 w-5 text-[#00FFFF]" />
@@ -142,17 +142,17 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                   )}
                   
-                  {/* Pulse effect on icon */}
+                  {/* Pulse effect on icon - MORE SUBTLE */}
                   <motion.div
                     className={`absolute inset-0 rounded-xl ${
-                      isMentalModel ? 'bg-[#00FFFF]/20' : 'bg-amber-500/20'
+                      isMentalModel ? 'bg-[#00FFFF]/10' : 'bg-amber-500/10'
                     }`}
                     animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.5, 0, 0.5],
+                      scale: [1, 1.1, 1],
+                      opacity: [0.3, 0, 0.3],
                     }}
                     transition={{
-                      duration: 2,
+                      duration: 3, // Slower pulse
                       repeat: Infinity,
                       ease: "easeInOut",
                     }}
