@@ -295,7 +295,13 @@ const Dashboard: React.FC = () => {
           error: "An unexpected error occurred.", 
           details: response.statusText 
         }));
-        setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
+        
+        // Check if it's a rate limit error and format consistently
+        if (response.status === 429 || errorData.error?.includes('Query limit reached')) {
+          setError('Query limit reached. Free tier allows 1 query per 24 hours. Upgrade to Premium for unlimited queries.');
+        } else {
+          setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
+        }
         return;
       }
 
@@ -335,49 +341,4 @@ const Dashboard: React.FC = () => {
           displayTier={displayTier}
           showTierToggle={showTierToggle}
           devTestTier={devTestTier}
-          onToggleTierToggle={() => setShowTierToggle(!showTierToggle)}
-          onToggleDevTier={toggleDevTier}
-        />
-
-        <div className="px-4 pb-20">
-          <div className="max-w-6xl mx-auto">
-            <AnimatePresence mode="wait">
-              {!results && !isLoading && (
-                <QuerySection
-                  query={query}
-                  setQuery={setQuery}
-                  error={error}
-                  isLoading={isLoading}
-                  isTypingAnimation={isTypingAnimation}
-                  animatedPlaceholder={animatedPlaceholder}
-                  trendingQuestions={trendingQuestions}
-                  loadingTrending={loadingTrending}
-                  displayTier={displayTier}
-                  onSubmit={handleQuerySubmit}
-                  onInputFocus={handleInputFocus}
-                  onInputChange={handleInputChange}
-                  onExampleClick={handleExampleClick}
-                  onTrendingClick={handleTrendingClick}
-                  shouldFocusAnalysis={shouldFocusAnalysis}
-                />
-              )}
-
-              {isLoading && <LoadingState />}
-
-              {results && !isLoading && (
-                <ResultsSection
-                  results={results}
-                  query={query}
-                  displayTier={displayTier}
-                  onResetQuery={resetQuery}
-                />
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Dashboard;
+          onToggleTierToggle={() => setShowTierTo
