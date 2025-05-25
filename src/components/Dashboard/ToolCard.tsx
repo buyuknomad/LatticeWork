@@ -129,10 +129,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                 >
                   {tool.category}
                 </motion.span>
-                <span className="text-xs text-gray-500 flex items-center gap-1">
-                  <Sparkles size={12} className="opacity-50" />
-                  {isMentalModel ? 'Framework' : 'Bias Pattern'}
-                </span>
+
               </div>
             </div>
           </div>
@@ -163,7 +160,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                 >
                   <Eye size={16} />
                 </motion.div>
-                Application to your situation
+                How this explains the pattern
               </span>
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -209,7 +206,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                   ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
                   : 'text-amber-500 hover:bg-amber-500/10'
               }`}>
-                <span>Deep Dive</span>
+                <span>Learn More</span>
                 <ExternalLink size={14} className="group-hover/learn:translate-x-0.5 group-hover/learn:-translate-y-0.5 transition-transform" />
               </button>
               
