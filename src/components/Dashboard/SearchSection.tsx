@@ -1,7 +1,8 @@
 // src/components/Dashboard/SearchSection.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Search, X, ArrowRight, AlertCircle, Clock } from 'lucide-react';
+import { Search, X, ArrowRight, AlertCircle, Clock, Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { UserTier } from './types';
 
 interface SearchSectionProps {
@@ -35,6 +36,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   onClearQuery,
   shouldFocusAnalysis,
 }) => {
+  const navigate = useNavigate();
   const isRateLimitError = error?.includes('Query limit reached');
 
   const formatTimeUntilReset = () => {
@@ -48,6 +50,10 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
+  };
+
+  const handleUpgradeClick = () => {
+    navigate('/pricing');
   };
 
   return (
@@ -76,25 +82,43 @@ const SearchSection: React.FC<SearchSectionProps> = ({
             transition={{ duration: 0.3 }}
             className="mb-6 flex justify-center"
           >
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+            <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-full text-sm font-medium ${
               remainingQueries > 0 
                 ? 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30'
                 : 'bg-red-500/10 text-red-400 border border-red-500/30'
             }`}>
-              <span className="text-base">⚡</span>
-              <span>
-                {remainingQueries > 0 
-                  ? `${remainingQueries} analysis left today`
-                  : 'Daily limit reached'
-                }
-              </span>
-              {queryResetTime && remainingQueries === 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚡</span>
+                <span>
+                  {remainingQueries > 0 
+                    ? `${remainingQueries} analysis left today`
+                    : 'Daily limit reached'
+                  }
+                </span>
+                {queryResetTime && remainingQueries === 0 && (
+                  <>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-gray-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      Resets in {formatTimeUntilReset()}
+                    </span>
+                  </>
+                )}
+              </div>
+              
+              {/* Upgrade Button - Only show when limit is reached */}
+              {remainingQueries === 0 && (
                 <>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-400 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Resets in {formatTimeUntilReset()}
-                  </span>
+                  <div className="h-4 w-px bg-gray-600" />
+                  <motion.button
+                    onClick={handleUpgradeClick}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full text-white text-xs font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Crown size={12} />
+                    <span>Upgrade</span>
+                  </motion.button>
                 </>
               )}
             </div>
@@ -165,6 +189,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                   <p className="text-red-400 text-sm">{error}</p>
                   {isRateLimitError && (
                     <motion.button
+                      onClick={handleUpgradeClick}
                       className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
