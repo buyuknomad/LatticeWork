@@ -1,7 +1,7 @@
 // src/components/Dashboard/QuerySection.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Search, X, ArrowRight, AlertCircle } from 'lucide-react';
+import { Search, X, ArrowRight, AlertCircle, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TrendingQuestions from './TrendingQuestions';
 import { TrendingQuestion, UserTier } from './types';
@@ -48,6 +48,9 @@ const QuerySection: React.FC<QuerySectionProps> = ({
   onTrendingClick,
   shouldFocusAnalysis,
 }) => {
+  // Check if error is a rate limit error
+  const isRateLimitError = error?.includes('Query limit reached');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -129,9 +132,17 @@ const QuerySection: React.FC<QuerySectionProps> = ({
                 <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-red-400 text-sm">{error}</p>
-                  {error.includes('Premium feature') && (
-                    <Link to="/pricing" className="inline-flex items-center gap-1 mt-2 text-[#8B5CF6] hover:text-[#8B5CF6]/80 text-sm font-medium">
-                      Upgrade to Premium <ArrowRight size={14} />
+                  {isRateLimitError && (
+                    <Link to="/pricing">
+                      <motion.button
+                        className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Crown size={16} />
+                        Upgrade to Premium
+                        <ArrowRight size={14} />
+                      </motion.button>
                     </Link>
                   )}
                 </div>
