@@ -1,7 +1,8 @@
 // src/components/Dashboard/ToolCard.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink, Sparkles } from 'lucide-react';
+import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { RecommendedTool } from './types';
 
 interface ToolCardProps {
@@ -13,6 +14,41 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isMentalModel = tool.type === 'mental_model';
+  
+  // Custom markdown components for consistent styling
+  const markdownComponents = {
+    p: ({ children }: any) => (
+      <p className="text-gray-400 text-sm leading-relaxed">{children}</p>
+    ),
+    strong: ({ children }: any) => (
+      <strong className={`font-semibold ${
+        isMentalModel ? 'text-[#00FFFF]' : 'text-amber-400'
+      }`}>{children}</strong>
+    ),
+    em: ({ children }: any) => (
+      <em className="text-gray-300 italic">{children}</em>
+    ),
+    code: ({ children }: any) => (
+      <code className="px-1.5 py-0.5 bg-[#333333] text-gray-300 rounded text-xs font-mono">{children}</code>
+    ),
+    ul: ({ children }: any) => (
+      <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm">{children}</ul>
+    ),
+    ol: ({ children }: any) => (
+      <ol className="list-decimal list-inside space-y-1 text-gray-400 text-sm">{children}</ol>
+    ),
+    li: ({ children }: any) => (
+      <li className="text-gray-400">
+        <span className="text-gray-400">{children}</span>
+      </li>
+    ),
+  };
+
+  // Process the explanation to handle *** syntax
+  const processExplanation = (text: string): string => {
+    // Convert ***text*** to **text** for proper bold rendering
+    return text.replace(/\*\*\*(.*?)\*\*\*/g, '**$1**');
+  };
   
   return (
     <motion.div
@@ -129,7 +165,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                 >
                   {tool.category}
                 </motion.span>
-
               </div>
             </div>
           </div>
@@ -139,7 +174,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             {tool.summary}
           </p>
 
-          {/* Explanation Section - Redesigned */}
+          {/* Explanation Section - Redesigned with Markdown Support */}
           <div className={`border-t pt-4 transition-colors duration-300 ${
             isExpanded ? 'border-[#444444]' : 'border-[#333333]'
           }`}>
@@ -183,9 +218,12 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                     <div className={`relative pl-4 ${
                       isMentalModel ? 'border-l-2 border-[#00FFFF]/30' : 'border-l-2 border-amber-500/30'
                     }`}>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        {tool.explanation || "Analysis pending..."}
-                      </p>
+                      {/* Render explanation with markdown support */}
+                      <div className="prose prose-sm max-w-none">
+                        <ReactMarkdown components={markdownComponents}>
+                          {processExplanation(tool.explanation || "Analysis pending...")}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
