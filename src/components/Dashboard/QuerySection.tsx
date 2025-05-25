@@ -98,7 +98,7 @@ const QuerySection: React.FC<QuerySectionProps> = ({
   };
 
   return (
-    <div className="w-full space-y-6 md:space-y-8">
+    <div className="w-full space-y-8 md:space-y-10">
       {/* Search Section - Primary Focus */}
       <SearchSection
         query={query}
@@ -116,16 +116,6 @@ const QuerySection: React.FC<QuerySectionProps> = ({
         shouldFocusAnalysis={shouldFocusAnalysis}
       />
 
-      {/* Visual Break - Subtle Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#333333]/20"></div>
-        </div>
-        <div className="relative flex justify-center">
-          <span className="px-4 bg-[#1A1A1A] text-xs text-gray-600">or</span>
-        </div>
-      </div>
-
       {/* Trending Section - Secondary */}
       <TrendingSection
         trendingQuestions={trendingQuestions}
@@ -134,10 +124,7 @@ const QuerySection: React.FC<QuerySectionProps> = ({
         onTrendingClick={onTrendingClick}
       />
 
-      {/* Visual Break */}
-      <div className="h-2"></div>
-
-      {/* Examples Section - Tertiary */}
+      {/* Examples Section - Tertiary but still visible */}
       <ExamplesSection
         onExampleClick={onExampleClick}
       />
