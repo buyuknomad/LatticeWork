@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 
@@ -20,6 +20,7 @@ import {
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // State management
   const [userTier, setUserTier] = useState<UserTier>('free');
@@ -37,6 +38,8 @@ const Dashboard: React.FC = () => {
   const [trendingQuestions, setTrendingQuestions] = useState<TrendingQuestion[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
 
+  // Check if we're on the results page
+  const isResultsPage = location.pathname === '/dashboard/results';
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
   // Example queries for animation
@@ -59,6 +62,20 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchTrendingQuestions();
   }, []);
+
+  // Handle navigation state for results
+  useEffect(() => {
+    // If we're on results page but have no results, redirect to dashboard
+    if (isResultsPage && !results && !location.state?.results) {
+      navigate('/dashboard');
+    }
+    
+    // If we have results in location state (from navigation), use them
+    if (location.state?.results && location.state?.query) {
+      setResults(location.state.results);
+      setQuery(location.state.query);
+    }
+  }, [isResultsPage, results, location.state, navigate]);
 
   const fetchTrendingQuestions = async () => {
     try {
@@ -152,12 +169,17 @@ const Dashboard: React.FC = () => {
       if (userTier === 'premium') {
         // Premium users get instant results without any checks
         console.log('Using pre-generated analysis for trending question (premium user)');
-        setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
+        const analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
+        setResults(analysisResults);
+        await logPreGeneratedAnalysis(question.question, analysisResults, true);
         
-        // Clear URL parameter
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, '', newUrl);
+        // Navigate to results page
+        navigate('/dashboard/results', { 
+          state: { 
+            results: analysisResults, 
+            query: question.question 
+          } 
+        });
       } else {
         // Free users need rate limit check first
         console.log('Checking rate limit for free user before showing pre-generated analysis');
@@ -184,12 +206,17 @@ const Dashboard: React.FC = () => {
         
         // User has queries remaining, show pre-generated results
         console.log('Free user has queries remaining, showing pre-generated analysis');
-        setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
+        const analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
+        setResults(analysisResults);
+        await logPreGeneratedAnalysis(question.question, analysisResults, true);
         
-        // Clear URL parameter
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, '', newUrl);
+        // Navigate to results page
+        navigate('/dashboard/results', { 
+          state: { 
+            results: analysisResults, 
+            query: question.question 
+          } 
+        });
       }
     } else {
       // No pre-generated analysis available
@@ -211,7 +238,7 @@ const Dashboard: React.FC = () => {
     const urlParams = new URLSearchParams(location.search);
     const queryParam = urlParams.get('q');
     
-    if (queryParam && !results && !isLoading) {
+    if (queryParam && !results && !isLoading && !isResultsPage) {
       const decodedQuery = decodeURIComponent(queryParam);
       setQuery(decodedQuery);
       setIsTypingAnimation(false);
@@ -221,21 +248,6 @@ const Dashboard: React.FC = () => {
       }, 500);
     }
   }, [location.search]);
-
-  // NEW: Handle reset parameter from header navigation
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const resetParam = urlParams.get('reset');
-    
-    if (resetParam && results) {
-      // Reset the dashboard state
-      resetQuery();
-      
-      // Clean up the URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
-    }
-  }, [location.search, results]);
 
   // Animated placeholder effect
   useEffect(() => {
@@ -295,10 +307,6 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
-    // Clear URL parameter
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, '', newUrl);
-
     setIsLoading(true);
     setResults(null);
     setError(null);
@@ -344,6 +352,13 @@ const Dashboard: React.FC = () => {
         setError(data.error);
       } else {
         setResults(data);
+        // Navigate to results page with the data
+        navigate('/dashboard/results', { 
+          state: { 
+            results: data, 
+            query: query 
+          } 
+        });
       }
 
     } catch (err: any) {
@@ -358,6 +373,9 @@ const Dashboard: React.FC = () => {
     setError(null);
     setIsLoading(false);
     setIsTypingAnimation(true);
+    
+    // Navigate back to dashboard
+    navigate('/dashboard');
   };
 
   return (
@@ -373,7 +391,7 @@ const Dashboard: React.FC = () => {
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
             <AnimatePresence mode="wait">
-              {!results && !isLoading && (
+              {!isResultsPage && !isLoading && (
                 <QuerySection
                   query={query}
                   setQuery={setQuery}
@@ -396,7 +414,7 @@ const Dashboard: React.FC = () => {
 
               {isLoading && <LoadingState />}
 
-              {results && !isLoading && (
+              {isResultsPage && results && !isLoading && (
                 <ResultsSection
                   results={results}
                   query={query}
