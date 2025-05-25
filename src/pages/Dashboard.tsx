@@ -375,6 +375,7 @@ const Dashboard: React.FC = () => {
                   onExampleClick={handleExampleClick}
                   onTrendingClick={handleTrendingClick}
                   shouldFocusAnalysis={shouldFocusAnalysis}
+                  userId={user?.id}
                 />
               )}
 
