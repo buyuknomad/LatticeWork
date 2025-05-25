@@ -84,12 +84,34 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Log pre-generated analysis to query history
-  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse) => {
+  // Log pre-generated analysis to query history with duplicate prevention
+  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse, isTrending: boolean = false) => {
     if (!user?.id) return;
     
     try {
-      console.log('Logging pre-generated analysis to query history');
+      // If it's a trending query, check if it already exists
+      if (isTrending) {
+        console.log('Checking if trending query already logged...');
+        
+        const { data: existingQuery, error: checkError } = await supabase
+          .from('query_history')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('query_text', question)
+          .eq('is_trending', true)
+          .maybeSingle();
+        
+        if (checkError) {
+          console.error('Error checking for existing trending query:', checkError);
+        }
+        
+        if (existingQuery) {
+          console.log('Trending query already logged, skipping duplicate entry');
+          return;
+        }
+      }
+      
+      console.log(`Logging ${isTrending ? 'trending' : 'regular'} pre-generated analysis to query history`);
       
       const llmSummary = analysis.recommendedTools?.map(t => t.name).join(', ') || "No tools";
       
@@ -103,7 +125,8 @@ const Dashboard: React.FC = () => {
           relationships_summary: analysis.relationshipsSummary || null,
           full_response: analysis,
           created_at: new Date().toISOString(),
-          tier_at_query: displayTier
+          tier_at_query: displayTier,
+          is_trending: isTrending  // New field
         });
         
       if (logError) {
@@ -135,7 +158,8 @@ const Dashboard: React.FC = () => {
         // Premium users get instant results without any checks
         console.log('Using pre-generated analysis for trending question (premium user)');
         setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
+        // Pass true for isTrending parameter
+        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
         
         // Clear URL parameter
         const newUrl = window.location.pathname;
@@ -167,7 +191,8 @@ const Dashboard: React.FC = () => {
         // User has queries remaining, show pre-generated results
         console.log('Free user has queries remaining, showing pre-generated analysis');
         setResults(question.pre_generated_analysis as LatticeInsightResponse);
-        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
+        // Pass true for isTrending parameter
+        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse, true);
         
         // Clear URL parameter
         const newUrl = window.location.pathname;
