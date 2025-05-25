@@ -1,7 +1,7 @@
 // src/components/Dashboard/ResultsSection.tsx
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, Plus } from 'lucide-react';
+import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, Plus, RotateCcw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
@@ -312,21 +312,21 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           onMouseEnter={() => setIsHoveredConnections(true)}
           onMouseLeave={() => setIsHoveredConnections(false)}
         >
-          {/* Animated glow effect on hover - EXACTLY like ToolCard */}
+          {/* Animated glow effect on hover - REDUCED OPACITY */}
           <motion.div
             className="absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6]/50"
-            animate={{ opacity: isHoveredConnections ? 0.3 : 0 }}
+            animate={{ opacity: isHoveredConnections ? 0.15 : 0 }}
           />
           
           <div className="relative h-full bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl border border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40 transition-all duration-300 overflow-hidden">
-            {/* Animated background gradient - same as ToolCard */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-[#8B5CF6]/5">
-              {/* Moving particles effect */}
+            {/* Animated background gradient - MORE SUBTLE */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-50 transition-opacity duration-700 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-[#8B5CF6]/5">
+              {/* Moving particles effect - SLOWER */}
               <div className="absolute inset-0">
                 {[...Array(3)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-1 h-1 rounded-full bg-[#8B5CF6]/40"
+                    className="absolute w-1 h-1 rounded-full bg-[#8B5CF6]/20"
                     initial={{ 
                       x: Math.random() * 100 + '%',
                       y: Math.random() * 100 + '%'
@@ -336,7 +336,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                       y: Math.random() * 100 + '%',
                     }}
                     transition={{
-                      duration: 10 + i * 5,
+                      duration: 20 + i * 10, // Slower movement
                       repeat: Infinity,
                       repeatType: 'reverse',
                       ease: 'linear'
@@ -352,21 +352,21 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                 <motion.div 
                   className="relative p-2.5 bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/10 rounded-xl"
                   animate={{ 
-                    rotate: isHoveredConnections ? [0, -5, 5, 0] : 0,
+                    rotate: isHoveredConnections ? [0, -2, 2, 0] : 0, // Reduced rotation
                   }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.8 }} // Slower
                 >
                   <Layers className="h-5 w-5 text-[#8B5CF6]" />
                   
-                  {/* Pulse effect on icon */}
+                  {/* Pulse effect on icon - MORE SUBTLE */}
                   <motion.div
-                    className="absolute inset-0 rounded-xl bg-[#8B5CF6]/20"
+                    className="absolute inset-0 rounded-xl bg-[#8B5CF6]/10"
                     animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.5, 0, 0.5],
+                      scale: [1, 1.1, 1],
+                      opacity: [0.3, 0, 0.3],
                     }}
                     transition={{
-                      duration: 2,
+                      duration: 3, // Slower pulse
                       repeat: Infinity,
                       ease: "easeInOut",
                     }}
@@ -434,7 +434,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       {/* Upgrade Prompt for Free Users */}
       {displayTier === 'free' && <UpgradePrompt />}
 
-      {/* Fixed Floating Action Button for New Analysis */}
+      {/* Fixed Floating Action Button for New Analysis - UPDATED BEHAVIOR */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -447,7 +447,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Plus className="w-5 h-5 text-[#00FFFF] group-hover:rotate-90 transition-transform duration-300" />
+          <RotateCcw className="w-5 h-5 text-[#00FFFF] group-hover:rotate-180 transition-transform duration-500" />
           <span className="text-white font-medium hidden sm:inline">New Analysis</span>
         </motion.button>
       </motion.div>
