@@ -128,29 +128,64 @@ const Dashboard: React.FC = () => {
     setError(null);
     setIsTypingAnimation(false);
     
-    // For premium users with pre-generated analysis, show instant results
-    if (displayTier === 'premium' && question.pre_generated_analysis) {
-      console.log('Using pre-generated analysis for trending question');
-      
-      // Set results immediately
-      setResults(question.pre_generated_analysis as LatticeInsightResponse);
-      
-      // Log to history
-      await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
-      
-      // Clear URL parameter
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
-    } else if (displayTier === 'premium') {
-      // Premium user but no pre-generated analysis, auto-submit
-      setTimeout(() => {
-        const form = document.querySelector('form');
-        if (form) {
-          form.dispatchEvent(new Event('submit', { bubbles: true }));
+    // Check if pre-generated analysis exists
+    if (question.pre_generated_analysis) {
+      // For both free and premium users with pre-generated analysis
+      if (displayTier === 'premium') {
+        // Premium users get instant results without any checks
+        console.log('Using pre-generated analysis for trending question (premium user)');
+        setResults(question.pre_generated_analysis as LatticeInsightResponse);
+        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
+        
+        // Clear URL parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      } else {
+        // Free users need rate limit check first
+        console.log('Checking rate limit for free user before showing pre-generated analysis');
+        
+        // Check if user has queries remaining
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count, error: queryCountError } = await supabase
+          .from('query_history')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user?.id)
+          .gte('created_at', twentyFourHoursAgo);
+        
+        if (queryCountError) {
+          console.error('Error checking query count:', queryCountError);
+          setError('Could not verify query limits. Please try again.');
+          return;
         }
-      }, 100);
+        
+        if (count !== null && count >= 1) {
+          // User has already used their daily query
+          setError('Query limit reached. Free tier allows 1 query per 24 hours. Upgrade to Premium for unlimited queries.');
+          return;
+        }
+        
+        // User has queries remaining, show pre-generated results
+        console.log('Free user has queries remaining, showing pre-generated analysis');
+        setResults(question.pre_generated_analysis as LatticeInsightResponse);
+        await logPreGeneratedAnalysis(question.question, question.pre_generated_analysis as LatticeInsightResponse);
+        
+        // Clear URL parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    } else {
+      // No pre-generated analysis available
+      if (displayTier === 'premium') {
+        // Premium user - auto-submit for new analysis
+        setTimeout(() => {
+          const form = document.querySelector('form');
+          if (form) {
+            form.dispatchEvent(new Event('submit', { bubbles: true }));
+          }
+        }, 100);
+      }
+      // Free users will need to manually submit (respecting their 1/day limit)
     }
-    // Free users can now use their 1 query on trending questions
   };
 
   // Check for query parameter on mount
