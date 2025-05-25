@@ -2,29 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   ChevronLeft, 
   Search, 
   Clock, 
   Calendar,
-  Eye,
   Trash2,
   RefreshCw,
   Filter,
   Menu,
   X,
-  TrendingUp,
-  Layers,
-  Lock,
-  Crown,
-  ArrowRight
+  TrendingUp
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
 import BackgroundAnimation from '../components/BackgroundAnimation';
-import ToolCard from '../components/Dashboard/ToolCard';
-import { RecommendedTool } from '../components/Dashboard/types';
+import ResultsSection from '../components/Dashboard/ResultsSection';
+import { LatticeInsightResponse, UserTier } from '../components/Dashboard/types';
 
 // Types
 interface QueryHistoryItem {
@@ -32,7 +26,7 @@ interface QueryHistoryItem {
   user_id: string;
   created_at: string;
   query_text: string;
-  recommended_tools?: RecommendedTool[];
+  recommended_tools?: any[];
   relationships_summary?: string;
   full_response?: any;
   tier_at_query?: string;
@@ -52,18 +46,7 @@ const History: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Get current user tier
-  const currentUserTier = user?.user_metadata?.tier || 'free';
-
-  // Process markdown text (same as in ResultsSection)
-  const processMarkdown = (text: string): string => {
-    if (!text) return text;
-    
-    let processed = text.replace(/\*\*/g, '%%DOUBLE%%');
-    processed = processed.replace(/\*/g, '**');
-    processed = processed.replace(/%%DOUBLE%%/g, '**');
-    
-    return processed;
-  };
+  const currentUserTier = (user?.user_metadata?.tier || 'free') as UserTier;
 
   // Fetch queries on mount
   useEffect(() => {
@@ -175,32 +158,29 @@ const History: React.FC = () => {
     query.query_text.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getResultsFromQuery = (query: QueryHistoryItem): RecommendedTool[] => {
-    if (query.recommended_tools) {
-      return query.recommended_tools;
-    } else if (query.full_response?.recommendedTools) {
-      return query.full_response.recommendedTools;
+  // Convert query history item to LatticeInsightResponse format
+  const getResultsAsLatticeResponse = (query: QueryHistoryItem): LatticeInsightResponse => {
+    // If we have a full_response, use it
+    if (query.full_response) {
+      return query.full_response as LatticeInsightResponse;
     }
-    return [];
+    
+    // Otherwise, construct from available fields
+    return {
+      recommendedTools: query.recommended_tools || [],
+      relationshipsSummary: query.relationships_summary,
+      query_id: query.id
+    };
   };
 
-  const getRelationshipsSummary = (query: QueryHistoryItem): string | null => {
-    if (query.relationships_summary) {
-      return query.relationships_summary;
-    } else if (query.full_response?.relationshipsSummary) {
-      return query.full_response.relationshipsSummary;
-    }
-    return null;
-  };
-
-  // Check if user can see relationships summary
-  const canSeeRelationships = (query: QueryHistoryItem): boolean => {
-    // If query was made when user was premium, they can see it
-    if (query.tier_at_query === 'premium') return true;
-    // If user is currently premium, they can see all relationships
-    if (currentUserTier === 'premium') return true;
-    // Otherwise, they can't
-    return false;
+  // Determine display tier for historical query
+  const getDisplayTierForQuery = (query: QueryHistoryItem): UserTier => {
+    // If query was made as premium, show as premium
+    if (query.tier_at_query === 'premium') return 'premium';
+    // If user is currently premium, show all as premium
+    if (currentUserTier === 'premium') return 'premium';
+    // Otherwise show as free
+    return 'free';
   };
 
   return (
@@ -387,175 +367,13 @@ const History: React.FC = () => {
                   </p>
                 </div>
                 
-                {/* Results */}
-                <div>
-                  <h3 className="text-xl font-semibold mb-6">Results</h3>
-                  
-                  {(() => {
-                    const tools = getResultsFromQuery(selectedQuery);
-                    const relationshipsSummary = getRelationshipsSummary(selectedQuery);
-                    
-                    if (tools.length === 0) {
-                      return (
-                        <div className="text-center py-12 text-gray-500">
-                          No results stored for this query
-                        </div>
-                      );
-                    }
-                    
-                    const mentalModels = tools.filter(t => t.type === 'mental_model');
-                    const cognitiveBiases = tools.filter(t => t.type === 'cognitive_bias');
-                    
-                    return (
-                      <>
-                        {/* Mental Models Section */}
-                        {mentalModels.length > 0 && (
-                          <div className="mb-8">
-                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                              Mental Models Applied
-                            </h4>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                              {mentalModels.map((tool, index) => (
-                                <ToolCard key={tool.id} tool={tool} index={index} />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Cognitive Biases Section */}
-                        {cognitiveBiases.length > 0 && (
-                          <div className="mb-8">
-                            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                              Cognitive Biases Identified
-                            </h4>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                              {cognitiveBiases.map((tool, index) => (
-                                <ToolCard key={tool.id} tool={tool} index={index + mentalModels.length} />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Relationships Summary */}
-                        {relationshipsSummary && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            className="relative overflow-hidden"
-                          >
-                            {canSeeRelationships(selectedQuery) ? (
-                              // User can see relationships
-                              <>
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/5 via-[#8B5CF6]/10 to-[#8B5CF6]/5 animate-gradient-x"></div>
-                                
-                                <div className="relative bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5 backdrop-blur-sm rounded-2xl p-8 border border-[#8B5CF6]/30">
-                                  <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-3 bg-[#8B5CF6]/20 rounded-xl">
-                                      <Layers className="h-6 w-6 text-[#8B5CF6]" />
-                                    </div>
-                                    <h3 className="text-xl font-semibold text-white">
-                                      How These Patterns Connect
-                                    </h3>
-                                    <span className="ml-auto text-xs px-3 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full font-medium">
-                                      Premium Insight
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="relative">
-                                    <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-[#8B5CF6]/0 via-[#8B5CF6]/50 to-[#8B5CF6]/0"></div>
-                                    <div className="pl-4 prose prose-sm max-w-none">
-                                      <ReactMarkdown
-                                        components={{
-                                          p: ({ children }: any) => (
-                                            <p className="text-gray-300 leading-relaxed mb-4 last:mb-0">{children}</p>
-                                          ),
-                                          strong: ({ children }: any) => (
-                                            <strong className="font-semibold text-[#8B5CF6]">{children}</strong>
-                                          ),
-                                          em: ({ children }: any) => (
-                                            <em className="text-gray-200 italic">{children}</em>
-                                          ),
-                                          code: ({ children }: any) => (
-                                            <code className="px-1.5 py-0.5 bg-[#333333] text-[#8B5CF6] rounded text-xs font-mono">{children}</code>
-                                          ),
-                                          ul: ({ children }: any) => (
-                                            <ul className="list-disc list-inside space-y-1 text-gray-300">{children}</ul>
-                                          ),
-                                          ol: ({ children }: any) => (
-                                            <ol className="list-decimal list-inside space-y-1 text-gray-300">{children}</ol>
-                                          ),
-                                          li: ({ children }: any) => (
-                                            <li className="text-gray-300">{children}</li>
-                                          ),
-                                        }}
-                                      >
-                                        {processMarkdown(relationshipsSummary || '')}
-                                      </ReactMarkdown>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#8B5CF6]/10 rounded-full filter blur-2xl"></div>
-                                </div>
-                              </>
-                            ) : (
-                              // User cannot see relationships - show locked state
-                              <div className="relative bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5 backdrop-blur-sm rounded-2xl p-8 border border-[#8B5CF6]/30">
-                                <div className="flex items-center justify-between mb-6">
-                                  <div className="flex items-center gap-3">
-                                    <div className="p-3 bg-[#8B5CF6]/20 rounded-xl">
-                                      <Lock className="h-6 w-6 text-[#8B5CF6]" />
-                                    </div>
-                                    <h3 className="text-xl font-semibold text-white">
-                                      How These Patterns Connect
-                                    </h3>
-                                  </div>
-                                  <span className="text-xs px-3 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full font-medium">
-                                    Premium Feature
-                                  </span>
-                                </div>
-                                
-                                <div className="relative">
-                                  {/* Blurred content preview */}
-                                  <div className="filter blur-sm opacity-50 select-none pointer-events-none">
-                                    <p className="text-gray-400 leading-relaxed mb-4">
-                                      The selected mental models and cognitive biases work together to create a comprehensive understanding...
-                                    </p>
-                                    <p className="text-gray-400 leading-relaxed">
-                                      By recognizing these patterns, you can develop strategies that address both the structural and psychological aspects...
-                                    </p>
-                                  </div>
-                                  
-                                  {/* Upgrade prompt overlay */}
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="text-center">
-                                      <Crown className="h-12 w-12 text-[#8B5CF6] mx-auto mb-4" />
-                                      <p className="text-white font-semibold mb-2">Premium Feature</p>
-                                      <p className="text-gray-400 text-sm mb-4">
-                                        Unlock pattern connections and deeper insights
-                                      </p>
-                                      <Link to="/pricing">
-                                        <motion.button
-                                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
-                                          whileHover={{ scale: 1.02 }}
-                                          whileTap={{ scale: 0.98 }}
-                                        >
-                                          <Crown size={16} />
-                                          Upgrade to Premium
-                                          <ArrowRight size={14} />
-                                        </motion.button>
-                                      </Link>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </motion.div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
+                {/* Results using ResultsSection component */}
+                <ResultsSection
+                  results={getResultsAsLatticeResponse(selectedQuery)}
+                  query={selectedQuery.query_text}
+                  displayTier={getDisplayTierForQuery(selectedQuery)}
+                  onResetQuery={handleReanalyze}
+                />
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500">
