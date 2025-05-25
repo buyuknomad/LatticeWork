@@ -48,9 +48,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
   const processMarkdown = (text: string): string => {
     if (!text) return text;
     
-    // Debug logging - remove after fixing the issue
-    console.log('Original text:', text);
-    
     // First, protect already doubled asterisks by temporarily replacing them
     let processed = text.replace(/\*\*/g, '%%DOUBLE%%');
     
@@ -59,8 +56,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
     
     // Restore the original double asterisks
     processed = processed.replace(/%%DOUBLE%%/g, '**');
-    
-    console.log('Processed text:', processed);
     
     return processed;
   };
@@ -182,18 +177,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                 </motion.span>
               </div>
             </div>
-          </div>
-
-          {/* TEST: Remove this after debugging */}
-          <div className="mb-4 p-2 bg-red-900/20 border border-red-500 rounded">
-            <p className="text-xs text-red-400 mb-1">ReactMarkdown Test:</p>
-            <ReactMarkdown
-              components={{
-                strong: ({ children }: any) => <strong className="text-red-500 font-bold">{children}</strong>
-              }}
-            >
-              {'This should be **bold** and this should be *italic*'}
-            </ReactMarkdown>
           </div>
 
           {/* Summary with markdown support */}
