@@ -1,7 +1,7 @@
 // src/components/Dashboard/TrendingSection.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, ChevronRight, ChevronDown } from 'lucide-react';
+import { TrendingUp, ChevronRight, ChevronDown, Globe } from 'lucide-react';
 import { TrendingQuestion, UserTier } from './types';
 
 interface TrendingSectionProps {
@@ -41,9 +41,14 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
         <div className="bg-[#1F1F1F]/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-[#333333]/30">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-[#00FFFF]/10 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-[#00FFFF]" />
+              <Globe className="h-5 w-5 text-[#00FFFF]" />
             </div>
-            <h3 className="text-lg font-semibold">Trending Patterns</h3>
+            <div>
+              <h3 className="text-lg font-semibold">Current Events & Trending Topics</h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Updated every 3 days
+              </p>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -72,12 +77,12 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#00FFFF]/10 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-[#00FFFF]" />
+              <Globe className="h-5 w-5 text-[#00FFFF]" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">Trending Patterns</h3>
+              <h3 className="text-lg font-semibold">Current Events & Trending Topics</h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                Popular questions from the community
+                What's happening in the world • Updated every 3 days
               </p>
             </div>
           </div>
