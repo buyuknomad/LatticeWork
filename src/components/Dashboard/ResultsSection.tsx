@@ -2,10 +2,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, ChevronRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
 import { LatticeInsightResponse, UserTier } from './types';
-import ReactMarkdown from 'react-markdown';
 
 interface ResultsSectionProps {
   results: LatticeInsightResponse;
@@ -23,6 +23,26 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
   const isFreeUser = displayTier === 'free';
+
+  // Process markdown text to handle various syntax (same as in ToolCard)
+  const processMarkdown = (text: string): string => {
+    if (!text) return text;
+    
+    console.log('Pattern Synthesis - Original text:', text);
+    
+    // First, protect already doubled asterisks by temporarily replacing them
+    let processed = text.replace(/\*\*/g, '%%DOUBLE%%');
+    
+    // Convert single asterisks to double
+    processed = processed.replace(/\*/g, '**');
+    
+    // Restore the original double asterisks
+    processed = processed.replace(/%%DOUBLE%%/g, '**');
+    
+    console.log('Pattern Synthesis - Processed text:', processed);
+    
+    return processed;
+  };
 
   return (
     <motion.div
@@ -264,11 +284,51 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               </span>
             </div>
             
+            {/* TEST: Remove this after debugging */}
+            <div className="mb-4 p-2 bg-purple-900/20 border border-purple-500 rounded">
+              <p className="text-xs text-purple-400 mb-1">ReactMarkdown Test (Pattern Synthesis):</p>
+              <ReactMarkdown
+                components={{
+                  strong: ({ children }: any) => <strong className="text-purple-500 font-bold">{children}</strong>
+                }}
+              >
+                {'This should be **bold** and this should be *italic*'}
+              </ReactMarkdown>
+              <p className="text-xs text-purple-400 mt-2">Raw text: {results.relationshipsSummary?.substring(0, 100)}...</p>
+              <p className="text-xs text-purple-400">Processed: {processMarkdown(results.relationshipsSummary)?.substring(0, 100)}...</p>
+            </div>
+            
             <div className="relative">
               <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-[#8B5CF6]/0 via-[#8B5CF6]/50 to-[#8B5CF6]/0"></div>
-              <p className="text-gray-300 leading-relaxed whitespace-pre-line pl-4">
-                {results.relationshipsSummary}
-              </p>
+              <div className="pl-4 prose prose-sm max-w-none">
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }: any) => (
+                      <p className="text-gray-300 leading-relaxed mb-4 last:mb-0">{children}</p>
+                    ),
+                    strong: ({ children }: any) => (
+                      <strong className="font-semibold text-[#8B5CF6]">{children}</strong>
+                    ),
+                    em: ({ children }: any) => (
+                      <em className="text-gray-200 italic">{children}</em>
+                    ),
+                    code: ({ children }: any) => (
+                      <code className="px-1.5 py-0.5 bg-[#333333] text-[#8B5CF6] rounded text-xs font-mono">{children}</code>
+                    ),
+                    ul: ({ children }: any) => (
+                      <ul className="list-disc list-inside space-y-1 text-gray-300">{children}</ul>
+                    ),
+                    ol: ({ children }: any) => (
+                      <ol className="list-decimal list-inside space-y-1 text-gray-300">{children}</ol>
+                    ),
+                    li: ({ children }: any) => (
+                      <li className="text-gray-300">{children}</li>
+                    ),
+                  }}
+                >
+                  {processMarkdown(results.relationshipsSummary || '')}
+                </ReactMarkdown>
+              </div>
             </div>
             
             {/* Decorative elements */}
