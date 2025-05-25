@@ -222,6 +222,21 @@ const Dashboard: React.FC = () => {
     }
   }, [location.search]);
 
+  // NEW: Handle reset parameter from header navigation
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const resetParam = urlParams.get('reset');
+    
+    if (resetParam && results) {
+      // Reset the dashboard state
+      resetQuery();
+      
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location.search, results]);
+
   // Animated placeholder effect
   useEffect(() => {
     if (!isTypingAnimation) return;
