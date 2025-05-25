@@ -44,14 +44,23 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
     ),
   };
 
-  // Process the explanation to handle various markdown syntax
-  const processExplanation = (text: string): string => {
-    // First, convert ***text*** to **text** for proper bold rendering
-    let processed = text.replace(/\*\*\*(.*?)\*\*\*/g, '**$1**');
+  // Process markdown text to handle various syntax
+  const processMarkdown = (text: string): string => {
+    if (!text) return text;
     
-    // Optionally, convert single *text* to **text** if you want everything bold
-    // Uncomment the line below if you want single asterisks to render as bold instead of italic
-    // processed = processed.replace(/\*([^*]+)\*/g, '**$1**');
+    // Debug logging - remove after fixing the issue
+    console.log('Original text:', text);
+    
+    // First, protect already doubled asterisks by temporarily replacing them
+    let processed = text.replace(/\*\*/g, '%%DOUBLE%%');
+    
+    // Convert single asterisks to double
+    processed = processed.replace(/\*/g, '**');
+    
+    // Restore the original double asterisks
+    processed = processed.replace(/%%DOUBLE%%/g, '**');
+    
+    console.log('Processed text:', processed);
     
     return processed;
   };
@@ -175,10 +184,39 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             </div>
           </div>
 
-          {/* Summary with enhanced typography */}
-          <p className="text-gray-300 text-sm leading-relaxed mb-6">
-            {tool.summary}
-          </p>
+          {/* TEST: Remove this after debugging */}
+          <div className="mb-4 p-2 bg-red-900/20 border border-red-500 rounded">
+            <p className="text-xs text-red-400 mb-1">ReactMarkdown Test:</p>
+            <ReactMarkdown
+              components={{
+                strong: ({ children }: any) => <strong className="text-red-500 font-bold">{children}</strong>
+              }}
+            >
+              {'This should be **bold** and this should be *italic*'}
+            </ReactMarkdown>
+          </div>
+
+          {/* Summary with markdown support */}
+          <div className="mb-6">
+            <ReactMarkdown
+              components={{
+                p: ({ children }: any) => (
+                  <p className="text-gray-300 text-sm leading-relaxed">{children}</p>
+                ),
+                strong: ({ children }: any) => (
+                  <strong className="font-semibold text-gray-100">{children}</strong>
+                ),
+                em: ({ children }: any) => (
+                  <em className="text-gray-300 italic">{children}</em>
+                ),
+                code: ({ children }: any) => (
+                  <code className="px-1 py-0.5 bg-[#333333] text-gray-300 rounded text-xs font-mono">{children}</code>
+                ),
+              }}
+            >
+              {processMarkdown(tool.summary)}
+            </ReactMarkdown>
+          </div>
 
           {/* Explanation Section - Redesigned with Markdown Support */}
           <div className={`border-t pt-4 transition-colors duration-300 ${
@@ -227,7 +265,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                       {/* Render explanation with markdown support */}
                       <div className="prose prose-sm max-w-none">
                         <ReactMarkdown components={markdownComponents}>
-                          {processExplanation(tool.explanation || "Analysis pending...")}
+                          {processMarkdown(tool.explanation || "Analysis pending...")}
                         </ReactMarkdown>
                       </div>
                     </div>
