@@ -121,7 +121,7 @@ const UpgradePrompt: React.FC = () => {
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-2xl md:text-3xl font-bold mb-3">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#8B5CF6] to-[#00FFFF]">
-                  Unlock Deeper Insights
+                  Unlock Deeper Pattern Analysis
                 </span>
               </h3>
               <p className="text-gray-300 mb-6 leading-relaxed">
