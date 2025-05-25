@@ -1,7 +1,7 @@
 // src/components/Dashboard/ResultsSection.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, ChevronRight } from 'lucide-react';
+import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, Plus } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
@@ -47,7 +47,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       transition={{ duration: 0.5 }}
       className="space-y-8"
     >
-      {/* Pattern Analysis Results Header - Enhanced */}
+      {/* Pattern Analysis Results Header */}
       <div className="text-center relative">
         {/* Decorative elements */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -65,31 +65,9 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               Pattern Analysis
             </span>
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base mb-8 max-w-2xl mx-auto">
+          <p className="text-gray-400 text-sm sm:text-base mb-4 max-w-2xl mx-auto">
             Understanding: <span className="text-white font-medium">"{query}"</span>
           </p>
-          
-          {/* Enhanced Explore New Pattern Button */}
-          <motion.div className="inline-block relative group">
-            {/* Multi-layer glow effect */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
-            
-            {/* Button with enhanced styling */}
-            <motion.button
-              onClick={onResetQuery}
-              className="relative inline-flex items-center gap-3 px-8 py-4 bg-[#1A1A1A] border border-[#00FFFF]/20 rounded-xl font-medium transition-all duration-300 group-hover:border-[#00FFFF]/50 overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/0 via-[#00FFFF]/10 to-[#8B5CF6]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-              
-              <Search className="w-5 h-5 text-[#00FFFF] relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-              <span className="text-white relative z-10 font-semibold">Explore New Pattern</span>
-              <ArrowRight className="w-4 h-4 text-[#00FFFF] relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-            </motion.button>
-          </motion.div>
         </motion.div>
       </div>
 
@@ -256,22 +234,44 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Pattern Connections Summary - Premium Feature Enhanced */}
+      {/* Pattern Connections Summary - Premium Feature with Fixed Hover */}
       {displayTier === 'premium' && results.relationshipsSummary && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="relative overflow-hidden"
+          className="relative group"
         >
-          {/* Animated background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/5 via-[#8B5CF6]/10 to-[#8B5CF6]/5 animate-gradient-x"></div>
+          {/* Hover glow effect - similar to tool cards */}
+          <motion.div
+            className="absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6]/50"
+            style={{ opacity: 0 }}
+            whileHover={{ opacity: 0.3 }}
+          />
           
-          <div className="relative bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5 backdrop-blur-sm rounded-2xl p-8 border border-[#8B5CF6]/30">
+          <div className="relative bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl p-8 border border-[#8B5CF6]/20 transition-all duration-300 group-hover:border-[#8B5CF6]/40">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-[#8B5CF6]/20 rounded-xl">
+              <motion.div 
+                className="relative p-3 bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/10 rounded-xl"
+                whileHover={{ rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
                 <Layers className="h-6 w-6 text-[#8B5CF6]" />
-              </div>
+                
+                {/* Pulse effect on icon */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl bg-[#8B5CF6]/20"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0, 0.5],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+              </motion.div>
               <h3 className="text-xl font-semibold text-white">
                 How These Patterns Connect
               </h3>
@@ -313,32 +313,39 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               </div>
             </div>
             
-            {/* Decorative elements */}
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#8B5CF6]/10 rounded-full filter blur-2xl"></div>
+            {/* Corner accent */}
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-10 pointer-events-none bg-gradient-to-bl from-[#8B5CF6]" 
+              style={{
+                maskImage: 'radial-gradient(circle at top right, black, transparent)',
+                WebkitMaskImage: 'radial-gradient(circle at top right, black, transparent)'
+              }}
+            />
           </div>
         </motion.div>
       )}
 
       {/* Upgrade Prompt for Free Users */}
       {displayTier === 'free' && <UpgradePrompt />}
+
+      {/* Fixed Floating Action Button for New Analysis */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, delay: 0.5 }}
+        className="fixed bottom-6 right-6 z-40"
+      >
+        <motion.button
+          onClick={onResetQuery}
+          className="group flex items-center gap-3 px-6 py-3 bg-[#1A1A1A] border border-[#00FFFF]/30 rounded-full shadow-xl hover:shadow-2xl hover:shadow-[#00FFFF]/20 transition-all duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Plus className="w-5 h-5 text-[#00FFFF] group-hover:rotate-90 transition-transform duration-300" />
+          <span className="text-white font-medium hidden sm:inline">New Analysis</span>
+        </motion.button>
+      </motion.div>
     </motion.div>
   );
 };
 
 export default ResultsSection;
-
-// Add this CSS to your global styles (e.g., in index.css):
-/*
-@keyframes gradient-x {
-  0%, 100% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-gradient-x {
-  animation: gradient-x 15s ease infinite;
-}
-*/
