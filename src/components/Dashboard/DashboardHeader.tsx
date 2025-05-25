@@ -1,7 +1,7 @@
 // src/components/Dashboard/DashboardHeader.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Clock, Info, Crown, Sparkles } from 'lucide-react';
+import { Settings, Clock, Crown, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { UserTier } from './types';
@@ -9,19 +9,11 @@ import { UserTier } from './types';
 interface DashboardHeaderProps {
   user: User | null;
   displayTier: UserTier;
-  showTierToggle: boolean;
-  devTestTier: UserTier;
-  onToggleTierToggle: () => void;
-  onToggleDevTier: () => void;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   user,
   displayTier,
-  showTierToggle,
-  devTestTier,
-  onToggleTierToggle,
-  onToggleDevTier,
 }) => {
   const getDisplayName = () => {
     if (!user) return 'User';
@@ -64,16 +56,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               </motion.button>
             </Link>
 
-            <motion.button
-              className="hidden md:flex items-center gap-2 px-3 py-2 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg text-xs text-gray-400 hover:text-gray-300 hover:border-[#444444] transition-all"
-              onClick={onToggleTierToggle}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Info size={14} />
-              <span>Dev Mode</span>
-            </motion.button>
-
             <Link to="/settings">
               <motion.button
                 className="p-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 transition-all group"
@@ -104,41 +86,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           )}
         </motion.div>
-
-        {showTierToggle && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mt-4 p-4 bg-[#252525]/80 backdrop-blur-sm border border-[#333333] rounded-lg"
-          >
-            <p className="text-sm text-gray-400 mb-3">Developer Mode: Test different tier experiences</p>
-            <div className="flex gap-2">
-              <button
-                onClick={onToggleDevTier}
-                disabled={devTestTier === 'free'}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  devTestTier === 'free'
-                    ? 'bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/50'
-                    : 'bg-[#252525] text-gray-400 border border-[#333333] hover:border-[#444444]'
-                }`}
-              >
-                Free Tier
-              </button>
-              <button
-                onClick={onToggleDevTier}
-                disabled={devTestTier === 'premium'}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  devTestTier === 'premium'
-                    ? 'bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/50'
-                    : 'bg-[#252525] text-gray-400 border border-[#333333] hover:border-[#444444]'
-                }`}
-              >
-                Premium Tier
-              </button>
-            </div>
-          </motion.div>
-        )}
       </div>
     </div>
   );
