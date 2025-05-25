@@ -49,6 +49,7 @@ const AppContent: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/history" element={<History />} />
+            <Route path="/dashboard/results" element={<Dashboard />} />
             {/* Add other protected routes here */}
           </Route>
         </Routes>
