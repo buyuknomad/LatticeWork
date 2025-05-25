@@ -1,5 +1,5 @@
 // src/components/Dashboard/ResultsSection.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight, Brain, AlertTriangle, Layers, Sparkles, Plus } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -23,6 +23,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
   const isFreeUser = displayTier === 'free';
+  const [isHoveredConnections, setIsHoveredConnections] = useState(false);
 
   // Process markdown text to handle various syntax (same as in ToolCard)
   const processMarkdown = (text: string): string => {
@@ -234,85 +235,124 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Pattern Connections Summary - Premium Feature with Fixed Hover */}
+      {/* Pattern Connections Summary - Premium Feature with Same Hover as Tool Cards */}
       {displayTier === 'premium' && results.relationshipsSummary && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="relative group"
+          className="group relative"
+          onMouseEnter={() => setIsHoveredConnections(true)}
+          onMouseLeave={() => setIsHoveredConnections(false)}
         >
-          {/* Hover glow effect - similar to tool cards */}
+          {/* Animated glow effect on hover - EXACTLY like ToolCard */}
           <motion.div
             className="absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6]/50"
-            style={{ opacity: 0 }}
-            whileHover={{ opacity: 0.3 }}
+            animate={{ opacity: isHoveredConnections ? 0.3 : 0 }}
           />
           
-          <div className="relative bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl p-8 border border-[#8B5CF6]/20 transition-all duration-300 group-hover:border-[#8B5CF6]/40">
-            <div className="flex items-center gap-3 mb-6">
-              <motion.div 
-                className="relative p-3 bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/10 rounded-xl"
-                whileHover={{ rotate: [0, -5, 5, 0] }}
-                transition={{ duration: 0.5 }}
-              >
-                <Layers className="h-6 w-6 text-[#8B5CF6]" />
-                
-                {/* Pulse effect on icon */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl bg-[#8B5CF6]/20"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 0, 0.5],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-              </motion.div>
-              <h3 className="text-xl font-semibold text-white">
-                How These Patterns Connect
-              </h3>
-              <span className="ml-auto text-xs px-3 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full font-medium">
-                Premium Insight
-              </span>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-[#8B5CF6]/0 via-[#8B5CF6]/50 to-[#8B5CF6]/0"></div>
-              <div className="pl-4 prose prose-sm max-w-none">
-                <ReactMarkdown
-                  components={{
-                    p: ({ children }: any) => (
-                      <p className="text-gray-300 leading-relaxed mb-4 last:mb-0">{children}</p>
-                    ),
-                    strong: ({ children }: any) => (
-                      <strong className="font-semibold text-[#8B5CF6]">{children}</strong>
-                    ),
-                    em: ({ children }: any) => (
-                      <em className="text-gray-200 italic">{children}</em>
-                    ),
-                    code: ({ children }: any) => (
-                      <code className="px-1.5 py-0.5 bg-[#333333] text-[#8B5CF6] rounded text-xs font-mono">{children}</code>
-                    ),
-                    ul: ({ children }: any) => (
-                      <ul className="list-disc list-inside space-y-1 text-gray-300">{children}</ul>
-                    ),
-                    ol: ({ children }: any) => (
-                      <ol className="list-decimal list-inside space-y-1 text-gray-300">{children}</ol>
-                    ),
-                    li: ({ children }: any) => (
-                      <li className="text-gray-300">{children}</li>
-                    ),
-                  }}
-                >
-                  {processMarkdown(results.relationshipsSummary || '')}
-                </ReactMarkdown>
+          <div className="relative h-full bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl border border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40 transition-all duration-300 overflow-hidden">
+            {/* Animated background gradient - same as ToolCard */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-[#8B5CF6]/5">
+              {/* Moving particles effect */}
+              <div className="absolute inset-0">
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 rounded-full bg-[#8B5CF6]/40"
+                    initial={{ 
+                      x: Math.random() * 100 + '%',
+                      y: Math.random() * 100 + '%'
+                    }}
+                    animate={{
+                      x: Math.random() * 100 + '%',
+                      y: Math.random() * 100 + '%',
+                    }}
+                    transition={{
+                      duration: 10 + i * 5,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                      ease: 'linear'
+                    }}
+                  />
+                ))}
               </div>
             </div>
-            
+
+            {/* Card Content */}
+            <div className="relative p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <motion.div 
+                  className="relative p-2.5 bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/10 rounded-xl"
+                  animate={{ 
+                    rotate: isHoveredConnections ? [0, -5, 5, 0] : 0,
+                  }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Layers className="h-5 w-5 text-[#8B5CF6]" />
+                  
+                  {/* Pulse effect on icon */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl bg-[#8B5CF6]/20"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 0, 0.5],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </motion.div>
+                
+                <h3 className="text-lg font-semibold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 transition-all duration-300">
+                  How These Patterns Connect
+                </h3>
+              </div>
+              
+              <div className="flex items-center gap-2 mb-4">
+                <motion.span 
+                  className="text-xs px-3 py-1 rounded-full font-medium bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  Premium Insight
+                </motion.span>
+              </div>
+              
+              <div className="relative">
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }: any) => (
+                        <p className="text-gray-300 leading-relaxed mb-4 last:mb-0">{children}</p>
+                      ),
+                      strong: ({ children }: any) => (
+                        <strong className="font-semibold text-[#8B5CF6]">{children}</strong>
+                      ),
+                      em: ({ children }: any) => (
+                        <em className="text-gray-200 italic">{children}</em>
+                      ),
+                      code: ({ children }: any) => (
+                        <code className="px-1.5 py-0.5 bg-[#333333] text-[#8B5CF6] rounded text-xs font-mono">{children}</code>
+                      ),
+                      ul: ({ children }: any) => (
+                        <ul className="list-disc list-inside space-y-1 text-gray-300">{children}</ul>
+                      ),
+                      ol: ({ children }: any) => (
+                        <ol className="list-decimal list-inside space-y-1 text-gray-300">{children}</ol>
+                      ),
+                      li: ({ children }: any) => (
+                        <li className="text-gray-300">{children}</li>
+                      ),
+                    }}
+                  >
+                    {processMarkdown(results.relationshipsSummary || '')}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            </div>
+
             {/* Corner accent */}
             <div className="absolute top-0 right-0 w-20 h-20 opacity-10 pointer-events-none bg-gradient-to-bl from-[#8B5CF6]" 
               style={{
