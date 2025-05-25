@@ -48,21 +48,27 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex items-center gap-3">
             <Link to="/history">
               <motion.button
-                className="p-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 transition-all group"
+                className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 hover:bg-[#252525]/80 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Clock className="h-5 w-5 text-gray-400 group-hover:text-[#00FFFF] transition-colors" />
+                <span className="hidden sm:inline text-sm font-medium text-gray-400 group-hover:text-[#00FFFF] transition-colors">
+                  History
+                </span>
               </motion.button>
             </Link>
 
             <Link to="/settings">
               <motion.button
-                className="p-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 transition-all group"
+                className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 hover:bg-[#252525]/80 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Settings className="h-5 w-5 text-gray-400 group-hover:text-[#00FFFF] transition-colors" />
+                <span className="hidden sm:inline text-sm font-medium text-gray-400 group-hover:text-[#00FFFF] transition-colors">
+                  Settings
+                </span>
               </motion.button>
             </Link>
           </div>
