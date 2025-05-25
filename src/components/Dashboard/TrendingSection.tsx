@@ -1,7 +1,7 @@
 // src/components/Dashboard/TrendingSection.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, ChevronRight, Zap, ChevronDown } from 'lucide-react';
+import { TrendingUp, ChevronRight, ChevronDown } from 'lucide-react';
 import { TrendingQuestion, UserTier } from './types';
 
 interface TrendingSectionProps {
@@ -77,10 +77,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
             <div>
               <h3 className="text-lg font-semibold">Trending Patterns</h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                {displayTier === 'free' 
-                  ? 'Instant results • No query limit' 
-                  : 'Popular questions from the community'
-                }
+                Popular questions from the community
               </p>
             </div>
           </div>
@@ -103,7 +100,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
               <motion.button
                 key={question.id}
                 onClick={() => onTrendingClick(question)}
-                className="group relative text-left p-4 bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30 rounded-xl transition-all duration-200 overflow-hidden"
+                className="group relative text-left p-4 bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30 rounded-xl transition-all duration-200 overflow-hidden min-h-[120px] flex flex-col"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -111,14 +108,6 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Instant Result Badge */}
-                <div className="absolute top-2 right-2">
-                  <div className="flex items-center gap-1 px-2 py-1 bg-[#00FFFF]/10 rounded-full">
-                    <Zap className="w-3 h-3 text-[#00FFFF]" />
-                    <span className="text-xs text-[#00FFFF] font-medium">Instant</span>
-                  </div>
-                </div>
-
                 {/* Category Dot */}
                 <div className="flex items-center gap-2 mb-2">
                   <div 
@@ -128,13 +117,13 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                   <span className="text-xs text-gray-500 capitalize">{question.category}</span>
                 </div>
 
-                {/* Question Text */}
-                <p className="text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2 mb-3 pr-16">
+                {/* Question Text - No line clamp, show full text */}
+                <p className="text-sm text-gray-300 group-hover:text-white transition-colors flex-1 mb-3">
                   {question.question}
                 </p>
 
                 {/* Bottom Info */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
                   <span className="truncate max-w-[60%]" title={question.topic_source}>
                     {question.topic_source}
                   </span>
@@ -157,11 +146,11 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Helper Text */}
+        {/* Helper Text - Updated for accuracy */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
             {displayTier === 'free' 
-              ? '💡 Trending patterns don\'t count against your daily limit'
+              ? 'Click any pattern to use your daily analysis'
               : 'Click any pattern for detailed analysis'
             }
           </p>
