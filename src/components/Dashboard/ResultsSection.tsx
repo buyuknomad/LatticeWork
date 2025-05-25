@@ -28,8 +28,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   const processMarkdown = (text: string): string => {
     if (!text) return text;
     
-    console.log('Pattern Synthesis - Original text:', text);
-    
     // First, protect already doubled asterisks by temporarily replacing them
     let processed = text.replace(/\*\*/g, '%%DOUBLE%%');
     
@@ -38,8 +36,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     
     // Restore the original double asterisks
     processed = processed.replace(/%%DOUBLE%%/g, '**');
-    
-    console.log('Pattern Synthesis - Processed text:', processed);
     
     return processed;
   };
@@ -282,20 +278,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               <span className="ml-auto text-xs px-3 py-1 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full font-medium">
                 Premium Insight
               </span>
-            </div>
-            
-            {/* TEST: Remove this after debugging */}
-            <div className="mb-4 p-2 bg-purple-900/20 border border-purple-500 rounded">
-              <p className="text-xs text-purple-400 mb-1">ReactMarkdown Test (Pattern Synthesis):</p>
-              <ReactMarkdown
-                components={{
-                  strong: ({ children }: any) => <strong className="text-purple-500 font-bold">{children}</strong>
-                }}
-              >
-                {'This should be **bold** and this should be *italic*'}
-              </ReactMarkdown>
-              <p className="text-xs text-purple-400 mt-2">Raw text: {results.relationshipsSummary?.substring(0, 100)}...</p>
-              <p className="text-xs text-purple-400">Processed: {processMarkdown(results.relationshipsSummary)?.substring(0, 100)}...</p>
             </div>
             
             <div className="relative">
