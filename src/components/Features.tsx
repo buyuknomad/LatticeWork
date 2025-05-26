@@ -1,7 +1,8 @@
 // src/components/Features.tsx
 import React from 'react';
 import { BookOpen, Lightbulb, Map, AlertTriangle, Layers, Brain } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface FeatureProps {
   icon: React.ReactNode;
@@ -22,6 +23,17 @@ const Feature: React.FC<FeatureProps> = ({ icon, title, description }) => {
 };
 
 const Features = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup');
+    }
+  };
+
   const features = [
     {
       icon: <BookOpen size={32} />,
@@ -164,9 +176,12 @@ const Features = () => {
           <p className="text-xl text-gray-300 mb-8">
             Ready to think like the world's best decision-makers?
           </p>
-          <a href="#pricing" className="inline-block bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors">
-            Start Building Your Latticework
-          </a>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+          >
+            {user ? 'Go to Dashboard' : 'Start Building Your Latticework'}
+          </button>
         </div>
       </div>
     </section>
