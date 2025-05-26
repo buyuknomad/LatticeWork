@@ -153,8 +153,9 @@ const Pricing = () => {
             features={[
               "1 query per day",
               "1 mental model and 1 bias per query",
-              "Access to 75 models and 40 biases",
-              "Basic application guidance"
+              "Access to basic models and biases",
+              "Basic application guidance",
+              "Light AI Model",
             ]}
             notIncluded={[
               "Relationship visualization",
@@ -174,8 +175,7 @@ const Pricing = () => {
             features={[
               "Unlimited queries",
               "3-4 models and 2-3 biases per query",
-              "Full access to 300+ models and 246 biases",
-              "Relationship visualization feature",
+              "Full access to 300+ models and 200+ biases",
               "Advanced thinking depth",
               "Detailed application guidance"
             ]}
