@@ -63,7 +63,7 @@ const Header = () => {
           >
             <Link to="/" className="flex items-center">
               <Brain className="h-7 w-7 text-[#00FFFF]" />
-              <span className="font-bold text-lg ml-2">Cosmic Lattice</span>
+              <span className="font-bold text-lg ml-2">Mind Lattice</span>
             </Link>
           </motion.div>
 
