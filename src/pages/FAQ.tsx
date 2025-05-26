@@ -150,26 +150,21 @@ const FAQ: React.FC = () => {
             </div>
           </motion.div>
           
-          {/* FAQ Categories */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-8"
-          >
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                
-                  key={category.id}
-                  href={`#${category.id}`}
-                  className="px-4 py-2 bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2"
-                >
-                  <span>{category.icon}</span>
-                  <span>{category.label}</span>
-                </a>
-              ))}
-            </div>
-          </motion.div>
+      <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.1 }}
+  className="mb-8"
+>
+  <div className="flex flex-wrap gap-2">
+    {categories.map((category) => (
+      <a key={category.id} href={`#${category.id}`} className="px-4 py-2 bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+        <span>{category.icon}</span>
+        <span>{category.label}</span>
+      </a>
+    ))}
+  </div>
+</motion.div>
           
           {/* FAQ Items */}
           <div className="space-y-6">
