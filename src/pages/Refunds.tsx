@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import { BRAND } from '../constants/brand';
 
 const Refunds: React.FC = () => {
   return (
@@ -83,8 +84,8 @@ const Refunds: React.FC = () => {
                   <ol className="list-decimal list-inside text-gray-300 space-y-3">
                     <li>
                       <strong>Email us</strong> at{' '}
-                      <a href="mailto:thinkinmodels@gmail.com" className="text-[#00FFFF] hover:underline">
-                        thinkinmodels@gmail.com
+                      <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">
+                        {BRAND.email}
                       </a>
                     </li>
                     <li>
@@ -191,8 +192,8 @@ const Refunds: React.FC = () => {
                   <div className="space-y-3">
                     <div>
                       <p className="text-white font-semibold mb-1">Email Support</p>
-                      <a href="mailto:thinkinmodels@gmail.com" className="text-[#00FFFF] hover:underline">
-                        thinkinmodels@gmail.com
+                      <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">
+                        {BRAND.email}
                       </a>
                     </div>
                     <div>
