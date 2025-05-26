@@ -59,7 +59,7 @@ const AppContent: React.FC = () => {
           <Route path="/refunds" element={<Refunds />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route path="/faq" element={<FAQ />} />
+          <Route path="/FAQ" element={<FAQ />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
