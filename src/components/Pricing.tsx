@@ -176,6 +176,7 @@ const Pricing = () => {
               "Unlimited queries",
               "3-4 models and 2-3 biases per query",
               "Full access to 300+ models and 200+ biases",
+              "Premium AI Model (more accurate & detailed)"
               "Advanced thinking depth",
               "Detailed application guidance"
             ]}
