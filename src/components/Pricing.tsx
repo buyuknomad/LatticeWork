@@ -27,7 +27,7 @@ const PricingCard = ({
   return (
     <motion.div
       ref={ref}
-      className={`rounded-2xl overflow-hidden ${isPrimary ? 'border-2 border-[#00FFFF]' : 'border border-[#333333]'}`}
+      className={`rounded-2xl overflow-hidden flex flex-col h-full ${isPrimary ? 'border-2 border-[#00FFFF]' : 'border border-[#333333]'}`}
       initial={{ opacity: 0, y: 50 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.5, delay }}
@@ -42,9 +42,10 @@ const PricingCard = ({
         <p className="text-gray-300 text-sm">{description}</p>
       </div>
 
-      {/* Card Body */}
-      <div className="p-6 bg-[#1F1F1F]">
-        <ul className="space-y-3 mb-8">
+      {/* Card Body - Now with flex layout */}
+      <div className="p-6 bg-[#1F1F1F] flex-1 flex flex-col">
+        {/* Features list - flex-1 to take available space */}
+        <ul className="space-y-3 mb-8 flex-1">
           {features.map((feature, index) => (
             <li key={index} className="flex items-start gap-3">
               <Check className="h-5 w-5 text-[#00FFFF] flex-shrink-0 mt-0.5" />
@@ -60,32 +61,35 @@ const PricingCard = ({
           ))}
         </ul>
 
-        {/* Premium card additional info */}
-        {isPrimary && (
-          <div className="mb-6 space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <RefreshCw className="h-4 w-4 text-[#00FFFF]" />
-              <span>3-day money-back guarantee</span>
+        {/* Bottom section - stays at bottom */}
+        <div>
+          {/* Premium card additional info */}
+          {isPrimary && (
+            <div className="mb-6 space-y-3">
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <RefreshCw className="h-4 w-4 text-[#00FFFF]" />
+                <span>3-day money-back guarantee</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <XCircle className="h-4 w-4 text-[#00FFFF]" />
+                <span>Cancel anytime, no questions asked</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <XCircle className="h-4 w-4 text-[#00FFFF]" />
-              <span>Cancel anytime, no questions asked</span>
-            </div>
-          </div>
-        )}
+          )}
 
-        <motion.button
-          onClick={buttonAction}
-          className={`w-full py-3 rounded-lg font-medium transition-all ${
-            isPrimary 
-              ? 'bg-[#00FFFF] text-[#1A1A1A] hover:bg-[#00FFFF]/90'
-              : 'bg-[#2A2A2A] text-white border border-[#333333] hover:border-[#00FFFF]/30'
-          }`}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {buttonText}
-        </motion.button>
+          <motion.button
+            onClick={buttonAction}
+            className={`w-full py-3 rounded-lg font-medium transition-all ${
+              isPrimary 
+                ? 'bg-[#00FFFF] text-[#1A1A1A] hover:bg-[#00FFFF]/90'
+                : 'bg-[#2A2A2A] text-white border border-[#333333] hover:border-[#00FFFF]/30'
+            }`}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {buttonText}
+          </motion.button>
+        </div>
       </div>
 
       {/* Highlight for primary card */}
@@ -146,7 +150,8 @@ const Pricing = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {/* Grid with items-stretch to ensure equal heights */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
           {/* Free Tier */}
           <PricingCard
             title="Free"
