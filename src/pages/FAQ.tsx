@@ -32,6 +32,11 @@ const FAQ: React.FC = () => {
     },
     {
       category: 'general',
+      question: 'Why is it called Mind Lattice?',
+      answer: `The name is inspired by Charlie Munger's concept of a "latticework of mental models" - the idea that the best thinkers don't rely on just one or two models, but instead have a broad array of models from multiple disciplines that interconnect like a lattice. Mind Lattice helps you build and apply this interconnected framework of thinking tools.`
+    },
+    {
+      category: 'general',
       question: 'How does Mind Lattice work?',
       answer: `Simply describe any situation, decision, or pattern you're trying to understand. Our AI analyzes your input and identifies the most relevant mental models and cognitive biases at play. You'll get clear explanations of how these concepts apply to your specific situation.`
     },
