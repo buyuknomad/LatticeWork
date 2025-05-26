@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import { BRAND } from '../constants/brand';
 
 const Privacy: React.FC = () => {
   return (
@@ -134,7 +135,7 @@ const Privacy: React.FC = () => {
                 
                 <h3 className="text-xl font-medium text-white mb-3 mt-4">5.2 Data Portability</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  You can request an export of your data by contacting us at thinkinmodels@gmail.com.
+                  You can request an export of your data by contacting us at {BRAND.email}.
                 </p>
                 
                 <h3 className="text-xl font-medium text-white mb-3 mt-4">5.3 Deletion</h3>
@@ -239,8 +240,8 @@ const Privacy: React.FC = () => {
                 </p>
                 <div className="bg-[#1A1A1A]/50 rounded-lg p-4 border border-[#333333]">
                   <p className="text-white font-semibold mb-2">Mind Lattice</p>
-                  <p className="text-gray-300">Email: <a href="mailto:thinkinmodels@gmail.com" className="text-[#00FFFF] hover:underline">thinkinmodels@gmail.com</a></p>
-                  <p className="text-gray-300 mt-2">Data Protection Officer: <a href="mailto:thinkinmodels@gmail.com" className="text-[#00FFFF] hover:underline">thinkinmodels@gmail.com</a></p>
+                  <p className="text-gray-300">Email: <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">{BRAND.email}</a></p>
+                  <p className="text-gray-300 mt-2">Data Protection Officer: <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">{BRAND.email}</a></p>
                 </div>
               </section>
 
