@@ -1,6 +1,8 @@
+// src/components/Footer.tsx
 import React from 'react';
-import { Brain, Twitter, Linkedin, Github } from 'lucide-react';
+import { Brain, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BRAND } from '../constants/brand'; // Add this import
 
 const Footer = () => {
   return (
@@ -10,20 +12,20 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Brain className="h-6 w-6 text-[#00FFFF]" />
-              <span className="font-bold text-lg">Mind Lattice</span>
+              <span className="font-bold text-lg">{BRAND.name}</span>
             </div>
             <p className="text-gray-400 mb-4">
-              Mental Models for Modern Minds. Transform your thinking and decision-making.
+              {BRAND.tagline}. Transform your thinking and decision-making.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
+              <a 
+                href={`https://x.com/${BRAND.social.x.replace('@', '')}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300"
+                aria-label="Follow us on X"
+              >
                 <Twitter size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                <Linkedin size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                <Github size={20} />
               </a>
             </div>
           </div>
@@ -93,7 +95,7 @@ const Footer = () => {
         </div>
         
         <div className="pt-8 border-t border-[#333333] text-center text-gray-500 text-sm">
-          <p>© {new Date().getFullYear()} Mind Lattice. All rights reserved.</p>
+          <p>{BRAND.company.copyright}</p>
         </div>
       </div>
     </footer>
