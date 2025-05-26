@@ -1,5 +1,5 @@
-// src/pages/Contact.tsx - with email protection
-import React, { useState } from 'react';
+// src/pages/Contact.tsx - simplified version
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Mail, Clock, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -7,20 +7,6 @@ import BackgroundAnimation from '../components/BackgroundAnimation';
 import { BRAND } from '../constants/brand';
 
 const Contact: React.FC = () => {
-  const [emailRevealed, setEmailRevealed] = useState(false);
-  
-  // Email obfuscation
-  const revealEmail = () => {
-    setEmailRevealed(true);
-  };
-  
-  const getObfuscatedEmail = () => {
-    if (emailRevealed) {
-      return BRAND.email;
-    }
-    return 'hello [at] mindlattice [dot] app';
-  };
-
   return (
     <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
       <BackgroundAnimation />
@@ -70,30 +56,15 @@ const Contact: React.FC = () => {
                 We'd love to hear from you.
               </p>
               
-              {emailRevealed ? (
-                <motion.a
-                  href={`mailto:${BRAND.email}`}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#00FFFF] text-[#1A1A1A] rounded-lg font-semibold text-lg hover:bg-[#00FFFF]/90 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <Mail className="h-5 w-5" />
-                  {BRAND.email}
-                </motion.a>
-              ) : (
-                <motion.button
-                  onClick={revealEmail}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-[#252525] border border-[#00FFFF]/30 text-[#00FFFF] rounded-lg font-semibold text-lg hover:bg-[#252525]/80 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Mail className="h-5 w-5" />
-                  <span>{getObfuscatedEmail()}</span>
-                  <span className="text-sm text-gray-400">(click to reveal)</span>
-                </motion.button>
-              )}
+              <motion.a
+                href={`mailto:${BRAND.email}`}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-[#00FFFF] text-[#1A1A1A] rounded-lg font-semibold text-lg hover:bg-[#00FFFF]/90 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Mail className="h-5 w-5" />
+                Send us an email
+              </motion.a>
               
               <div className="mt-8 flex items-center justify-center gap-2 text-gray-400">
                 <Clock className="h-4 w-4" />
