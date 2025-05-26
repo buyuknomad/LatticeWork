@@ -1,220 +1,175 @@
-// src/components/Pricing.tsx
+// src/components/Features.tsx
 import React from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { Check, X, RefreshCw, XCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
-import { BRAND } from '../constants/brand';
+import { BookOpen, Lightbulb, Map, AlertTriangle, Layers, Brain } from 'lucide-react';
 
-const PricingCard = ({ 
-  title, 
-  price, 
-  description, 
-  features, 
-  notIncluded,
-  buttonText, 
-  buttonAction,
-  isPrimary = false,
-  delay = 0
-}) => {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
+interface FeatureProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
 
+const Feature: React.FC<FeatureProps> = ({ icon, title, description }) => {
   return (
-    <motion.div
-      ref={ref}
-      className={`rounded-2xl overflow-hidden ${isPrimary ? 'border-2 border-[#00FFFF]' : 'border border-[#333333]'}`}
-      initial={{ opacity: 0, y: 50 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.5, delay }}
-    >
-      {/* Card Header */}
-      <div className={`p-6 ${isPrimary ? 'bg-gradient-to-r from-[#252525] to-[#2A2A2A]' : 'bg-[#252525]'}`}>
-        <h3 className={`text-xl font-bold mb-1 ${isPrimary ? 'text-[#00FFFF]' : 'text-white'}`}>{title}</h3>
-        <div className="flex items-end gap-1 mb-3">
-          <span className="text-3xl font-bold">{price}</span>
-          {price !== 'Free' && <span className="text-gray-400 mb-1">/month</span>}
-        </div>
-        <p className="text-gray-300 text-sm">{description}</p>
+    <div className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/50 transition-all duration-300 group">
+      <div className="text-[#00FFFF] mb-4 group-hover:scale-110 transition-transform duration-300">
+        {icon}
       </div>
-
-      {/* Card Body */}
-      <div className="p-6 bg-[#1F1F1F]">
-        <ul className="space-y-3 mb-8">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <Check className="h-5 w-5 text-[#00FFFF] flex-shrink-0 mt-0.5" />
-              <span className="text-gray-300">{feature}</span>
-            </li>
-          ))}
-          
-          {notIncluded && notIncluded.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3 opacity-50">
-              <X className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
-              <span className="text-gray-400">{feature}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Premium card additional info */}
-        {isPrimary && (
-          <div className="mb-6 space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <RefreshCw className="h-4 w-4 text-[#00FFFF]" />
-              <span>3-day money-back guarantee</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <XCircle className="h-4 w-4 text-[#00FFFF]" />
-              <span>Cancel anytime, no questions asked</span>
-            </div>
-          </div>
-        )}
-
-        <motion.button
-          onClick={buttonAction}
-          className={`w-full py-3 rounded-lg font-medium transition-all ${
-            isPrimary 
-              ? 'bg-[#00FFFF] text-[#1A1A1A] hover:bg-[#00FFFF]/90'
-              : 'bg-[#2A2A2A] text-white border border-[#333333] hover:border-[#00FFFF]/30'
-          }`}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {buttonText}
-        </motion.button>
-      </div>
-
-      {/* Highlight for primary card */}
-      {isPrimary && (
-        <div className="absolute inset-0 rounded-2xl border-2 border-[#00FFFF]/20 -z-10 blur-sm"></div>
-      )}
-    </motion.div>
+      <h3 className="text-xl font-semibold mb-3">{title}</h3>
+      <p className="text-gray-300">{description}</p>
+    </div>
   );
 };
 
-const Pricing = () => {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-  
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const handleFreeSignup = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      navigate('/signup');
+const Features = () => {
+  const features = [
+    {
+      icon: <BookOpen size={32} />,
+      title: "300+ Mental Models",
+      description: "Access a comprehensive collection of thinking frameworks from multiple disciplines to enhance your decision-making capabilities."
+    },
+    {
+      icon: <AlertTriangle size={32} />,
+      title: "200+ Cognitive Biases",
+      description: "Recognize thinking traps that sabotage good decisions. Learn to identify and mitigate biases in your reasoning."
+    },
+    {
+      icon: <Lightbulb size={32} />,
+      title: "AI-Powered Analysis",
+      description: "Get personalized insights for your specific situations using advanced AI that understands context and nuance."
+    },
+    {
+      icon: <Map size={32} />,
+      title: "Practical Application",
+      description: "Receive actionable guidance on how to apply mental models and overcome biases in your exact scenario."
     }
-  };
-  
-  const handlePremiumSignup = () => {
-    if (user) {
-      // This would typically navigate to a checkout page
-      navigate('/dashboard?upgrade=true');
-    } else {
-      navigate('/signup?plan=premium');
-    }
-  };
+  ];
 
   return (
-    <section className="py-20 md:py-28" id="pricing">
+    <section className="py-20 md:py-28" id="features">
       <div className="container mx-auto px-4 md:px-8">
-        <motion.div
-          ref={ref}
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Choose Your{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-              Thinking Toolkit
-            </span>
-          </h2>
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-            Unlock the power of mental models and cognitive biases at a level that fits your needs.
-          </p>
-          <p className="text-gray-400 text-sm mt-4">
-            All plans include instant access. Upgrade or downgrade anytime.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Free Tier */}
-          <PricingCard
-            title="Free"
-            price="Free"
-            description="Perfect for occasional use and getting started with mental models."
-            features={[
-              "1 query per day",
-              "1 mental model and 1 bias per query",
-              "Access to basic models and biases",
-              "Basic application guidance",
-              "Light AI Model",
-            ]}
-            notIncluded={[
-              "Advanced thinking depth",
-              "Detailed application guidance",
-              `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
-              "Premium AI Model (more accurate & detailed)"
-            ]}
-            buttonText={user ? "Go to Dashboard" : "Get Started"}
-            buttonAction={handleFreeSignup}
-            delay={0}
-          />
-
-          {/* Premium Tier */}
-          <PricingCard
-            title="Premium"
-            price={`$${BRAND.pricing.premium.price}`}
-            description="For those serious about enhanced decision-making and critical thinking."
-            features={[
-              "Unlimited queries",
-              "3-4 models and 2-3 biases per query",
-              `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
-              "Premium AI Model (more accurate & detailed)",
-              "Advanced thinking depth",
-              "Detailed application guidance"
-            ]}
-            buttonText={user ? "Upgrade Now" : "Start Premium"}
-            buttonAction={handlePremiumSignup}
-            isPrimary={true}
-            delay={0.2}
-          />
-        </div>
-
-        {/* Policy Links */}
-        <motion.div 
-          className="mt-16 text-center"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="mb-8 p-6 bg-[#252525]/30 rounded-lg max-w-2xl mx-auto">
-            <p className="text-gray-300 mb-2">
-              <strong className="text-white">No hidden fees.</strong> Cancel your subscription anytime from your account settings.
-            </p>
-            <p className="text-sm text-gray-400">
-              Premium subscriptions include a 3-day money-back guarantee for first-time subscribers. 
-              See our <Link to="/refunds" className="text-[#00FFFF] hover:underline">Refund Policy</Link> for details.
-            </p>
+        {/* Latticework Concept Section */}
+        <div className="max-w-4xl mx-auto mb-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#00FFFF]/10 rounded-full mb-6">
+              <Layers className="h-8 w-8 text-[#00FFFF]" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Build Your{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+                Latticework of Mental Models
+              </span>
+            </h2>
           </div>
           
-          <p className="text-gray-400">
-            Have questions about our pricing? <Link to="/contact" className="text-[#00FFFF] hover:underline">Contact us</Link> or check our{' '}
-            <Link to="/faq" className="text-[#00FFFF] hover:underline">FAQ</Link>.
+          <div className="bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-8 md:p-10 border border-[#333333]">
+            <blockquote className="text-xl text-gray-300 italic mb-6 text-center">
+              "You can't really know anything if you just remember isolated facts and try and bang 'em back. 
+              If the facts don't hang together on a latticework of theory, you don't have them in a usable form."
+            </blockquote>
+            <p className="text-right text-gray-400 mb-8">— Charlie Munger</p>
+            
+            <div className="space-y-4 text-gray-300">
+              <p>
+                Charlie Munger's revolutionary insight was that the world's best thinkers don't rely on expertise 
+                in just one field. Instead, they build a <span className="text-[#00FFFF] font-semibold">latticework 
+                of mental models</span>—a interconnected framework of the most powerful ideas from every discipline.
+              </p>
+              <p>
+                Just as a physical lattice gains strength from its interwoven structure, your thinking becomes 
+                more robust when you can apply models from psychology, economics, physics, biology, and philosophy 
+                to any situation.
+              </p>
+              <p className="text-center pt-4">
+                <span className="text-white font-semibold">Mind Lattice makes this powerful approach accessible 
+                to everyone.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Features Section */}
+        <div className="text-center mb-16">
+          <h3 className="text-2xl md:text-3xl font-bold mb-4">
+            Everything You Need for{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+              Clear Thinking
+            </span>
+          </h3>
+          <p className="text-gray-300 max-w-2xl mx-auto text-lg">
+            Our platform provides the complete toolkit to navigate complex problems with confidence and clarity.
           </p>
-        </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          {features.map((feature, index) => (
+            <Feature
+              key={index}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+            />
+          ))}
+        </div>
+
+        {/* How It Works Section */}
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#8B5CF6]/10 rounded-full mb-6">
+              <Brain className="h-8 w-8 text-[#8B5CF6]" />
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">
+              How Mind Lattice{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+                Transforms Your Thinking
+              </span>
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#00FFFF]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-[#00FFFF]">1</span>
+              </div>
+              <h4 className="font-semibold text-lg mb-2">Describe Your Situation</h4>
+              <p className="text-gray-400 text-sm">
+                Share any decision, behavior, or pattern you're trying to understand
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#00FFFF]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-[#00FFFF]">2</span>
+              </div>
+              <h4 className="font-semibold text-lg mb-2">AI Identifies Patterns</h4>
+              <p className="text-gray-400 text-sm">
+                Our AI analyzes your situation against hundreds of mental models and biases
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-[#00FFFF]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-[#00FFFF]">3</span>
+              </div>
+              <h4 className="font-semibold text-lg mb-2">Apply Clear Insights</h4>
+              <p className="text-gray-400 text-sm">
+                Get practical guidance on using these frameworks in your specific context
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-20">
+          <p className="text-xl text-gray-300 mb-8">
+            Ready to think like the world's best decision-makers?
+          </p>
+          <a href="#pricing" className="inline-block bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors">
+            Start Building Your Latticework
+          </a>
+        </div>
       </div>
     </section>
   );
 };
 
-export default Pricing;
+export default Features;
