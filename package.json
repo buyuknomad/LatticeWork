@@ -1,8 +1,10 @@
 {
-  "name": "cognitive-cosmos",
+  "name": "mind-lattice",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Mind Lattice - Mental Models for Modern Minds. A toolkit for better thinking and decision-making.",
+  "author": "Mind Lattice",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
