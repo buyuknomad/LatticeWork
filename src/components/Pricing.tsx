@@ -158,9 +158,10 @@ const Pricing = () => {
               "Light AI Model",
             ]}
             notIncluded={[
-              "Relationship visualization",
               "Advanced thinking depth",
-              "Detailed application guidance"
+              "Detailed application guidance",
+              "Full access to 300+ models and 200+ biases",
+              "Premium AI Model (more accurate & detailed)"
             ]}
             buttonText={user ? "Go to Dashboard" : "Get Started"}
             buttonAction={handleFreeSignup}
