@@ -207,4 +207,25 @@ const Refunds: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-white mb-4">9. Legal Rights</h2>
                 <p className="text-gray-300 leading-relaxed">
                   This refund policy does not limit any legal rights you may have under applicable consumer protection laws. 
-                  Some jurisdictions provide additional rights regarding refunds and cancel
+                  Some jurisdictions provide additional rights regarding refunds and cancellations.
+                </p>
+              </section>
+
+              <div className="mt-12 pt-8 border-t border-[#333333]">
+                <div className="bg-[#252525]/50 rounded-lg p-6 text-center">
+                  <p className="text-white font-semibold mb-2">Our Commitment</p>
+                  <p className="text-gray-300">
+                    We're committed to your satisfaction. If you're not happy with Mind Lattice, 
+                    we want to make it right.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Refunds;
