@@ -241,7 +241,8 @@ const Privacy: React.FC = () => {
                 <div className="bg-[#1A1A1A]/50 rounded-lg p-4 border border-[#333333]">
                   <p className="text-white font-semibold mb-2">Mind Lattice</p>
                   <p className="text-gray-300">Email: <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">{BRAND.email}</a></p>
- 
+
+                </div>
               </section>
 
               <div className="mt-12 pt-8 border-t border-[#333333]">
