@@ -8,8 +8,9 @@ const Footer = () => {
   return (
     <footer className="py-12 bg-[#151515] border-t border-[#333333]">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          {/* Brand Section */}
+          <div>
             <div className="flex items-center space-x-2 mb-4">
               <Brain className="h-6 w-6 text-[#00FFFF]" />
               <span className="font-bold text-lg">{BRAND.name}</span>
@@ -30,6 +31,7 @@ const Footer = () => {
             </div>
           </div>
           
+          {/* Product Section */}
           <div>
             <h3 className="font-semibold mb-4">Product</h3>
             <ul className="space-y-2">
@@ -51,19 +53,10 @@ const Footer = () => {
             </ul>
           </div>
           
+          {/* Legal Section */}
           <div>
-            <h3 className="font-semibold mb-4">Company</h3>
+            <h3 className="font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                  Contact
-                </Link>
-              </li>
               <li>
                 <Link to="/privacy" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
                   Privacy Policy
@@ -77,6 +70,23 @@ const Footer = () => {
               <li>
                 <Link to="/refunds" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
                   Refund Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Company Section */}
+          <div>
+            <h3 className="font-semibold mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/about" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
+                  Contact
                 </Link>
               </li>
             </ul>
