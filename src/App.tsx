@@ -16,6 +16,8 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
+import FAQ from './pages/FAQ';
+
 
 // Import new pages
 import Terms from './pages/Terms';
