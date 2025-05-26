@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Check, X } from 'lucide-react';
+import { Check, X, RefreshCw, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const PricingCard = ({ 
   title, 
@@ -56,6 +57,20 @@ const PricingCard = ({
             </li>
           ))}
         </ul>
+
+        {/* Premium card additional info */}
+        {isPrimary && (
+          <div className="mb-6 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-gray-300">
+              <RefreshCw className="h-4 w-4 text-[#00FFFF]" />
+              <span>3-day money-back guarantee</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-300">
+              <XCircle className="h-4 w-4 text-[#00FFFF]" />
+              <span>Cancel anytime, no questions asked</span>
+            </div>
+          </div>
+        )}
 
         <motion.button
           onClick={buttonAction}
@@ -124,6 +139,9 @@ const Pricing = () => {
           <p className="text-gray-300 max-w-2xl mx-auto text-lg">
             Unlock the power of mental models and cognitive biases at a level that fits your needs.
           </p>
+          <p className="text-gray-400 text-sm mt-4">
+            All plans include instant access. Upgrade or downgrade anytime.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -156,7 +174,7 @@ const Pricing = () => {
             features={[
               "Unlimited queries",
               "3-4 models and 2-3 biases per query",
-              "Full access to 300 models and 246 biases",
+              "Full access to 300+ models and 246 biases",
               "Relationship visualization feature",
               "Advanced thinking depth",
               "Detailed application guidance"
@@ -168,12 +186,28 @@ const Pricing = () => {
           />
         </div>
 
-        {/* FAQ section could go here */}
-        <div className="mt-20 text-center">
+        {/* Policy Links */}
+        <motion.div 
+          className="mt-16 text-center"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <div className="mb-8 p-6 bg-[#252525]/30 rounded-lg max-w-2xl mx-auto">
+            <p className="text-gray-300 mb-2">
+              <strong className="text-white">No hidden fees.</strong> Cancel your subscription anytime from your account settings.
+            </p>
+            <p className="text-sm text-gray-400">
+              Premium subscriptions include a 3-day money-back guarantee for first-time subscribers. 
+              See our <Link to="/refunds" className="text-[#00FFFF] hover:underline">Refund Policy</Link> for details.
+            </p>
+          </div>
+          
           <p className="text-gray-400">
-            Have questions about our pricing? <a href="#" className="text-[#00FFFF] hover:underline">Check our FAQ</a> or <a href="#" className="text-[#00FFFF] hover:underline">contact support</a>.
+            Have questions about our pricing? <Link to="/contact" className="text-[#00FFFF] hover:underline">Contact us</Link> or check our{' '}
+            <a href="#" className="text-[#00FFFF] hover:underline">FAQ</a>.
           </p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
