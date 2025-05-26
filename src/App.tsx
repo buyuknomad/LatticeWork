@@ -17,6 +17,12 @@ import Settings from './pages/Settings';
 import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
 
+// Import new pages
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Refunds from './pages/Refunds';
+import Contact from './pages/Contact';
+
 // Create a wrapper component that can use useLocation
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -43,6 +49,12 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup-success" element={<SignupSuccessPage />} />
+          
+          {/* Legal/Policy pages */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refunds" element={<Refunds />} />
+          <Route path="/contact" element={<Contact />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
