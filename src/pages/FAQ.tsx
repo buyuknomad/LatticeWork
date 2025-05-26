@@ -106,11 +106,12 @@ const FAQ: React.FC = () => {
       question: 'What happens to my data if I cancel?',
       answer: `Your account and query history remain accessible even after cancellation. You can always log back in to view your past analyses or reactivate your subscription.`
     },
-    {
-      category: 'account',
-      question: 'How do I delete my account?',
-      answer: `You can request account deletion by contacting us at ${BRAND.email}. We'll process your request within 5 business days and permanently delete all your personal data.`
-    }
+   // In the FAQ component, update this answer:
+{
+  category: 'account',
+  question: 'How do I delete my account?',
+  answer: `You can delete your account directly from your Settings page. Simply go to Settings → Account Settings → Delete Account. This action is permanent and will immediately remove all your personal data. If you need any assistance with this process, you can also contact us at ${BRAND.email}.`
+}
   ];
 
   const categories = [
