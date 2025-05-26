@@ -1,6 +1,7 @@
 // src/components/Features.tsx
 import React from 'react';
 import { BookOpen, Lightbulb, Map, AlertTriangle, Layers, Brain } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface FeatureProps {
   icon: React.ReactNode;
