@@ -22,6 +22,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refunds from './pages/Refunds';
 import Contact from './pages/Contact';
+import About from './pages/About';
 
 // Create a wrapper component that can use useLocation
 const AppContent: React.FC = () => {
@@ -55,6 +56,7 @@ const AppContent: React.FC = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refunds" element={<Refunds />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
