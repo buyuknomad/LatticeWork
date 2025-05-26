@@ -1,12 +1,25 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const CallToAction = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+  
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup');
+    }
+  };
 
   return (
     <section className="py-20 md:py-28" id="cta">
@@ -43,25 +56,27 @@ const CallToAction = () => {
           
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Unlock the Power of
+              Ready to Master Your
               <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-                Clearer Thinking Today
+                Mental Models?
               </span>
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto text-lg mb-10">
-              Join thousands who have transformed their decision-making ability and problem-solving skills with our mental model platform.
+              Join thousands of modern minds using Mind Lattice to decode patterns, 
+              overcome biases, and make decisions with clarity and confidence.
             </p>
             
             <motion.button
+              onClick={handleGetStarted}
               className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-10 rounded-lg hover:bg-[#00FFFF]/90 transition-colors duration-300 shadow-lg shadow-[#00FFFF]/20"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Get Started
+              {user ? 'Go to Dashboard' : 'Start Free Today'}
             </motion.button>
             
             <p className="mt-6 text-sm text-gray-400">
-              No credit card required · 14-day free trial · Cancel anytime
+              Free forever with 1 analysis per day · No credit card required · Upgrade anytime
             </p>
           </div>
           
