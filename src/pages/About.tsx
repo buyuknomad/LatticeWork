@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, Brain, Target, Users, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import { BRAND } from '../constants/brand';
 
 const About: React.FC = () => {
   return (
@@ -59,6 +60,43 @@ const About: React.FC = () => {
                 <p className="text-gray-300 leading-relaxed">
                   So we built Mind Lattice: an intelligent system that analyzes your specific situations and reveals 
                   the mental models and cognitive biases at play, making expert-level thinking accessible to everyone.
+                </p>
+              </div>
+            </motion.section>
+
+            {/* The Inspiration - Charlie Munger Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-[#333333]"
+            >
+              <h2 className="text-2xl font-semibold text-white mb-6">The Latticework Concept</h2>
+              <div className="prose prose-invert max-w-none">
+                <blockquote className="border-l-4 border-[#00FFFF] pl-6 mb-6 italic text-gray-300">
+                  "You've got to have models in your head. And you've got to array your experience—both vicarious 
+                  and direct—on this latticework of models."
+                  <footer className="text-sm text-gray-400 mt-2">— Charlie Munger</footer>
+                </blockquote>
+                
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  Mind Lattice is inspired by Charlie Munger's revolutionary concept of building a "latticework of 
+                  mental models." Munger, the legendary investor and Warren Buffett's partner, advocates that the 
+                  secret to better thinking isn't specialization—it's developing a broad array of mental models from 
+                  multiple disciplines.
+                </p>
+                
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  Just as a lattice gains strength from its interconnected structure, your thinking becomes more 
+                  robust when you can apply models from psychology, physics, economics, biology, and other fields 
+                  to any situation. This multidisciplinary approach helps you see patterns others miss and avoid 
+                  cognitive blind spots.
+                </p>
+                
+                <p className="text-gray-300 leading-relaxed">
+                  Mind Lattice makes this powerful approach accessible by automatically identifying which mental 
+                  models apply to your specific situations, helping you build your own latticework of understanding—one 
+                  decision at a time.
                 </p>
               </div>
             </motion.section>
