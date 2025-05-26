@@ -136,8 +136,8 @@ const SignupPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm bg-[#212327] rounded-xl p-5 sm:p-6"
       >
-     <h1 className="text-2xl font-bold text-white mb-1">
-          Join <span className="text-[#00FFFF]">Cosmic Lattice</span>
+        <h1 className="text-2xl font-bold text-white mb-1">
+          Join <span className="text-[#00FFFF]">Mind Lattice</span>
         </h1>
         <p className="text-gray-400 text-sm mb-4">Create your account</p>
         
