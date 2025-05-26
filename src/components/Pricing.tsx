@@ -1,3 +1,4 @@
+// src/components/Pricing.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -5,6 +6,7 @@ import { Check, X, RefreshCw, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { BRAND } from '../constants/brand'; // Add this import
 
 const PricingCard = ({ 
   title, 
@@ -160,7 +162,7 @@ const Pricing = () => {
             notIncluded={[
               "Advanced thinking depth",
               "Detailed application guidance",
-              "Full access to 300+ models and 200+ biases",
+              `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
               "Premium AI Model (more accurate & detailed)"
             ]}
             buttonText={user ? "Go to Dashboard" : "Get Started"}
@@ -168,15 +170,15 @@ const Pricing = () => {
             delay={0}
           />
 
-          {/* Premium Tier */}
+          {/* Premium Tier - Updated price to $9.99 */}
           <PricingCard
             title="Premium"
-            price="$12.99"
+            price={`$${BRAND.pricing.premium.price}`} // Now uses $9.99 from BRAND constant
             description="For those serious about enhanced decision-making and critical thinking."
             features={[
               "Unlimited queries",
               "3-4 models and 2-3 biases per query",
-              "Full access to 300+ models and 200+ biases",
+              `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
               "Premium AI Model (more accurate & detailed)",
               "Advanced thinking depth",
               "Detailed application guidance"
