@@ -7,12 +7,12 @@ import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
 const EXAMPLES_LIST = [
-  "How do I prioritize my tasks?",
-  "Why did Elon's SpaceX strategy succeed?",
+  "How do I prioritize my tasks effectively?",
+  "Why did this startup's strategy succeed?",
   "How can I evaluate this investment opportunity?",
-  "What biases affect climate change debates?",
-  "Why did the recent tech layoffs happen?",
-  "How should I approach my career transition?"
+  "What biases affect my hiring decisions?",
+  "Why do projects always take longer than expected?",
+  "How should I approach this career transition?"
 ];
 
 const Hero = () => {
@@ -113,14 +113,14 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl 2xl:text-5xl font-bold mb-6 md:mb-4 leading-tight">
-            Better Thinking,{' '}
+            Mental Models for{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-              Better Decisions
+              Modern Minds
             </span>
           </h1>
           <p className="text-lg md:text-xl 2xl:text-lg text-gray-300 mb-8 md:mb-6 leading-relaxed">
-            A toolkit of mental models and cognitive biases that helps you see problems clearly, 
-            recognize thinking traps, and find solutions that others miss.
+            Decode patterns in any situation. Mind Lattice analyzes your challenges and reveals 
+            the mental models and cognitive biases at play, helping you think clearer and decide better.
           </p>
         </motion.div>
 
@@ -145,7 +145,7 @@ const Hero = () => {
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 onKeyPress={handleKeyPress}
-                placeholder={!isTypingAnimationActive ? "What deserves clearer thinking today?" : ""}
+                placeholder={!isTypingAnimationActive ? "Describe a situation, decision, or behavior you want to understand..." : ""}
                 className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-4 2xl:py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-lg 2xl:text-base"
               />
             </div>
@@ -175,21 +175,23 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? (question.trim() ? 'Analyze Now' : 'Go to Dashboard') : 'Get Started'}
+                  {user ? (question.trim() ? 'Analyze Pattern' : 'Go to Dashboard') : 'Get Started Free'}
                 </motion.button>
               </div>
               
-              {/* Helper text for logged-in users */}
-              {user && question.trim() && (
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="mt-3 text-sm text-gray-400"
-                >
-                  Press Enter or click to analyze this question
-                </motion.p>
-              )}
+              {/* Helper text */}
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 text-sm text-gray-400"
+              >
+                {user ? (
+                  question.trim() ? 'Press Enter or click to analyze this pattern' : 'Start with 1 free analysis per day'
+                ) : (
+                  'No credit card required • 1 free analysis per day'
+                )}
+              </motion.p>
             </div>
           </div>
         </motion.div>
@@ -200,7 +202,7 @@ const Hero = () => {
 
 const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'analysis' | 'default' => {
   const lowercase = question.toLowerCase();
-  if (lowercase.includes('business') || lowercase.includes('strategy') || lowercase.includes('company') || lowercase.includes('elon')) {
+  if (lowercase.includes('business') || lowercase.includes('strategy') || lowercase.includes('company') || lowercase.includes('startup')) {
     return 'business';
   }
   if (lowercase.includes('i') || lowercase.includes('my') || lowercase.includes('me') || lowercase.includes('career')) {
