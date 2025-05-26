@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { TrendingUp } from 'lucide-react';
 import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
@@ -193,6 +194,54 @@ const Hero = () => {
                 )}
               </motion.p>
             </div>
+          </div>
+        </motion.div>
+
+        {/* Trending Topics Feature */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="mt-16 text-center max-w-3xl mx-auto"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FFFF]/10 backdrop-blur-sm rounded-full border border-[#00FFFF]/30 mb-6">
+            <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
+            <span className="text-sm font-medium text-[#00FFFF]">New: Current Events Analysis</span>
+          </div>
+          
+          <p className="text-xl text-gray-300 mb-6">
+            Understand today's headlines through timeless mental models
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-3 text-sm">
+            <motion.span 
+              className="px-4 py-2 bg-[#252525]/50 backdrop-blur-sm rounded-full text-gray-300 border border-[#333333]"
+              whileHover={{ scale: 1.05, borderColor: '#00FFFF' }}
+              transition={{ duration: 0.2 }}
+            >
+              🌍 Global Events
+            </motion.span>
+            <motion.span 
+              className="px-4 py-2 bg-[#252525]/50 backdrop-blur-sm rounded-full text-gray-300 border border-[#333333]"
+              whileHover={{ scale: 1.05, borderColor: '#00FFFF' }}
+              transition={{ duration: 0.2 }}
+            >
+              💼 Business Trends
+            </motion.span>
+            <motion.span 
+              className="px-4 py-2 bg-[#252525]/50 backdrop-blur-sm rounded-full text-gray-300 border border-[#333333]"
+              whileHover={{ scale: 1.05, borderColor: '#00FFFF' }}
+              transition={{ duration: 0.2 }}
+            >
+              🚀 Tech Innovations
+            </motion.span>
+            <motion.span 
+              className="px-4 py-2 bg-[#252525]/50 backdrop-blur-sm rounded-full text-gray-300 border border-[#333333]"
+              whileHover={{ scale: 1.05, borderColor: '#00FFFF' }}
+              transition={{ duration: 0.2 }}
+            >
+              🧠 Psychology Insights
+            </motion.span>
           </div>
         </motion.div>
       </div>
