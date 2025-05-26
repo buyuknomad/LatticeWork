@@ -2,14 +2,14 @@
 import React from 'react';
 import { Brain, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BRAND } from '../constants/brand'; // Add this import
+import { BRAND } from '../constants/brand';
 
 const Footer = () => {
   return (
     <footer className="py-12 bg-[#151515] border-t border-[#333333]">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <Brain className="h-6 w-6 text-[#00FFFF]" />
               <span className="font-bold text-lg">{BRAND.name}</span>
@@ -43,20 +43,9 @@ const Footer = () => {
                   Pricing
                 </a>
               </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
               <li>
-                <Link to="/blog" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/mental-models" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
-                  Mental Models
+                <Link to="/faq" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
+                  FAQ
                 </Link>
               </li>
             </ul>
