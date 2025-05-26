@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import { BRAND } from '../constants/brand';
 
 const Terms: React.FC = () => {
   return (
@@ -98,7 +99,7 @@ const Terms: React.FC = () => {
                 
                 <h3 className="text-xl font-medium text-white mb-3 mt-4">4.2 Premium Subscription</h3>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Billed monthly at $12.99 USD (prices subject to change)</li>
+                  <li>Billed monthly at $9.99 USD (prices subject to change)</li>
                   <li>Automatic renewal unless cancelled</li>
                   <li>Prices exclude applicable taxes</li>
                 </ul>
@@ -254,7 +255,7 @@ const Terms: React.FC = () => {
                 </p>
                 <div className="bg-[#1A1A1A]/50 rounded-lg p-4 border border-[#333333]">
                   <p className="text-white font-semibold mb-2">Mind Lattice</p>
-                  <p className="text-gray-300">Email: <a href="mailto:thinkinmodels@gmail.com" className="text-[#00FFFF] hover:underline">thinkinmodels@gmail.com</a></p>
+                  <p className="text-gray-300">Email: <a href={`mailto:${BRAND.email}`} className="text-[#00FFFF] hover:underline">{BRAND.email}</a></p>
                 </div>
               </section>
 
