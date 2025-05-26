@@ -6,7 +6,7 @@ import { Check, X, RefreshCw, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { BRAND } from '../constants/brand'; // Add this import
+import { BRAND } from '../constants/brand';
 
 const PricingCard = ({ 
   title, 
@@ -170,10 +170,10 @@ const Pricing = () => {
             delay={0}
           />
 
-          {/* Premium Tier - Updated price to $9.99 */}
+          {/* Premium Tier */}
           <PricingCard
             title="Premium"
-            price={`$${BRAND.pricing.premium.price}`} // Now uses $9.99 from BRAND constant
+            price={`$${BRAND.pricing.premium.price}`}
             description="For those serious about enhanced decision-making and critical thinking."
             features={[
               "Unlimited queries",
@@ -209,7 +209,7 @@ const Pricing = () => {
           
           <p className="text-gray-400">
             Have questions about our pricing? <Link to="/contact" className="text-[#00FFFF] hover:underline">Contact us</Link> or check our{' '}
-            <a href="#" className="text-[#00FFFF] hover:underline">FAQ</a>.
+            <Link to="/faq" className="text-[#00FFFF] hover:underline">FAQ</Link>.
           </p>
         </motion.div>
       </div>
