@@ -91,17 +91,40 @@ const LoginPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm bg-[#212327] rounded-xl p-5 sm:p-6"
       >
-        <h1 className="text-2xl sm:text-2xl font-bold text-white mb-1">
-          Welcome to <span className="text-[#00FFFF]">Mind Lattice</span>
-        </h1>
-        <p className="text-gray-400 text-sm mb-4">Sign in to continue</p>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-1">
+            Welcome to <span className="text-[#00FFFF]">Mind Lattice</span>
+          </h1>
+          <p className="text-gray-400 text-sm mb-8">Sign in to continue</p>
+        </div>
         
         {errorMessage && (
-          <div className="mb-3 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
+          <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
             {errorMessage}
           </div>
         )}
         
+        {/* Google Sign In Button - Moved to top with better styling */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full bg-white text-gray-800 py-3 px-4 rounded-lg flex items-center justify-center gap-3 border border-gray-200 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+          disabled={isLoading}
+        >
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+          Sign in with Google
+        </motion.button>
+        
+        {/* OR Divider */}
+        <div className="my-6 flex items-center">
+          <div className="flex-grow border-t border-gray-600"></div>
+          <span className="mx-3 text-gray-400 text-xs uppercase tracking-wider">or</span>
+          <div className="flex-grow border-t border-gray-600"></div>
+        </div>
+        
+        {/* Email/Password Form */}
         <form onSubmit={handleLogin} className="space-y-3">
           <div>
             <label htmlFor="email" className="block text-gray-300 text-sm mb-1">Email</label>
@@ -171,25 +194,7 @@ const LoginPage: React.FC = () => {
           </motion.button>
         </form>
         
-        <div className="my-4 flex items-center">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <span className="mx-2 text-gray-400 text-xs">or</span>
-          <div className="flex-grow border-t border-gray-600"></div>
-        </div>
-        
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full bg-[#2A2D35] text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-500 transition-colors text-sm"
-          disabled={isLoading}
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-          Sign in with Google
-        </motion.button>
-        
-        <p className="mt-4 text-center text-gray-400 text-xs">
+        <p className="mt-6 text-center text-gray-400 text-xs">
           Don't have an account?{' '}
           <button
             onClick={navigateToSignUp}
