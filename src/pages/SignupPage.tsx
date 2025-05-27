@@ -147,6 +147,27 @@ const SignupPage: React.FC = () => {
           </div>
         )}
         
+        {/* Google Sign Up Button - Moved to top */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="button"
+          onClick={handleGoogleSignup}
+          className="w-full bg-[#2A2D35] text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-500 transition-colors text-sm"
+          disabled={isLoading}
+        >
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
+          Sign up with Google
+        </motion.button>
+        
+        {/* OR Divider */}
+        <div className="my-4 flex items-center">
+          <div className="flex-grow border-t border-gray-600"></div>
+          <span className="mx-2 text-gray-400 text-xs uppercase">or</span>
+          <div className="flex-grow border-t border-gray-600"></div>
+        </div>
+        
+        {/* Email/Password Form */}
         <form onSubmit={handleSignup} className="space-y-3">
           <div>
             <label htmlFor="email" className="block text-gray-300 text-sm mb-1">Email</label>
@@ -224,24 +245,6 @@ const SignupPage: React.FC = () => {
             {!isLoading && <span>→</span>}
           </motion.button>
         </form>
-        
-        <div className="my-4 flex items-center">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <span className="mx-2 text-gray-400 text-xs">or</span>
-          <div className="flex-grow border-t border-gray-600"></div>
-        </div>
-        
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          type="button"
-          onClick={handleGoogleSignup}
-          className="w-full bg-[#2A2D35] text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-500 transition-colors text-sm"
-          disabled={isLoading}
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-          Sign up with Google
-        </motion.button>
         
         <p className="mt-4 text-center text-gray-400 text-xs">
           Already have an account?{' '}
