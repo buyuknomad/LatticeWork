@@ -53,6 +53,38 @@ Deno.serve(async (req) => {
   }
 });
 
+async function updateUserTier(customerId: string, tier: 'free' | 'premium') {
+  try {
+    // First get the user_id from stripe_customers table
+    const { data: customer, error: customerError } = await supabase
+      .from('stripe_customers')
+      .select('user_id')
+      .eq('customer_id', customerId)
+      .single();
+
+    if (customerError || !customer) {
+      console.error('Error fetching customer:', customerError);
+      return;
+    }
+
+    // Update the user's metadata with their tier
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
+      customer.user_id,
+      {
+        user_metadata: { tier }
+      }
+    );
+
+    if (updateError) {
+      console.error('Error updating user tier:', updateError);
+    } else {
+      console.info(`Successfully updated user ${customer.user_id} to ${tier} tier`);
+    }
+  } catch (error) {
+    console.error('Error in updateUserTier:', error);
+  }
+}
+
 async function handleEvent(event: Stripe.Event) {
   const stripeData = event?.data?.object ?? {};
 
@@ -82,6 +114,11 @@ async function handleEvent(event: Stripe.Event) {
       isSubscription = mode === 'subscription';
 
       console.info(`Processing ${isSubscription ? 'subscription' : 'one-time payment'} checkout session`);
+      
+      // Update user to premium tier immediately after successful checkout
+      if (isSubscription) {
+        await updateUserTier(customerId, 'premium');
+      }
     }
 
     const { mode, payment_status } = stripeData as Stripe.Checkout.Session;
@@ -183,6 +220,14 @@ async function syncCustomerFromStripe(customerId: string) {
       console.error('Error syncing subscription:', subError);
       throw new Error('Failed to sync subscription in database');
     }
+    
+    // After successfully syncing subscription, update user tier
+    if (subscription.status === 'active' || subscription.status === 'trialing') {
+      await updateUserTier(customerId, 'premium');
+    } else if (subscription.status === 'canceled' || subscription.status === 'unpaid' || subscription.status === 'past_due') {
+      await updateUserTier(customerId, 'free');
+    }
+    
     console.info(`Successfully synced subscription for customer: ${customerId}`);
   } catch (error) {
     console.error(`Failed to sync subscription for customer ${customerId}:`, error);
