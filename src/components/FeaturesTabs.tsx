@@ -25,21 +25,30 @@ const FeaturesTabs: React.FC = () => {
     <div className="w-full">
       {/* Tab Headers */}
       <div className="flex justify-center mb-8">
-        <div className="inline-flex flex-col sm:flex-row gap-2 sm:gap-4 p-1 bg-[#252525]/50 rounded-xl sm:rounded-full">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 ${
-              activeTab === tab.id
-                ? 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30'
-                : 'text-gray-400 hover:text-gray-300 hover:bg-[#333333]/50'
-            }`}
-          >
-            {tab.icon}
-            <span className="font-medium">{tab.label}</span>
-          </button>
-        ))}
+        <div className="inline-flex flex-col sm:flex-row gap-2 sm:gap-4 p-1 bg-[#252525]/50 backdrop-blur-sm rounded-xl sm:rounded-full border border-[#333333]/50 shadow-lg">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 ${
+                activeTab === tab.id
+                  ? 'bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30 shadow-[0_0_20px_rgba(0,255,255,0.15)]'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-[#333333]/50 border border-transparent hover:border-[#333333]/50'
+              }`}
+            >
+              <motion.div
+                animate={{ 
+                  scale: activeTab === tab.id ? 1.1 : 1,
+                  rotate: activeTab === tab.id ? 5 : 0
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                {tab.icon}
+              </motion.div>
+              <span className="font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -58,5 +67,6 @@ const FeaturesTabs: React.FC = () => {
       </AnimatePresence>
     </div>
   );
+};
 
 export default FeaturesTabs;
