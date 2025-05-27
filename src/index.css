@@ -147,3 +147,62 @@
 .animate-gradient-x {
   animation: gradient-x 15s ease infinite;
 }
+
+/* Add this CSS to your existing index.css file if not already present */
+
+/* Animation for glowing effects */
+@keyframes glow-travel {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+}
+
+.animate-glow-travel {
+  animation: glow-travel 4s linear infinite;
+  background-size: 400% 400%;
+}
+
+/* Additional animations for interactive elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Tab transitions */
+.tab-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Differentiator card hover effects */
+.comparison-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comparison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
