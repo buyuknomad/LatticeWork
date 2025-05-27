@@ -1,12 +1,13 @@
 // src/components/Pricing.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Check, X, RefreshCw, XCircle } from 'lucide-react';
+import { Check, X, RefreshCw, XCircle, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
+import { supabase } from '../lib/supabase';
 
 const PricingCard = ({ 
   title, 
@@ -17,7 +18,8 @@ const PricingCard = ({
   buttonText, 
   buttonAction,
   isPrimary = false,
-  delay = 0
+  delay = 0,
+  isLoading = false
 }) => {
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -79,15 +81,23 @@ const PricingCard = ({
 
           <motion.button
             onClick={buttonAction}
-            className={`w-full py-3 rounded-lg font-medium transition-all ${
+            className={`w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
               isPrimary 
                 ? 'bg-[#00FFFF] text-[#1A1A1A] hover:bg-[#00FFFF]/90'
                 : 'bg-[#2A2A2A] text-white border border-[#333333] hover:border-[#00FFFF]/30'
             }`}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
+            disabled={isLoading}
           >
-            {buttonText}
+            {isLoading ? (
+              <>
+                <Loader className="h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              buttonText
+            )}
           </motion.button>
         </div>
       </div>
@@ -96,7 +106,7 @@ const PricingCard = ({
       {isPrimary && (
         <div className="absolute inset-0 rounded-2xl border-2 border-[#00FFFF]/20 -z-10 blur-sm"></div>
       )}
-    </motion.div>
+    </div>
   );
 };
 
@@ -107,7 +117,9 @@ const Pricing = () => {
   });
   
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   
   const handleFreeSignup = () => {
     if (user) {
@@ -117,14 +129,58 @@ const Pricing = () => {
     }
   };
   
-  const handlePremiumSignup = () => {
-    if (user) {
-      // This would typically navigate to a checkout page
-      navigate('/dashboard?upgrade=true');
-    } else {
+  const handlePremiumSignup = async () => {
+    setCheckoutError(null);
+    
+    if (!user || !session) {
       navigate('/signup?plan=premium');
+      return;
+    }
+
+    setIsLoadingCheckout(true);
+
+    try {
+      // Call the Stripe checkout edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          price_id: 'price_1RT9gVFLqLlCLjMStBtLZNEw', // Your test price ID
+          mode: 'subscription',
+          success_url: `${window.location.origin}/dashboard?upgrade=success`,
+          cancel_url: `${window.location.origin}/pricing?canceled=true`,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+      
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
+      setIsLoadingCheckout(false);
     }
   };
+
+  // Check if user came back from canceled checkout
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('canceled') === 'true') {
+      setCheckoutError('Checkout was canceled. Feel free to try again when you\'re ready.');
+      // Clean up the URL
+      window.history.replaceState({}, '', '/pricing');
+    }
+  }, []);
 
   return (
     <section className="py-20 md:py-28" id="pricing">
@@ -148,7 +204,29 @@ const Pricing = () => {
           <p className="text-gray-400 text-sm mt-4">
             All plans include instant access. Upgrade or downgrade anytime.
           </p>
+          
+          {/* Test Mode Banner - Only show in development */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <span className="text-yellow-500 text-sm font-medium">
+                🧪 Test Mode: Using $1.00 test pricing
+              </span>
+            </div>
+          )}
         </motion.div>
+
+        {/* Error Message */}
+        {checkoutError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto mb-8"
+          >
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm text-center">{checkoutError}</p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Grid with items-stretch to ensure equal heights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
@@ -192,6 +270,7 @@ const Pricing = () => {
             buttonAction={handlePremiumSignup}
             isPrimary={true}
             delay={0.2}
+            isLoading={isLoadingCheckout}
           />
         </div>
 
