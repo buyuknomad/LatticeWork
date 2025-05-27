@@ -17,7 +17,7 @@ const Features = () => {
   };
 
   return (
-    <section className="py-20 md:py-28" id="features">
+    <section className="py-12 md:py-16 lg:py-20" id="features">
       <div className="container mx-auto px-4 md:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -36,7 +36,17 @@ const Features = () => {
         <FeaturesTabs />
 
         {/* CTA remains the same */}
-   
+        <div className="text-center mt-20">
+          <p className="text-xl text-gray-300 mb-8">
+            Ready to think like the world's best decision-makers?
+          </p>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+          >
+            {user ? 'Go to Dashboard' : 'Start Building Your Latticework'}
+          </button>
+        </div>
       </div>
     </section>
   );
