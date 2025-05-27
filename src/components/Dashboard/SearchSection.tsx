@@ -1,9 +1,11 @@
 // src/components/Dashboard/SearchSection.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, X, ArrowRight, AlertCircle, Clock, Crown } from 'lucide-react';
+import { Search, X, ArrowRight, AlertCircle, Clock, Crown, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { UserTier } from './types';
+import { useAuth } from '../../context/AuthContext';
+import { products } from '../../stripe-config';
 
 interface SearchSectionProps {
   query: string;
@@ -37,6 +39,9 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   shouldFocusAnalysis,
 }) => {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const isRateLimitError = error?.includes('Query limit reached');
 
   const formatTimeUntilReset = () => {
@@ -52,22 +57,54 @@ const SearchSection: React.FC<SearchSectionProps> = ({
     return `${minutes}m`;
   };
 
-  const handleUpgradeClick = (e?: React.MouseEvent) => {
+  const handleUpgradeClick = async (e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    console.log('Upgrade button clicked, navigating to pricing...');
-    // Navigate to home page with pricing hash
-    navigate('/#pricing');
-    
-    // Small delay to ensure navigation happens, then scroll to pricing
-    setTimeout(() => {
-      const pricingSection = document.getElementById('pricing');
-      if (pricingSection) {
-        pricingSection.scrollIntoView({ behavior: 'smooth' });
+
+    if (!session) {
+      navigate('/signup?plan=premium');
+      return;
+    }
+
+    setIsLoadingCheckout(true);
+    setCheckoutError(null);
+
+    try {
+      const premiumProduct = products[0];
+      
+      if (!premiumProduct || !premiumProduct.priceId) {
+        throw new Error('Premium product not configured');
       }
-    }, 100);
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          price_id: premiumProduct.priceId,
+          mode: premiumProduct.mode,
+          success_url: `${window.location.origin}/dashboard?upgrade=success`,
+          cancel_url: `${window.location.origin}/dashboard`,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+      
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
+      setIsLoadingCheckout(false);
+    }
   };
 
   return (
@@ -87,6 +124,19 @@ const SearchSection: React.FC<SearchSectionProps> = ({
             Describe a situation, behavior, or decision you want to analyze
           </p>
         </div>
+
+        {/* Checkout Error */}
+        {checkoutError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm text-center">{checkoutError}</p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Query Limit Indicator for Free Users */}
         {displayTier === 'free' && remainingQueries !== undefined && (
@@ -127,12 +177,22 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                   <motion.button
                     type="button"
                     onClick={handleUpgradeClick}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full text-white text-xs font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    disabled={isLoadingCheckout}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full text-white text-xs font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: isLoadingCheckout ? 1 : 1.05 }}
+                    whileTap={{ scale: isLoadingCheckout ? 1 : 0.95 }}
                   >
-                    <Crown size={12} />
-                    <span>Upgrade</span>
+                    {isLoadingCheckout ? (
+                      <>
+                        <Loader size={12} className="animate-spin" />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Crown size={12} />
+                        <span>Upgrade</span>
+                      </>
+                    )}
                   </motion.button>
                 </>
               )}
@@ -206,12 +266,22 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <motion.button
                       type="button"
                       onClick={handleUpgradeClick}
-                      className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      disabled={isLoadingCheckout}
+                      className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: isLoadingCheckout ? 1 : 1.02 }}
+                      whileTap={{ scale: isLoadingCheckout ? 1 : 0.98 }}
                     >
-                      Upgrade to Premium
-                      <ArrowRight size={14} />
+                      {isLoadingCheckout ? (
+                        <>
+                          <Loader size={14} className="animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          Upgrade to Premium
+                          <ArrowRight size={14} />
+                        </>
+                      )}
                     </motion.button>
                   )}
                 </div>
@@ -224,4 +294,4 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   );
 };
 
-export default SearchSection;
+export default SearchSection;  
