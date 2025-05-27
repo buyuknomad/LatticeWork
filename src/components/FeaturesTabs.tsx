@@ -24,7 +24,8 @@ const FeaturesTabs: React.FC = () => {
   return (
     <div className="w-full">
       {/* Tab Headers */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-8 p-1 bg-[#252525]/50 rounded-xl sm:inline-flex sm:mx-auto sm:rounded-full">
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex flex-col sm:flex-row gap-2 sm:gap-4 p-1 bg-[#252525]/50 rounded-xl sm:rounded-full">
         {tabs.map((tab) => (
           <button
             key={tab.id}
