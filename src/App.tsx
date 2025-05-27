@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
+import Differentiators from './components/Differentiators';
 import Features from './components/Features';
 import CallToAction from './components/CallToAction';
 import Pricing from './components/Pricing';
@@ -18,7 +19,6 @@ import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
 import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
-
 
 // Import new pages
 import Terms from './pages/Terms';
@@ -45,6 +45,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={
             <main>
               <Hero />
+              <Differentiators />
               <Features />
               <CallToAction />
               <Pricing />
