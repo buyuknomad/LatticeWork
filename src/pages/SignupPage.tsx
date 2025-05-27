@@ -136,10 +136,12 @@ const SignupPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm bg-[#212327] rounded-xl p-5 sm:p-6"
       >
-        <h1 className="text-2xl font-bold text-white mb-1">
-          Join <span className="text-[#00FFFF]">Mind Lattice</span>
-        </h1>
-        <p className="text-gray-400 text-sm mb-8">Create your account</p>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-1">
+            Join <span className="text-[#00FFFF]">Mind Lattice</span>
+          </h1>
+          <p className="text-gray-400 text-sm mb-8">Create your account</p>
+        </div>
         
         {errorMessage && (
           <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
