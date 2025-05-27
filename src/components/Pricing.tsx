@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
 import { supabase } from '../lib/supabase';
+import { products } from '../stripe-config';
 
 interface PricingCardProps {
   title: string;
@@ -153,6 +154,15 @@ const Pricing = () => {
     setIsLoadingCheckout(true);
 
     try {
+      // Get the premium product from config
+      const premiumProduct = products[0]; // Using first product as premium
+      
+      if (!premiumProduct || !premiumProduct.priceId) {
+        throw new Error('Premium product not configured. Please update stripe-config.ts');
+      }
+
+      console.log('Using price ID:', premiumProduct.priceId); // Debug log
+
       // Call the Stripe checkout edge function
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
         method: 'POST',
@@ -161,8 +171,8 @@ const Pricing = () => {
           'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          price_id: 'price_1RTR1wFLqLlCLjMSUORD8hkS', // Your test price ID
-          mode: 'subscription',
+          price_id: premiumProduct.priceId,
+          mode: premiumProduct.mode,
           success_url: `${window.location.origin}/dashboard?upgrade=success`,
           cancel_url: `${window.location.origin}/pricing?canceled=true`,
         }),
