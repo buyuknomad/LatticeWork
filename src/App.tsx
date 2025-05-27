@@ -54,6 +54,8 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup-success" element={<SignupSuccessPage />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/auth/confirm" element={<ConfirmEmail />} />
           
           {/* Legal/Policy pages */}
           <Route path="/terms" element={<Terms />} />
@@ -62,7 +64,7 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/FAQ" element={<FAQ />} />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+      
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
