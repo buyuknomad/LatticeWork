@@ -1,17 +1,48 @@
+// src/pages/Settings.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
-import { ChevronLeft, User, Mail, CheckCircle, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { 
+  ChevronLeft, 
+  User, 
+  Mail, 
+  CheckCircle, 
+  AlertCircle, 
+  Crown,
+  CreditCard,
+  Calendar,
+  XCircle,
+  ExternalLink,
+  Loader
+} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BRAND } from '../constants/brand';
+
+interface SubscriptionData {
+  subscription_status: string;
+  price_id: string;
+  current_period_end: number;
+  cancel_at_period_end: boolean;
+  payment_method_brand: string | null;
+  payment_method_last4: string | null;
+}
 
 const Settings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const navigate = useNavigate();
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  
+  // Subscription states
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  const userTier = user?.user_metadata?.tier || 'free';
 
   useEffect(() => {
     if (user) {
@@ -24,9 +55,29 @@ const Settings: React.FC = () => {
         setUsername(user.email.split('@')[0]);
       }
       
+      // Fetch subscription data if premium
+      if (userTier === 'premium') {
+        fetchSubscriptionData();
+      }
+      
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, userTier]);
+
+  const fetchSubscriptionData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('*')
+        .single();
+      
+      if (error) throw error;
+      
+      setSubscription(data);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +111,107 @@ const Settings: React.FC = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!session) return;
+    
+    setIsLoadingPortal(true);
+    
+    try {
+      // Call edge function to create Stripe portal session
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-portal`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          return_url: window.location.href,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Customer Portal
+      window.location.href = url;
+      
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      setMessage({
+        text: 'Failed to open subscription management. Please try again.',
+        type: 'error'
+      });
+      setIsLoadingPortal(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!confirm('Are you sure you want to cancel your subscription? You will retain access until the end of your billing period.')) {
+      return;
+    }
+    
+    setIsCanceling(true);
+    
+    try {
+      // In a real implementation, you would call an edge function to cancel via Stripe API
+      // For now, we'll redirect to the customer portal
+      await handleManageSubscription();
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      setMessage({
+        text: 'Failed to cancel subscription. Please try again.',
+        type: 'error'
+      });
+      setIsCanceling(false);
+    }
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getSubscriptionStatusBadge = () => {
+    if (!subscription) return null;
+    
+    if (subscription.cancel_at_period_end) {
+      return (
+        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-500 rounded-full text-xs font-medium">
+          Canceling at period end
+        </span>
+      );
+    }
+    
+    switch (subscription.subscription_status) {
+      case 'active':
+        return (
+          <span className="px-3 py-1 bg-green-500/20 text-green-500 rounded-full text-xs font-medium">
+            Active
+          </span>
+        );
+      case 'trialing':
+        return (
+          <span className="px-3 py-1 bg-blue-500/20 text-blue-500 rounded-full text-xs font-medium">
+            Trial
+          </span>
+        );
+      case 'past_due':
+        return (
+          <span className="px-3 py-1 bg-red-500/20 text-red-500 rounded-full text-xs font-medium">
+            Past Due
+          </span>
+        );
+      default:
+        return null;
     }
   };
 
@@ -157,32 +309,176 @@ const Settings: React.FC = () => {
             </div>
           </form>
           
-          {/* Account settings section */}
+          {/* Subscription section */}
           <div className="mt-12 pt-8 border-t border-[#333333]">
-            <h2 className="text-xl font-semibold mb-6">Account Settings</h2>
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <Crown className="h-5 w-5 text-[#8B5CF6]" />
+              Subscription
+            </h2>
             
-            {/* Subscription information */}
-            <div className="bg-[#252525] rounded-lg p-4 mb-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-300 font-medium">Current Plan: <span className="text-white">Free</span></p>
-                  <p className="text-sm text-gray-400 mt-1">2 queries per day, limited access</p>
+            {userTier === 'free' ? (
+              /* Free Tier Display */
+              <div className="bg-[#252525] rounded-lg p-6 border border-[#333333]">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-gray-300 font-medium text-lg">Free Plan</p>
+                    <p className="text-sm text-gray-400 mt-1">1 analysis per day • Limited features</p>
+                  </div>
+                  <span className="px-3 py-1 bg-gray-600/20 text-gray-400 rounded-full text-xs font-medium">
+                    Current Plan
+                  </span>
                 </div>
-                <motion.button
-                  className="bg-[#8B5CF6] text-white py-2 px-4 rounded-lg hover:bg-[#8B5CF6]/90 transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Upgrade
-                </motion.button>
+                
+                <div className="pt-4 border-t border-[#333333]/50">
+                  <motion.button
+                    onClick={() => navigate('/pricing')}
+                    className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Crown className="h-5 w-5" />
+                    Upgrade to Premium
+                  </motion.button>
+                  <p className="text-center text-xs text-gray-500 mt-3">
+                    Get unlimited analyses, advanced features, and more
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* Premium Tier Display */
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-[#252525] to-[#2A2A2A] rounded-lg p-6 border border-[#8B5CF6]/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-white font-medium text-lg flex items-center gap-2">
+                        Premium Plan
+                        {getSubscriptionStatusBadge()}
+                      </p>
+                      <p className="text-sm text-gray-300 mt-1">
+                        ${BRAND.pricing.premium.price}/month • Unlimited everything
+                      </p>
+                    </div>
+                    <Crown className="h-8 w-8 text-[#8B5CF6]" />
+                  </div>
+                  
+                  {subscription && (
+                    <div className="space-y-3 pt-4 border-t border-[#333333]/50">
+                      {/* Payment Method */}
+                      {subscription.payment_method_brand && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-400 flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Payment Method
+                          </span>
+                          <span className="text-gray-300 capitalize">
+                            {subscription.payment_method_brand} •••• {subscription.payment_method_last4}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Next Billing Date */}
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400 flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          {subscription.cancel_at_period_end ? 'Access Until' : 'Next Billing Date'}
+                        </span>
+                        <span className="text-gray-300">
+                          {formatDate(subscription.current_period_end)}
+                        </span>
+                      </div>
+                      
+                      {/* Cancellation Notice */}
+                      {subscription.cancel_at_period_end && (
+                        <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                          <p className="text-yellow-500 text-sm flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            Your subscription will end on {formatDate(subscription.current_period_end)}. 
+                            You'll retain Premium access until then.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                    <motion.button
+                      onClick={handleManageSubscription}
+                      className="flex-1 bg-[#333333] text-white py-2.5 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#404040] transition-colors"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={isLoadingPortal}
+                    >
+                      {isLoadingPortal ? (
+                        <>
+                          <Loader className="h-4 w-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="h-4 w-4" />
+                          Manage Subscription
+                        </>
+                      )}
+                    </motion.button>
+                    
+                    {subscription && !subscription.cancel_at_period_end && (
+                      <motion.button
+                        onClick={handleCancelSubscription}
+                        className="flex-1 text-red-400 hover:text-red-300 py-2.5 px-4 rounded-lg font-medium flex items-center justify-center gap-2 border border-red-400/30 hover:border-red-400/50 transition-all"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={isCanceling}
+                      >
+                        {isCanceling ? (
+                          <>
+                            <Loader className="h-4 w-4 animate-spin" />
+                            Canceling...
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-4 w-4" />
+                            Cancel Subscription
+                          </>
+                        )}
+                      </motion.button>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 text-center mt-4">
+                    Manage billing, update payment method, or download invoices
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Account Management Section */}
+          <div className="mt-12 pt-8 border-t border-[#333333]">
+            <h2 className="text-xl font-semibold mb-6">Account Management</h2>
             
-            {/* Delete account button */}
-            <div className="mt-8">
-              <button className="text-red-400 hover:text-red-300 text-sm">
-                Delete Account
-              </button>
+            <div className="space-y-4">
+              {/* Export Data */}
+              <div className="flex items-center justify-between p-4 bg-[#252525] rounded-lg">
+                <div>
+                  <p className="text-gray-300 font-medium">Export Your Data</p>
+                  <p className="text-sm text-gray-500">Download all your queries and analyses</p>
+                </div>
+                <button className="text-[#00FFFF] hover:text-[#00FFFF]/80 text-sm font-medium">
+                  Coming Soon
+                </button>
+              </div>
+              
+              {/* Delete Account */}
+              <div className="flex items-center justify-between p-4 bg-[#252525] rounded-lg">
+                <div>
+                  <p className="text-gray-300 font-medium">Delete Account</p>
+                  <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
+                </div>
+                <button className="text-red-400 hover:text-red-300 text-sm font-medium">
+                  Delete Account
+                </button>
+              </div>
             </div>
           </div>
         </div>
