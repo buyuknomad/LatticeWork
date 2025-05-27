@@ -19,12 +19,12 @@ const comparisons: ComparisonRow[] = [
     mindLattice: "300+ curated mental models & 246 biases"
   },
   {
-    genericAI: "One-size-fits-all advice",
-    mindLattice: "Tailored application guidance"
+    genericAI: "Generic textbook examples",
+    mindLattice: "Real-world scenarios & current events"
   },
   {
-    genericAI: "Text walls of information",
-    mindLattice: "Visual relationship mapping (Premium)"
+    genericAI: "Static knowledge with no current context",
+    mindLattice: "Updated trending patterns every 3 days"
   },
   {
     genericAI: "No bias detection",
