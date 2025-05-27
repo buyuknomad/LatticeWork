@@ -1,3 +1,4 @@
+// src/components/CallToAction.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -22,7 +23,7 @@ const CallToAction = () => {
   };
 
   return (
-    <section className="py-20 md:py-28" id="cta">
+    <section className="py-12 md:py-16 lg:py-20" id="cta">
       <div className="container mx-auto px-4 md:px-8">
         <motion.div
           ref={ref}
