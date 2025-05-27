@@ -55,7 +55,7 @@ const AppContent: React.FC = () => {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup-success" element={<SignupSuccessPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
-           
+           <Route path="/auth/confirm" element={<ConfirmEmail />} />
           
           {/* Legal/Policy pages */}
           <Route path="/terms" element={<Terms />} />
