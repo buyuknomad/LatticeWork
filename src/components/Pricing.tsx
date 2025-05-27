@@ -161,7 +161,7 @@ const Pricing = () => {
           'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          price_id: 'price_1RT9gVFLqLlCLjMStBtLZNEw', // Your test price ID
+          price_id: 'price_1RTR1wFLqLlCLjMSUORD8hkS', // Your test price ID
           mode: 'subscription',
           success_url: `${window.location.origin}/dashboard?upgrade=success`,
           cancel_url: `${window.location.origin}/pricing?canceled=true`,
