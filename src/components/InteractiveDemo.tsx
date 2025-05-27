@@ -6,9 +6,10 @@ import { Brain, AlertTriangle, Lightbulb, Zap } from 'lucide-react';
 interface InteractiveDemoProps {
   isTyping: boolean;
   category: 'business' | 'personal' | 'analysis' | 'default';
+  typingProgress?: number; // 0 to 1, representing typing completion
 }
 
-const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category }) => {
+const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category, typingProgress = 1 }) => {
   const getVisualization = () => {
     switch (category) {
       case 'business':
@@ -47,7 +48,7 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
   return (
     <div className="relative h-48 md:h-56 rounded-lg bg-[#1A1A1A]/50 backdrop-blur-sm border border-[#333333] overflow-hidden">
       <AnimatePresence mode="wait">
-        {!isTyping ? (
+        {!isTyping || typingProgress === 0 ? (
           <motion.div
             key="empty"
             initial={{ opacity: 0 }}
@@ -68,56 +69,92 @@ const InteractiveDemo: React.FC<InteractiveDemoProps> = ({ isTyping, category })
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${visualization.color} opacity-20`}>
+                <motion.div 
+                  className={`p-2 rounded-lg bg-gradient-to-br ${visualization.color} opacity-20`}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: typingProgress > 0.1 ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   {visualization.icon}
-                </div>
-                <h4 className="text-white font-semibold">Pattern Analysis</h4>
+                </motion.div>
+                <motion.h4 
+                  className="text-white font-semibold"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: typingProgress > 0.2 ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  Pattern Analysis
+                </motion.h4>
               </div>
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-4 h-4 border-2 border-[#00FFFF] border-t-transparent rounded-full"
-              />
+              {typingProgress < 1 && (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-4 h-4 border-2 border-[#00FFFF] border-t-transparent rounded-full"
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Mental Models */}
               <div>
-                <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+                <motion.p 
+                  className="text-xs text-gray-400 mb-2 flex items-center gap-1"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: typingProgress > 0.3 ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <Brain className="h-3 w-3" /> Mental Models
-                </p>
+                </motion.p>
                 <div className="space-y-1">
-                  {visualization.models.map((model, index) => (
-                    <motion.div
-                      key={model}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="text-xs text-[#00FFFF] bg-[#00FFFF]/10 px-2 py-1 rounded-md inline-block mr-2 mb-1"
-                    >
-                      {model}
-                    </motion.div>
-                  ))}
+                  {visualization.models.map((model, index) => {
+                    const showThreshold = 0.3 + (index * 0.2);
+                    return (
+                      <motion.div
+                        key={model}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ 
+                          opacity: typingProgress > showThreshold ? 1 : 0,
+                          x: typingProgress > showThreshold ? 0 : -20
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="text-xs text-[#00FFFF] bg-[#00FFFF]/10 px-2 py-1 rounded-md inline-block mr-2 mb-1"
+                      >
+                        {model}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Cognitive Biases */}
               <div>
-                <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+                <motion.p 
+                  className="text-xs text-gray-400 mb-2 flex items-center gap-1"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: typingProgress > 0.5 ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <AlertTriangle className="h-3 w-3" /> Cognitive Biases
-                </p>
+                </motion.p>
                 <div className="space-y-1">
-                  {visualization.biases.map((bias, index) => (
-                    <motion.div
-                      key={bias}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 + 0.3 }}
-                      className="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded-md inline-block mr-2 mb-1"
-                    >
-                      {bias}
-                    </motion.div>
-                  ))}
+                  {visualization.biases.map((bias, index) => {
+                    const showThreshold = 0.6 + (index * 0.2);
+                    return (
+                      <motion.div
+                        key={bias}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ 
+                          opacity: typingProgress > showThreshold ? 1 : 0,
+                          x: typingProgress > showThreshold ? 0 : 20
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded-md inline-block mr-2 mb-1"
+                      >
+                        {bias}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
