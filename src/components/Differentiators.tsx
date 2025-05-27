@@ -43,7 +43,7 @@ const Differentiators = () => {
   });
 
   return (
-    <section className="py-20 md:py-28 relative overflow-hidden" id="differentiators">
+    <section className="pt-16 pb-12 md:pb-16 lg:pb-20 relative overflow-hidden" id="differentiators">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1F1F1F]/50 to-transparent"></div>
       
