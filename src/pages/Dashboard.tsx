@@ -1,7 +1,7 @@
 // src/pages/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   // Animation states
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
@@ -76,6 +77,53 @@ const Dashboard: React.FC = () => {
       setQuery(location.state.query);
     }
   }, [isResultsPage, results, location.state, navigate]);
+
+  // Handle upgrade success redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const upgradeStatus = urlParams.get('upgrade');
+    
+    if (upgradeStatus === 'success') {
+      // Show success message
+      setSuccessMessage('🎉 Welcome to Premium! Your subscription is now active.');
+      
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Refresh user data to get updated tier
+      refreshUserTier();
+      
+      // Auto-hide message after 10 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 10000);
+    }
+  }, [location.search]);
+
+  // Function to refresh user tier
+  const refreshUserTier = async () => {
+    if (!user?.id) return;
+    
+    try {
+      // Check subscription status from the view
+      const { data: subscription } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('subscription_status')
+        .maybeSingle();
+      
+      if (subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing') {
+        setUserTier('premium');
+        
+        // Update user metadata
+        await supabase.auth.updateUser({
+          data: { tier: 'premium' }
+        });
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  };
 
   const fetchTrendingQuestions = async () => {
     try {
@@ -387,6 +435,20 @@ const Dashboard: React.FC = () => {
           user={user}
           displayTier={userTier}
         />
+
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-6xl mx-auto px-4 mb-6"
+          >
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 text-center font-medium">{successMessage}</p>
+            </div>
+          </motion.div>
+        )}
 
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
