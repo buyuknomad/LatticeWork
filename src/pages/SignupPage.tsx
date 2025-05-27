@@ -139,31 +139,31 @@ const SignupPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-white mb-1">
           Join <span className="text-[#00FFFF]">Mind Lattice</span>
         </h1>
-        <p className="text-gray-400 text-sm mb-4">Create your account</p>
+        <p className="text-gray-400 text-sm mb-8">Create your account</p>
         
         {errorMessage && (
-          <div className="mb-3 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
+          <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
             {errorMessage}
           </div>
         )}
         
-        {/* Google Sign Up Button - Moved to top */}
+        {/* Google Sign Up Button - Moved to top with better spacing */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           type="button"
           onClick={handleGoogleSignup}
-          className="w-full bg-[#2A2D35] text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-500 transition-colors text-sm"
+          className="w-full bg-white text-gray-800 py-3 px-4 rounded-lg flex items-center justify-center gap-3 border border-gray-200 hover:bg-gray-50 transition-colors font-medium shadow-sm"
           disabled={isLoading}
         >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
           Sign up with Google
         </motion.button>
         
         {/* OR Divider */}
-        <div className="my-4 flex items-center">
+        <div className="my-6 flex items-center">
           <div className="flex-grow border-t border-gray-600"></div>
-          <span className="mx-2 text-gray-400 text-xs uppercase">or</span>
+          <span className="mx-3 text-gray-400 text-xs uppercase tracking-wider">or</span>
           <div className="flex-grow border-t border-gray-600"></div>
         </div>
         
@@ -246,7 +246,7 @@ const SignupPage: React.FC = () => {
           </motion.button>
         </form>
         
-        <p className="mt-4 text-center text-gray-400 text-xs">
+        <p className="mt-6 text-center text-gray-400 text-xs">
           Already have an account?{' '}
           <button
             onClick={navigateToLogin}
