@@ -54,16 +54,17 @@ const SignupPage: React.FC = () => {
       // Extract username from email (everything before @)
       const username = email.split('@')[0];
       
-      // Sign up the user
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username,
-          },
-        },
-      });
+  // In SignupPage.tsx, update the signup handler:
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `${window.location.origin}/dashboard`,
+    data: {
+      username: username,
+    },
+  },
+});
       
       if (error) throw error;
       
