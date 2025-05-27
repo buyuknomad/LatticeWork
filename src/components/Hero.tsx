@@ -112,22 +112,22 @@ const Hero = () => {
   };
 
   return (
-    <section className="pt-32 pb-20 md:pt-40 md:pb-28 2xl:pt-32 2xl:pb-20 overflow-hidden" id="hero">
+    <section className="pt-32 pb-12 md:pb-16 lg:pb-20 overflow-hidden" id="hero">
       <div className="container mx-auto px-4 md:px-8">
         {/* Hero Headline and Description - Full Width */}
         <motion.div 
-          className="text-center max-w-4xl mx-auto mb-14 md:mb-10 2xl:mb-8"
+          className="text-center max-w-4xl mx-auto mb-10 md:mb-12"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl 2xl:text-5xl font-bold mb-6 md:mb-4 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 md:mb-4 leading-tight">
             Mental Models for{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
               Modern Minds
             </span>
           </h1>
-          <p className="text-lg md:text-xl 2xl:text-lg text-gray-300 mb-8 md:mb-6 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-300 mb-8 md:mb-6 leading-relaxed">
             Decode patterns in any situation. Mind Lattice analyzes your challenges and reveals 
             the mental models and cognitive biases at play, helping you think clearer and decide better.
           </p>
@@ -140,13 +140,13 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="bg-[#252525] p-8 2xl:p-6 rounded-xl shadow-lg border border-[#333333] relative">
+          <div className="bg-[#252525] p-6 md:p-8 rounded-xl shadow-lg border border-[#333333] relative">
             {/* Glowing corner accents for visual interest */}
             <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-tl-xl"></div>
             <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[#8B5CF6]/20 to-transparent rounded-br-xl"></div>
             
             {/* Input Field */}
-            <div className="relative mb-8 2xl:mb-6">
+            <div className="relative mb-6 md:mb-8">
               <input
                 id="hero-question-input"
                 type="text"
@@ -155,7 +155,7 @@ const Hero = () => {
                 onFocus={handleInputFocus}
                 onKeyPress={handleKeyPress}
                 placeholder={!isTypingAnimationActive ? "Describe a situation, decision, or behavior you want to understand..." : ""}
-                className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-4 2xl:py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-lg 2xl:text-base"
+                className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-3 md:py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-base md:text-lg"
               />
             </div>
             
@@ -167,7 +167,7 @@ const Hero = () => {
             />
             
             {/* Inline Styles Traveling Glow Button */}
-            <div className="mt-8 2xl:mt-6 text-center">
+            <div className="mt-6 md:mt-8 text-center">
               <div className="relative inline-block group">
                 {/* Button background with gradient border */}
                 <div 
@@ -180,7 +180,7 @@ const Hero = () => {
                 
                 {/* Button itself */}
                 <motion.button
-                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-4 px-10 2xl:py-3 2xl:px-8 rounded-lg z-10"
+                  className="relative bg-[#1A1A1A] text-[#00FFFF] font-bold py-3 px-8 md:py-4 md:px-10 rounded-lg z-10"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
@@ -211,7 +211,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="mt-16 text-center max-w-3xl mx-auto"
+          className="mt-12 text-center max-w-3xl mx-auto"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FFFF]/10 backdrop-blur-sm rounded-full border border-[#00FFFF]/30 mb-6">
             <TrendingUp className="h-4 w-4 text-[#00FFFF]" />
