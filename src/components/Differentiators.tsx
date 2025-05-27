@@ -16,7 +16,7 @@ const comparisons: ComparisonRow[] = [
   },
   {
     genericAI: "No structured framework",
-    mindLattice: "300+ curated mental models & 246 biases"
+    mindLattice: "300+ curated mental models & 200+ biases"
   },
   {
     genericAI: "Generic textbook examples",
