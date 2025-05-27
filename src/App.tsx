@@ -17,6 +17,7 @@ import Settings from './pages/Settings';
 import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
 import FAQ from './pages/FAQ';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 
 
 // Import new pages
