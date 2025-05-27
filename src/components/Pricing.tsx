@@ -228,14 +228,7 @@ const Pricing = () => {
             All plans include instant access. Upgrade or downgrade anytime.
           </p>
           
-          {/* Test Mode Banner - Only show in development */}
-          {import.meta.env.DEV && (
-            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-              <span className="text-yellow-500 text-sm font-medium">
-                🧪 Test Mode: Using $1.00 test pricing
-              </span>
-            </div>
-          )}
+
         </motion.div>
 
         {/* Error Message */}
