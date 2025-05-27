@@ -20,6 +20,7 @@ const Hero = () => {
   const [question, setQuestion] = useState('');
   const [isTypingAnimationActive, setIsTypingAnimationActive] = useState(true);
   const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [typingProgress, setTypingProgress] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -42,21 +43,25 @@ const Hero = () => {
 
       if (!isDeleting && charIndex <= currentExample.length) {
         setQuestion(currentExample.slice(0, charIndex));
+        // Calculate typing progress (0 to 1)
+        setTypingProgress(charIndex / currentExample.length);
         charIndex++;
-        timeoutId = window.setTimeout(typeCharacter, 70);
+        timeoutId = window.setTimeout(typeCharacter, 30); // Faster typing speed (was 70)
       } else if (isDeleting && charIndex >= 0) {
         setQuestion(currentExample.slice(0, charIndex));
+        setTypingProgress(charIndex / currentExample.length);
         charIndex--;
-        timeoutId = window.setTimeout(typeCharacter, 40);
+        timeoutId = window.setTimeout(typeCharacter, 20); // Faster deleting speed (was 40)
       } else if (!isDeleting) {
         timeoutId = window.setTimeout(() => {
           isDeleting = true;
           typeCharacter(); 
-        }, 2000);
+        }, 1500); // Shorter pause before deleting (was 2000)
       } else {
+        setTypingProgress(0); // Reset progress when switching examples
         timeoutId = window.setTimeout(() => {
           setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLES_LIST.length);
-        }, 500);
+        }, 300); // Shorter pause before next example (was 500)
       }
     };
 
@@ -72,6 +77,7 @@ const Hero = () => {
   const handleInputFocus = () => {
     setIsTypingAnimationActive(false); 
     setQuestion(''); 
+    setTypingProgress(0);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,6 +85,8 @@ const Hero = () => {
       setIsTypingAnimationActive(false); 
     }
     setQuestion(e.target.value);
+    // Calculate typing progress for manual typing
+    setTypingProgress(e.target.value.length > 0 ? Math.min(e.target.value.length / 30, 1) : 0);
   };
 
   const handleGetStarted = () => {
@@ -153,8 +161,9 @@ const Hero = () => {
             
             {/* Interactive Visualization */}
             <InteractiveDemo 
-              isTyping={!isTypingAnimationActive && question.length > 0} 
+              isTyping={isTypingAnimationActive || question.length > 0} 
               category={getCategoryFromQuestion(question)}
+              typingProgress={typingProgress}
             />
             
             {/* Inline Styles Traveling Glow Button */}
