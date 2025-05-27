@@ -19,6 +19,7 @@ import History from './pages/History';
 import BackgroundAnimation from './components/BackgroundAnimation';
 import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
+import ConfirmEmail from './pages/ConfirmEmail';
 
 // Import new pages
 import Terms from './pages/Terms';
