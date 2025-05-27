@@ -58,7 +58,16 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       e.stopPropagation();
     }
     console.log('Upgrade button clicked, navigating to pricing...');
-    navigate('/pricing');
+    // Navigate to home page with pricing hash
+    navigate('/#pricing');
+    
+    // Small delay to ensure navigation happens, then scroll to pricing
+    setTimeout(() => {
+      const pricingSection = document.getElementById('pricing');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   return (
