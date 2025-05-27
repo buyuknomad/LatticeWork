@@ -61,6 +61,7 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/FAQ" element={<FAQ />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
