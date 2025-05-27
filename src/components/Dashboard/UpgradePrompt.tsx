@@ -1,10 +1,62 @@
 // src/components/Dashboard/UpgradePrompt.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Sparkles, Brain, Layers, Zap, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Crown, Sparkles, Brain, Layers, Zap, ArrowRight, Loader } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { products } from '../../stripe-config';
 
 const UpgradePrompt: React.FC = () => {
+  const navigate = useNavigate();
+  const { session } = useAuth();
+  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const handleUpgradeClick = async () => {
+    if (!session) {
+      navigate('/signup?plan=premium');
+      return;
+    }
+
+    setIsLoadingCheckout(true);
+    setCheckoutError(null);
+
+    try {
+      const premiumProduct = products[0];
+      
+      if (!premiumProduct || !premiumProduct.priceId) {
+        throw new Error('Premium product not configured');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          price_id: premiumProduct.priceId,
+          mode: premiumProduct.mode,
+          success_url: `${window.location.origin}/dashboard?upgrade=success`,
+          cancel_url: `${window.location.origin}/dashboard`,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+      
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
+      setIsLoadingCheckout(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -14,6 +66,19 @@ const UpgradePrompt: React.FC = () => {
     >
       {/* Main container with glassmorphism effect */}
       <div className="relative bg-gradient-to-r from-[#1A1A1A]/90 via-[#252525]/90 to-[#1A1A1A]/90 backdrop-blur-xl rounded-2xl p-8 md:p-10 border border-[#333333]/50">
+        
+        {/* Error Message */}
+        {checkoutError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm text-center">{checkoutError}</p>
+            </div>
+          </motion.div>
+        )}
         
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden rounded-2xl">
@@ -155,32 +220,41 @@ const UpgradePrompt: React.FC = () => {
             </div>
             
             {/* CTA Button */}
-            <Link to="/pricing" className="w-full md:w-auto">
-              <motion.button
-                className="relative group w-full md:w-auto px-8 py-4 overflow-hidden rounded-xl font-semibold"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            <motion.button
+              onClick={handleUpgradeClick}
+              disabled={isLoadingCheckout}
+              className="relative group w-full md:w-auto px-8 py-4 overflow-hidden rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: isLoadingCheckout ? 1 : 1.05 }}
+              whileTap={{ scale: isLoadingCheckout ? 1 : 0.95 }}
+            >
+              {/* Button gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] transition-all duration-300 group-hover:from-[#7C3AED] group-hover:to-[#8B5CF6]"></div>
+              
+              {/* Shimmer effect */}
+              <motion.div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.6 }}
               >
-                {/* Button gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] transition-all duration-300 group-hover:from-[#7C3AED] group-hover:to-[#8B5CF6]"></div>
-                
-                {/* Shimmer effect */}
-                <motion.div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '100%' }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
-                </motion.div>
-                
-                {/* Button content */}
-                <span className="relative flex items-center justify-center gap-2 text-white">
-                  Upgrade to Premium
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </motion.button>
-            </Link>
+                <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
+              </motion.div>
+              
+              {/* Button content */}
+              <span className="relative flex items-center justify-center gap-2 text-white">
+                {isLoadingCheckout ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Upgrade to Premium
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </span>
+            </motion.button>
           </div>
           
           {/* Bottom accent line */}
