@@ -52,7 +52,12 @@ const SearchSection: React.FC<SearchSectionProps> = ({
     return `${minutes}m`;
   };
 
-  const handleUpgradeClick = () => {
+  const handleUpgradeClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    console.log('Upgrade button clicked, navigating to pricing...');
     navigate('/pricing');
   };
 
@@ -106,13 +111,14 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                 )}
               </div>
               
-              {/* Upgrade Button - Only show when limit is reached */}
+              {/* Fixed Upgrade Button - Only show when limit is reached */}
               {remainingQueries === 0 && (
                 <>
                   <div className="h-4 w-px bg-gray-600" />
                   <motion.button
+                    type="button"
                     onClick={handleUpgradeClick}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full text-white text-xs font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-full text-white text-xs font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -189,8 +195,9 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                   <p className="text-red-400 text-sm">{error}</p>
                   {isRateLimitError && (
                     <motion.button
+                      type="button"
                       onClick={handleUpgradeClick}
-                      className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all"
+                      className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] rounded-lg text-white text-sm font-medium hover:from-[#7C3AED] hover:to-[#8B5CF6] transition-all cursor-pointer"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
