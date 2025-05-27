@@ -99,7 +99,7 @@ const Header = () => {
               <span className="relative z-10">{user ? 'Logout' : 'Login'}</span>
             </motion.button>
             
-            {/* Show Sign Up button if not logged in */}
+            {/* Show Get Started button if not logged in */}
             {!user && (
               <motion.button
                 className="bg-[#00FFFF] text-[#1A1A1A] px-5 py-2 rounded-lg font-medium transition-all duration-300"
@@ -107,7 +107,7 @@ const Header = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/signup')}
               >
-                Sign Up
+                Get Started
               </motion.button>
             )}
           </nav>
@@ -175,7 +175,7 @@ const Header = () => {
                   <span className="relative z-10">{user ? 'Logout' : 'Login'}</span>
                 </button>
                 
-                {/* Show Sign Up button if not logged in */}
+                {/* Show Get Started button if not logged in */}
                 {!user && (
                   <button
                     className="bg-[#00FFFF] text-[#1A1A1A] py-2 px-3 rounded-lg font-medium transition-all duration-300 text-center"
@@ -184,7 +184,7 @@ const Header = () => {
                       setIsMenuOpen(false);
                     }}
                   >
-                    Sign Up
+                    Get Started
                   </button>
                 )}
               </div>
