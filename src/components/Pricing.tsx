@@ -1,5 +1,5 @@
 // src/components/Pricing.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Check, X, RefreshCw, XCircle, Loader } from 'lucide-react';
@@ -9,7 +9,20 @@ import { Link } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
 import { supabase } from '../lib/supabase';
 
-const PricingCard = ({ 
+interface PricingCardProps {
+  title: string;
+  price: string;
+  description: string;
+  features: string[];
+  notIncluded?: string[];
+  buttonText: string;
+  buttonAction: () => void;
+  isPrimary?: boolean;
+  delay?: number;
+  isLoading?: boolean;
+}
+
+const PricingCard: React.FC<PricingCardProps> = ({ 
   title, 
   price, 
   description, 
@@ -106,7 +119,7 @@ const PricingCard = ({
       {isPrimary && (
         <div className="absolute inset-0 rounded-2xl border-2 border-[#00FFFF]/20 -z-10 blur-sm"></div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -165,7 +178,7 @@ const Pricing = () => {
       // Redirect to Stripe Checkout
       window.location.href = url;
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error);
       setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
       setIsLoadingCheckout(false);
@@ -173,7 +186,7 @@ const Pricing = () => {
   };
 
   // Check if user came back from canceled checkout
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('canceled') === 'true') {
       setCheckoutError('Checkout was canceled. Feel free to try again when you\'re ready.');
