@@ -58,6 +58,5 @@ const FeaturesTabs: React.FC = () => {
       </AnimatePresence>
     </div>
   );
-};
 
 export default FeaturesTabs;
