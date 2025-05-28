@@ -19,13 +19,27 @@ const SignupSuccessPage: React.FC = () => {
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  // Initialize cooldown from localStorage
+  React.useEffect(() => {
+    const savedCooldownEnd = localStorage.getItem(`resend_cooldown_${email}`);
+    if (savedCooldownEnd) {
+      const endTime = parseInt(savedCooldownEnd);
+      const now = Date.now();
+      const remainingSeconds = Math.max(0, Math.ceil((endTime - now) / 1000));
+      setResendCooldown(remainingSeconds);
+    }
+  }, [email]);
+
   // Cooldown timer
   React.useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
       return () => clearTimeout(timer);
+    } else {
+      // Clear localStorage when cooldown ends
+      localStorage.removeItem(`resend_cooldown_${email}`);
     }
-  }, [resendCooldown]);
+  }, [resendCooldown, email]);
 
   const handleResendEmail = async () => {
     if (!state?.email || resendCooldown > 0) return;
@@ -42,10 +56,32 @@ const SignupSuccessPage: React.FC = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle Supabase rate limit error
+        if (error.message.includes('rate limit') || error.message.includes('60')) {
+          setResendMessage('Please wait 60 seconds between resend attempts.');
+          // Try to sync with Supabase's cooldown
+          const cooldownSeconds = 60;
+          setResendCooldown(cooldownSeconds);
+          localStorage.setItem(
+            `resend_cooldown_${state.email}`, 
+            (Date.now() + cooldownSeconds * 1000).toString()
+          );
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       setResendMessage('Verification email sent! Check your inbox.');
-      setResendCooldown(60); // 60 second cooldown
+      
+      // Set cooldown and save to localStorage
+      const cooldownSeconds = 60;
+      setResendCooldown(cooldownSeconds);
+      localStorage.setItem(
+        `resend_cooldown_${state.email}`, 
+        (Date.now() + cooldownSeconds * 1000).toString()
+      );
       
       // Auto-hide success message after 5 seconds
       setTimeout(() => setResendMessage(null), 5000);
