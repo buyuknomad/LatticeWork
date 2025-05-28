@@ -18,9 +18,10 @@ import {
   RefreshCw,
   Trash2
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import { products } from '../stripe-config';
 
 interface SubscriptionData {
   subscription_status: string;
@@ -34,6 +35,7 @@ interface SubscriptionData {
 const Settings: React.FC = () => {
   const { user, session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -44,6 +46,8 @@ const Settings: React.FC = () => {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   // Email verification states
   const [emailVerified, setEmailVerified] = useState(false);
@@ -78,6 +82,35 @@ const Settings: React.FC = () => {
       setIsLoading(false);
     }
   }, [user, userTier]);
+
+  // Handle upgrade success redirect
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('upgrade') === 'success') {
+      setMessage({
+        text: '🎉 Welcome to Premium! Your subscription is now active.',
+        type: 'success'
+      });
+      
+      // Clean up the URL
+      window.history.replaceState({}, '', '/settings');
+      
+      // Refresh subscription data
+      fetchSubscriptionData();
+      
+      // Refresh user data to get updated tier
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          // Update the user tier if needed
+          const updatedTier = user.user_metadata?.tier || 'free';
+          // Force re-render if tier changed
+          if (updatedTier === 'premium') {
+            fetchSubscriptionData();
+          }
+        }
+      });
+    }
+  }, [location.search]);
 
   // Initialize cooldown from localStorage
   React.useEffect(() => {
@@ -212,6 +245,56 @@ const Settings: React.FC = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleUpgradeClick = async () => {
+    setCheckoutError(null);
+    
+    if (!session) {
+      navigate('/login');
+      return;
+    }
+
+    setIsLoadingCheckout(true);
+
+    try {
+      // Get the premium product from config
+      const premiumProduct = products[0]; // Using first product as premium
+      
+      if (!premiumProduct || !premiumProduct.priceId) {
+        throw new Error('Premium product not configured');
+      }
+
+      // Call the Stripe checkout edge function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          price_id: premiumProduct.priceId,
+          mode: premiumProduct.mode,
+          success_url: `${window.location.origin}/settings?upgrade=success`,
+          cancel_url: `${window.location.origin}/settings`,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+      
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
+      setIsLoadingCheckout(false);
     }
   };
 
@@ -498,18 +581,34 @@ const Settings: React.FC = () => {
                 
                 <div className="pt-4 border-t border-[#333333]/50">
                   <motion.button
-                    onClick={() => navigate('/pricing')}
-                    className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    onClick={handleUpgradeClick}
+                    disabled={isLoadingCheckout}
+                    className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={!isLoadingCheckout ? { scale: 1.02 } : {}}
+                    whileTap={!isLoadingCheckout ? { scale: 0.98 } : {}}
                   >
-                    <Crown className="h-5 w-5" />
-                    Upgrade to Premium
+                    {isLoadingCheckout ? (
+                      <>
+                        <Loader className="h-5 w-5 animate-spin" />
+                        Starting checkout...
+                      </>
+                    ) : (
+                      <>
+                        <Crown className="h-5 w-5" />
+                        Upgrade to Premium
+                      </>
+                    )}
                   </motion.button>
                   <p className="text-center text-xs text-gray-500 mt-3">
                     Get unlimited analyses, advanced features, and more
                   </p>
                 </div>
+                
+                {checkoutError && (
+                  <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-sm text-red-400">{checkoutError}</p>
+                  </div>
+                )}
               </div>
             ) : (
               /* Premium Tier Display */
