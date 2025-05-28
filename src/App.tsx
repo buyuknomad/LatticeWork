@@ -12,6 +12,8 @@ import Pricing from './components/Pricing';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import SignupSuccessPage from './pages/SignupSuccessPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
@@ -33,7 +35,16 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   
   // Define routes where footer should be hidden
-  const hideFooterRoutes = ['/dashboard', '/settings', '/history', '/login', '/signup', '/signup-success'];
+  const hideFooterRoutes = [
+    '/dashboard', 
+    '/settings', 
+    '/history', 
+    '/login', 
+    '/signup', 
+    '/signup-success',
+    '/forgot-password',
+    '/reset-password'
+  ];
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
 
   return (
@@ -56,7 +67,11 @@ const AppContent: React.FC = () => {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup-success" element={<SignupSuccessPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
-           <Route path="/auth/confirm" element={<ConfirmEmail />} />
+          <Route path="/auth/confirm" element={<ConfirmEmail />} />
+          
+          {/* Password Reset Routes */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Legal/Policy pages */}
           <Route path="/terms" element={<Terms />} />
