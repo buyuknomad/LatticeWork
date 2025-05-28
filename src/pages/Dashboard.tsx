@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
+import EmailVerificationBanner from '../components/EmailVerificationBanner';
 
 // Import Dashboard components
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
