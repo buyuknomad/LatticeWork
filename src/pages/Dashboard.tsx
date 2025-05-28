@@ -133,7 +133,7 @@ const Dashboard: React.FC = () => {
         .select('*')
         .eq('active', true)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(12);
       
       if (error) throw error;
       
