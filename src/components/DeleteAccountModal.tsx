@@ -79,10 +79,14 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
         throw new Error(errorData.error || 'Failed to delete account');
       }
 
-      // Step 3: Sign out the user
-      await supabase.auth.signOut();
-
-      // Step 4: Navigate to a goodbye page or home with success message
+      // Step 3: Clear local session data
+      // Don't try to sign out - the user is already deleted from the backend
+      // Just clear any local storage to ensure clean state
+      console.log('Account deleted successfully, clearing local data...');
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Step 4: Navigate to home page with success message
       navigate('/', { 
         state: { 
           message: 'Your account has been successfully deleted. We\'re sorry to see you go.' 
