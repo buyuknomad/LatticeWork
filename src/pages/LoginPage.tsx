@@ -1,9 +1,14 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+// src/pages/LoginPage.tsx
+import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthError } from '@supabase/supabase-js';
+
+interface LocationState {
+  message?: string;
+}
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -11,8 +16,20 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for success message from password reset
+  useEffect(() => {
+    const state = location.state as LocationState;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      // Clear the state to prevent message from showing again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setEmail(e.target.value);
@@ -30,6 +47,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
     
     try {
       console.log('Attempting login with:', email);
@@ -46,7 +64,15 @@ const LoginPage: React.FC = () => {
     } catch (error) {
       console.error('Login error:', error);
       const authError = error as AuthError;
-      setErrorMessage(authError.message || 'Failed to sign in. Please try again.');
+      
+      // Provide more helpful error messages
+      if (authError.message.includes('Invalid login credentials')) {
+        setErrorMessage('Invalid email or password. Please try again.');
+      } else if (authError.message.includes('Email not confirmed')) {
+        setErrorMessage('Please confirm your email before signing in.');
+      } else {
+        setErrorMessage(authError.message || 'Failed to sign in. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +81,7 @@ const LoginPage: React.FC = () => {
   const handleGoogleLogin = async (): Promise<void> => {
     setIsLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
     
     try {
       console.log('Attempting Google login');
@@ -98,10 +125,27 @@ const LoginPage: React.FC = () => {
           <p className="text-gray-400 text-sm mb-8">Sign in to continue</p>
         </div>
         
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm flex items-start gap-2"
+          >
+            <span>✓</span>
+            <span>{successMessage}</span>
+          </motion.div>
+        )}
+        
+        {/* Error Message */}
         {errorMessage && (
-          <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs"
+          >
             {errorMessage}
-          </div>
+          </motion.div>
         )}
         
         {/* Google Sign In Button - Moved to top with better styling */}
@@ -150,9 +194,9 @@ const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={navigateToForgotPassword}
-                className="text-[#00FFFF] text-xs hover:underline"
+                className="text-[#00FFFF] text-xs hover:underline transition-colors"
               >
-                Forgot?
+                Forgot Password?
               </button>
             </div>
             <div className="relative">
