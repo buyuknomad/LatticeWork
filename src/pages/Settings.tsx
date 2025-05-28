@@ -14,7 +14,8 @@ import {
   Calendar,
   XCircle,
   ExternalLink,
-  Loader
+  Loader,
+  RefreshCw
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
@@ -42,6 +43,12 @@ const Settings: React.FC = () => {
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
 
+  // Email verification states
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const userTier = user?.user_metadata?.tier || 'free';
 
   useEffect(() => {
@@ -55,6 +62,9 @@ const Settings: React.FC = () => {
         setUsername(user.email.split('@')[0]);
       }
       
+      // Check email verification status
+      checkEmailStatus();
+      
       // Fetch subscription data if premium
       if (userTier === 'premium') {
         fetchSubscriptionData();
@@ -63,6 +73,54 @@ const Settings: React.FC = () => {
       setIsLoading(false);
     }
   }, [user, userTier]);
+
+  // Cooldown timer for resend button
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const checkEmailStatus = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+      setEmailVerified(!!currentUser.email_confirmed_at);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (resendCooldown > 0) return;
+
+    setIsResendingVerification(true);
+    setResendMessage(null);
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user?.email || '',
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        }
+      });
+
+      if (error) throw error;
+
+      setResendMessage('Verification email sent! Check your inbox.');
+      setResendCooldown(60); // 60 second cooldown
+      
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => {
+        setResendMessage(null);
+      }, 5000);
+
+    } catch (error: any) {
+      console.error('Error resending verification:', error);
+      setResendMessage('Failed to send email. Please try again later.');
+    } finally {
+      setIsResendingVerification(false);
+    }
+  };
 
   const fetchSubscriptionData = async () => {
     try {
@@ -275,9 +333,22 @@ const Settings: React.FC = () => {
                 <p className="mt-2 text-sm text-gray-400">This is how you'll appear in the app.</p>
               </div>
               
-              {/* Email field (read-only) */}
+              {/* Email field with verification status */}
               <div>
-                <label htmlFor="email" className="block text-gray-300 mb-2">Email Address</label>
+                <label htmlFor="email" className="block text-gray-300 mb-2">
+                  Email Address
+                  {emailVerified ? (
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-green-400">
+                      <CheckCircle className="h-3 w-3" />
+                      Verified
+                    </span>
+                  ) : (
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-400">
+                      <AlertCircle className="h-3 w-3" />
+                      Unverified
+                    </span>
+                  )}
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-500" />
@@ -291,7 +362,44 @@ const Settings: React.FC = () => {
                     disabled
                   />
                 </div>
-                <p className="mt-2 text-sm text-gray-400">Your email cannot be changed.</p>
+                
+                {/* Resend verification section */}
+                {!emailVerified && (
+                  <div className="mt-3">
+                    {resendMessage && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`text-sm mb-2 ${
+                          resendMessage.includes('sent') ? 'text-green-400' : 'text-red-400'
+                        }`}
+                      >
+                        {resendMessage}
+                      </motion.p>
+                    )}
+                    
+                    <motion.button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={isResendingVerification || resendCooldown > 0}
+                      className="text-sm text-[#00FFFF] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      {isResendingVerification 
+                        ? 'Sending...' 
+                        : resendCooldown > 0 
+                          ? `Resend verification email (${resendCooldown}s)`
+                          : 'Resend verification email'
+                      }
+                    </motion.button>
+                  </div>
+                )}
+                
+                <p className="mt-2 text-sm text-gray-400">
+                  {emailVerified 
+                    ? "Your email is verified and secure." 
+                    : "Please verify your email to secure your account."}
+                </p>
               </div>
               
               {/* Save button */}
