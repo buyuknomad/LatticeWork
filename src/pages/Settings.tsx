@@ -15,10 +15,12 @@ import {
   XCircle,
   ExternalLink,
   Loader,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BRAND } from '../constants/brand';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 interface SubscriptionData {
   subscription_status: string;
@@ -49,6 +51,9 @@ const Settings: React.FC = () => {
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  // Delete account modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const userTier = user?.user_metadata?.tier || 'free';
 
   useEffect(() => {
@@ -74,13 +79,29 @@ const Settings: React.FC = () => {
     }
   }, [user, userTier]);
 
+  // Initialize cooldown from localStorage
+  React.useEffect(() => {
+    if (user?.email) {
+      const savedCooldownEnd = localStorage.getItem(`resend_cooldown_${user.email}`);
+      if (savedCooldownEnd) {
+        const endTime = parseInt(savedCooldownEnd);
+        const now = Date.now();
+        const remainingSeconds = Math.max(0, Math.ceil((endTime - now) / 1000));
+        setResendCooldown(remainingSeconds);
+      }
+    }
+  }, [user?.email]);
+
   // Cooldown timer for resend button
   useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
       return () => clearTimeout(timer);
+    } else if (user?.email) {
+      // Clear localStorage when cooldown ends
+      localStorage.removeItem(`resend_cooldown_${user.email}`);
     }
-  }, [resendCooldown]);
+  }, [resendCooldown, user?.email]);
 
   const checkEmailStatus = async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -90,7 +111,7 @@ const Settings: React.FC = () => {
   };
 
   const handleResendVerification = async () => {
-    if (resendCooldown > 0) return;
+    if (!user?.email || resendCooldown > 0) return;
 
     setIsResendingVerification(true);
     setResendMessage(null);
@@ -104,10 +125,32 @@ const Settings: React.FC = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle Supabase rate limit error
+        if (error.message.includes('rate limit') || error.message.includes('60')) {
+          setResendMessage('Please wait 60 seconds between resend attempts.');
+          // Try to sync with Supabase's cooldown
+          const cooldownSeconds = 60;
+          setResendCooldown(cooldownSeconds);
+          localStorage.setItem(
+            `resend_cooldown_${user.email}`, 
+            (Date.now() + cooldownSeconds * 1000).toString()
+          );
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       setResendMessage('Verification email sent! Check your inbox.');
-      setResendCooldown(60); // 60 second cooldown
+      
+      // Set cooldown and save to localStorage
+      const cooldownSeconds = 60;
+      setResendCooldown(cooldownSeconds);
+      localStorage.setItem(
+        `resend_cooldown_${user.email}`, 
+        (Date.now() + cooldownSeconds * 1000).toString()
+      );
       
       // Auto-hide success message after 5 seconds
       setTimeout(() => {
@@ -273,6 +316,12 @@ const Settings: React.FC = () => {
     }
   };
 
+  // Check if user has active subscription
+  const hasActiveSubscription = subscription && 
+    (subscription.subscription_status === 'active' || 
+     subscription.subscription_status === 'trialing') &&
+    !subscription.cancel_at_period_end;
+
   if (isLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -382,15 +431,25 @@ const Settings: React.FC = () => {
                       type="button"
                       onClick={handleResendVerification}
                       disabled={isResendingVerification || resendCooldown > 0}
-                      className="text-sm text-[#00FFFF] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-sm text-[#00FFFF] hover:underline disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
                       whileHover={{ scale: 1.02 }}
                     >
-                      {isResendingVerification 
-                        ? 'Sending...' 
-                        : resendCooldown > 0 
-                          ? `Resend verification email (${resendCooldown}s)`
-                          : 'Resend verification email'
-                      }
+                      {isResendingVerification ? (
+                        <>
+                          <RefreshCw className="h-3 w-3 animate-spin" />
+                          Sending...
+                        </>
+                      ) : resendCooldown > 0 ? (
+                        <>
+                          <Mail className="h-3 w-3" />
+                          Resend in {resendCooldown}s
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="h-3 w-3" />
+                          Resend verification email
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 )}
@@ -578,19 +637,32 @@ const Settings: React.FC = () => {
               </div>
               
               {/* Delete Account */}
-              <div className="flex items-center justify-between p-4 bg-[#252525] rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-[#252525] rounded-lg border border-[#333333] hover:border-red-500/30 transition-colors">
                 <div>
                   <p className="text-gray-300 font-medium">Delete Account</p>
                   <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
                 </div>
-                <button className="text-red-400 hover:text-red-300 text-sm font-medium">
+                <motion.button 
+                  onClick={() => setShowDeleteModal(true)}
+                  className="text-red-400 hover:text-red-300 text-sm font-medium flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-red-500/10 transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Trash2 className="h-4 w-4" />
                   Delete Account
-                </button>
+                </motion.button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        hasActiveSubscription={!!hasActiveSubscription}
+      />
     </div>
   );
 };
