@@ -433,7 +433,7 @@ const Dashboard: React.FC = () => {
       
       
       <div className="relative z-10 min-h-screen">
-          <EmailVerificationBanner />  {/* Add this line */}
+        <EmailVerificationBanner />  {/* Add this line */}
         <DashboardHeader
           user={user}
           displayTier={userTier}
