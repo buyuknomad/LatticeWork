@@ -19,7 +19,7 @@ const SignupSuccessPage: React.FC = () => {
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  // Initialize cooldown from localStorage
+  // Initialize cooldown from localStorage (set during signup)
   React.useEffect(() => {
     const savedCooldownEnd = localStorage.getItem(`resend_cooldown_${email}`);
     if (savedCooldownEnd) {
@@ -27,16 +27,9 @@ const SignupSuccessPage: React.FC = () => {
       const now = Date.now();
       const remainingSeconds = Math.max(0, Math.ceil((endTime - now) / 1000));
       setResendCooldown(remainingSeconds);
-    } else if (state?.email) {
-      // Set initial cooldown after signup (Supabase rate limit starts from initial email)
-      const cooldownSeconds = 60;
-      setResendCooldown(cooldownSeconds);
-      localStorage.setItem(
-        `resend_cooldown_${state.email}`, 
-        (Date.now() + cooldownSeconds * 1000).toString()
-      );
     }
-  }, [email, state?.email]);
+    // If no cooldown found, they can resend immediately (edge case: old signup or direct navigation)
+  }, [email]);
 
   // Cooldown timer
   React.useEffect(() => {
