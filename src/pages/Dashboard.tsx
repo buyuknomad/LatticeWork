@@ -431,7 +431,9 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
       <BackgroundAnimation />
       
+      
       <div className="relative z-10 min-h-screen">
+          <EmailVerificationBanner />  {/* Add this line */}
         <DashboardHeader
           user={user}
           displayTier={userTier}
