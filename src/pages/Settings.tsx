@@ -58,7 +58,7 @@ const Settings: React.FC = () => {
   // Delete account modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const userTier = user?.user_metadata?.tier || 'free';
+  const [userTier, setUserTier] = useState<string>(user?.user_metadata?.tier || 'free');
 
   useEffect(() => {
     if (user) {
@@ -71,17 +71,20 @@ const Settings: React.FC = () => {
         setUsername(user.email.split('@')[0]);
       }
       
+      // Set user tier
+      setUserTier(user.user_metadata?.tier || 'free');
+      
       // Check email verification status
       checkEmailStatus();
       
       // Fetch subscription data if premium
-      if (userTier === 'premium') {
+      if (user.user_metadata?.tier === 'premium') {
         fetchSubscriptionData();
       }
       
       setIsLoading(false);
     }
-  }, [user, userTier]);
+  }, [user]);
 
   // Handle upgrade success redirect
   useEffect(() => {
@@ -95,20 +98,24 @@ const Settings: React.FC = () => {
       // Clean up the URL
       window.history.replaceState({}, '', '/settings');
       
+      // Update user tier to premium
+      setUserTier('premium');
+      
       // Refresh subscription data
       fetchSubscriptionData();
       
       // Refresh user data to get updated tier
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {
-          // Update the user tier if needed
-          const updatedTier = user.user_metadata?.tier || 'free';
-          // Force re-render if tier changed
-          if (updatedTier === 'premium') {
-            fetchSubscriptionData();
+          // Update the user tier if it's in the metadata
+          if (user.user_metadata?.tier === 'premium') {
+            setUserTier('premium');
           }
         }
       });
+      
+      // Also refresh the session to ensure auth context is updated
+      supabase.auth.refreshSession();
     }
   }, [location.search]);
 
