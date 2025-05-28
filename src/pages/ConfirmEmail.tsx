@@ -12,30 +12,21 @@ const ConfirmEmail: React.FC = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Get the token from URL
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
+        // Supabase handles the confirmation automatically via the URL
+        // We just need to check if the user is now logged in
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (!accessToken) {
+        if (session) {
+          setStatus('success');
+          setMessage('Email confirmed successfully! Redirecting to dashboard...');
+          
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        } else {
           setStatus('error');
-          setMessage('Invalid confirmation link');
-          return;
+          setMessage('Invalid or expired confirmation link.');
         }
-
-        // Exchange the token for a session
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: hashParams.get('refresh_token') || '',
-        });
-
-        if (error) throw error;
-
-        setStatus('success');
-        setMessage('Email confirmed successfully! Redirecting to dashboard...');
-        
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000);
         
       } catch (error) {
         console.error('Confirmation error:', error);
