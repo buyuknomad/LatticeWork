@@ -27,8 +27,16 @@ const SignupSuccessPage: React.FC = () => {
       const now = Date.now();
       const remainingSeconds = Math.max(0, Math.ceil((endTime - now) / 1000));
       setResendCooldown(remainingSeconds);
+    } else if (state?.email) {
+      // Set initial cooldown after signup (Supabase rate limit starts from initial email)
+      const cooldownSeconds = 60;
+      setResendCooldown(cooldownSeconds);
+      localStorage.setItem(
+        `resend_cooldown_${state.email}`, 
+        (Date.now() + cooldownSeconds * 1000).toString()
+      );
     }
-  }, [email]);
+  }, [email, state?.email]);
 
   // Cooldown timer
   React.useEffect(() => {
