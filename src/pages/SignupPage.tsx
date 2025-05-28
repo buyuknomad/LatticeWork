@@ -54,17 +54,16 @@ const SignupPage: React.FC = () => {
       // Extract username from email (everything before @)
       const username = email.split('@')[0];
       
-  // In SignupPage.tsx, update the signup handler:
-const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    emailRedirectTo: `${window.location.origin}/dashboard`,
-    data: {
-      username: username,
-    },
-  },
-});
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          data: {
+            username: username,
+          },
+        },
+      });
       
       if (error) throw error;
       
@@ -86,8 +85,18 @@ const { data, error } = await supabase.auth.signUp({
           navigate('/dashboard', { replace: true });
         }, 500);
       } else {
-        // Supabase is likely configured for email confirmation
+        // Supabase is configured for email confirmation
         console.log('Account created but requires email confirmation');
+        
+        // Set initial cooldown after successful signup
+        // This ensures the frontend cooldown syncs with Supabase's rate limit
+        localStorage.setItem(
+          `resend_cooldown_${email}`, 
+          (Date.now() + 60 * 1000).toString()
+        );
+        
+        console.log('Email confirmation required, cooldown set for 60 seconds');
+        
         navigate('/signup-success', { 
           state: { email },
           replace: true
