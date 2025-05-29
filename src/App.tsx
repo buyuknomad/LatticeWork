@@ -22,6 +22,7 @@ import BackgroundAnimation from './components/BackgroundAnimation';
 import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import ConfirmEmail from './pages/ConfirmEmail';
+import ScrollToTop from './components/ScrollToTop'; 
 
 // Import new pages
 import Terms from './pages/Terms';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
+        <ScrollToTop /> {/* Add the ScrollToTop component here */}
         <AppContent />
       </AuthProvider>
     </Router>
