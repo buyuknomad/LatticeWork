@@ -17,7 +17,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   onClose, 
   hasActiveSubscription 
 }) => {
-  const { user, session, signOut } = useAuth(); // Make sure to destructure signOut
+  const { user, session, signOut } = useAuth();
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -48,19 +48,22 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       if (hasActiveSubscription) {
         console.log('Canceling active subscription before account deletion...');
         
-        // Call edge function to cancel subscription immediately
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ immediate: true })
-        });
+        try {
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ immediate: true })
+          });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to cancel subscription');
+          if (!response.ok) {
+            console.warn('Failed to cancel subscription, continuing with account deletion');
+          }
+        } catch (error) {
+          console.warn('Error canceling subscription:', error);
+          // Continue with deletion even if this fails
         }
       }
 
@@ -74,13 +77,23 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       });
 
       if (!deleteResponse.ok) {
-        const errorData = await response.json();
+        const errorData = await deleteResponse.json();
         throw new Error(errorData.error || 'Failed to delete account');
       }
 
-      // Step 3: Properly sign out to clear auth state
+      // Step 3: Attempt to sign out, but handle 403 errors gracefully
       console.log('Account deleted successfully, signing out...');
-      await signOut(); // Use the proper signOut method from AuthContext
+      try {
+        await signOut();
+      } catch (signOutError) {
+        console.log('Sign out error (expected if account already deleted):', signOutError);
+        // Force clear the auth state even if signOut API call fails
+        localStorage.clear();
+        sessionStorage.clear();
+        // Force navigation to homepage
+        window.location.href = '/';
+        return; // Exit early since we're doing a full page navigation
+      }
       
       // Step 4: Navigate to home page with success message
       navigate('/', { 
@@ -111,7 +124,6 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Rest of the component stays the same...
   return (
     <AnimatePresence>
       <motion.div
