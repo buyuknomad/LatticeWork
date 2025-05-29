@@ -17,7 +17,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
   onClose, 
   hasActiveSubscription 
 }) => {
-  const { user, session } = useAuth();
+  const { user, session, signOut } = useAuth(); // Make sure to destructure signOut
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -65,7 +65,6 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       }
 
       // Step 2: Delete user data from your tables
-      // This should be done via an edge function for proper cascading deletes
       const deleteResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
         headers: {
@@ -75,16 +74,13 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
       });
 
       if (!deleteResponse.ok) {
-        const errorData = await deleteResponse.json();
+        const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to delete account');
       }
 
-      // Step 3: Clear local session data
-      // Don't try to sign out - the user is already deleted from the backend
-      // Just clear any local storage to ensure clean state
-      console.log('Account deleted successfully, clearing local data...');
-      localStorage.clear();
-      sessionStorage.clear();
+      // Step 3: Properly sign out to clear auth state
+      console.log('Account deleted successfully, signing out...');
+      await signOut(); // Use the proper signOut method from AuthContext
       
       // Step 4: Navigate to home page with success message
       navigate('/', { 
@@ -115,6 +111,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Rest of the component stays the same...
   return (
     <AnimatePresence>
       <motion.div
