@@ -69,12 +69,9 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {/* Show Features/Pricing only for non-authenticated users */}
+            {/* Show Features only for non-authenticated users */}
             {!user && (
-              <>
-                <a href="#features" className="text-white hover:text-[#00FFFF] transition-colors">Features</a>
-                <a href="#pricing" className="text-white hover:text-[#00FFFF] transition-colors">Pricing</a>
-              </>
+              <a href="#features" className="text-white hover:text-[#00FFFF] transition-colors">Features</a>
             )}
             
             {/* Dashboard Link - Only visible when user is logged in */}
@@ -132,24 +129,15 @@ const Header = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="flex flex-col space-y-3">
-              {/* Show Features/Pricing only for non-authenticated users */}
+              {/* Show Features only for non-authenticated users */}
               {!user && (
-                <>
-                  <a 
-                    href="#features" 
-                    className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Features
-                  </a>
-                  <a 
-                    href="#pricing" 
-                    className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Pricing
-                  </a>
-                </>
+                <a 
+                  href="#features" 
+                  className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Features
+                </a>
               )}
               
               {/* Dashboard Link - Only visible when user is logged in */}
