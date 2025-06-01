@@ -22,7 +22,8 @@ import BackgroundAnimation from './components/BackgroundAnimation';
 import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import ConfirmEmail from './pages/ConfirmEmail';
-import ScrollToTop from './components/ScrollToTop'; 
+import ScrollToTop from './components/ScrollToTop';
+import SeeItWork from './components/SeeItWork';
 
 // Import new pages
 import Terms from './pages/Terms';
@@ -58,6 +59,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={
             <main>
               <Hero />
+              <SeeItWork /> 
               <Differentiators />
               <Features />
               <CallToAction />
