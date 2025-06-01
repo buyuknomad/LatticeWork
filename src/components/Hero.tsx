@@ -3,17 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Zap } from 'lucide-react';
 import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
 const EXAMPLES_LIST = [
-  "How do I prioritize my tasks effectively?",
-  "Why did this startup's strategy succeed?",
-  "How can I evaluate this investment opportunity?",
-  "What biases affect my hiring decisions?",
-  "Why do projects always take longer than expected?",
-  "How should I approach this career transition?"
+  "Should I accept this job offer?",
+  "Why do I keep procrastinating on important tasks?",
+  "Why did my product launch fail?",
+  "Why does my team miss deadlines?",
+  "Why are companies doing mass layoffs while reporting profits?",
+  "What drives countries to implement new tariffs?",
+  "Why do AI companies keep acquiring smaller startups?",
+  "Why do tech bubbles keep happening?"
 ];
 
 const Hero = () => {
@@ -121,15 +123,26 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Supporting Badge */}
+          <motion.div 
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FFFF]/10 backdrop-blur-sm rounded-full border border-[#00FFFF]/30 mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Zap className="h-4 w-4 text-[#00FFFF]" />
+            <span className="text-sm font-medium text-[#00FFFF]">Real Analysis, Not Theory</span>
+          </motion.div>
+          
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 md:mb-4 leading-tight">
-            Mental Models for{' '}
+            See Mental Models{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
-              Modern Minds
+              in Action
             </span>
           </h1>
           <p className="text-lg md:text-xl text-gray-300 mb-8 md:mb-6 leading-relaxed">
-            Decode patterns in any situation. Mind Lattice analyzes your challenges and reveals 
-            the mental models and cognitive biases at play, helping you think clearer and decide better.
+            Drop in any decision, problem, or situation. Watch our AI reveal the exact thinking patterns 
+            at play. Get practical steps to think clearer - all in under 30 seconds.
           </p>
         </motion.div>
 
@@ -154,7 +167,7 @@ const Hero = () => {
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 onKeyPress={handleKeyPress}
-                placeholder={!isTypingAnimationActive ? "Describe a situation, decision, or behavior you want to understand..." : ""}
+                placeholder={!isTypingAnimationActive ? "What situation do you want to see analyzed?" : ""}
                 className="w-full bg-[#333333] border border-[#444444] text-white px-5 py-3 md:py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00FFFF] placeholder-gray-500 transition-shadow duration-300 text-base md:text-lg"
               />
             </div>
@@ -185,7 +198,7 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? (question.trim() ? 'Analyze Pattern' : 'Go to Dashboard') : 'Get Started Free'}
+                  {user ? (question.trim() ? 'See It In Action' : 'Go to Dashboard') : 'See It In Action'}
                 </motion.button>
               </div>
               
@@ -197,9 +210,9 @@ const Hero = () => {
                 className="mt-4 text-sm text-gray-400"
               >
                 {user ? (
-                  question.trim() ? 'Press Enter or click to analyze this pattern' : 'Start with 1 free analysis per day'
+                  question.trim() ? 'Press Enter or click to see the analysis' : 'Free: 1 real analysis daily • See thinking patterns instantly'
                 ) : (
-                  'No credit card required • 1 free analysis per day'
+                  'Free: 1 real analysis daily • See thinking patterns instantly'
                 )}
               </motion.p>
             </div>
@@ -260,10 +273,10 @@ const Hero = () => {
 
 const getCategoryFromQuestion = (question: string): 'business' | 'personal' | 'analysis' | 'default' => {
   const lowercase = question.toLowerCase();
-  if (lowercase.includes('business') || lowercase.includes('strategy') || lowercase.includes('company') || lowercase.includes('startup')) {
+  if (lowercase.includes('business') || lowercase.includes('strategy') || lowercase.includes('company') || lowercase.includes('startup') || lowercase.includes('product') || lowercase.includes('team')) {
     return 'business';
   }
-  if (lowercase.includes('i') || lowercase.includes('my') || lowercase.includes('me') || lowercase.includes('career')) {
+  if (lowercase.includes('i') || lowercase.includes('my') || lowercase.includes('me') || lowercase.includes('career') || lowercase.includes('should i')) {
     return 'personal';
   }
   if (lowercase.includes('why') || lowercase.includes('how') || lowercase.includes('what') || lowercase.includes('bias')) {
