@@ -206,3 +206,14 @@
   transform: translateY(-4px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
+@keyframes glow-travel {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
