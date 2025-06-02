@@ -223,66 +223,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Log pre-generated analysis to query history with duplicate prevention
-  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse, isTrending: boolean = false, forceQualityType?: string) => {
-    if (!user?.id) return;
-    
-    try {
-      // If it's a trending query, check if it already exists
-      if (isTrending) {
-        console.log('Checking if trending query already logged...');
-        
-        const { data: existingQuery, error: checkError } = await supabase
-          .from('query_history')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('query_text', question)
-          .eq('is_trending', true)
-          .maybeSingle();
-        
-        if (checkError) {
-          console.error('Error checking for existing trending query:', checkError);
-        }
-        
-        if (existingQuery) {
-          console.log('Trending query already logged, skipping duplicate entry');
-          return;
-        }
-      }
-      
-      console.log(`Logging ${isTrending ? 'trending' : 'regular'} pre-generated analysis to query history`);
-      
-      const llmSummary = analysis.recommendedTools?.map(t => t.name).join(', ') || "No tools";
-      
-      const { error: logError } = await supabase
-        .from('query_history')
-        .insert({
-          user_id: user.id,
-          query_text: question,
-          query_type: isTrending ? 'trending' : 'manual',
-          llm_response_summary: llmSummary.substring(0, 250),
-          recommended_tools: analysis.recommendedTools || [],
-          relationships_summary: analysis.relationshipsSummary || null,
-          full_response: analysis,
-          created_at: new Date().toISOString(),
-          tier_at_query: userTier,
-          is_trending: isTrending
-        });
-        
-      if (logError) {
-        console.error('Error logging pre-generated analysis:', logError);
-      } else {
-        console.log('Successfully logged pre-generated analysis to history');
-        // Recalculate limits after logging
-        if (userTier === 'free') {
-          calculateQueryLimits();
-        }
-      }
-    } catch (error) {
-      console.error('Unexpected error logging pre-generated analysis:', error);
-    }
-  };
-
   const handleTrendingClick = async (question: TrendingQuestion) => {
     // Track the click
     await supabase
@@ -295,115 +235,15 @@ const Dashboard: React.FC = () => {
     setError(null);
     setIsTypingAnimation(false);
     
-    // Check if pre-generated analysis exists
-    if (question.pre_generated_analysis) {
-      // For both free and premium users with pre-generated analysis
-      if (userTier === 'premium') {
-        // Premium users get instant results without any checks
-        console.log('Using pre-generated analysis for trending question (premium user)');
-        const analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
-        setResults(analysisResults);
-        await logPreGeneratedAnalysis(question.question, analysisResults, true);
-        
-        // Navigate to results page
-        navigate('/dashboard/results', { 
-          state: { 
-            results: analysisResults, 
-            query: question.question 
-          } 
-        });
-      } else {
-        // Free users need rate limit check first
-        console.log('Checking rate limit for free user before showing pre-generated analysis');
-        
-        // Check if user has trending queries remaining
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { count, error: queryCountError } = await supabase
-          .from('query_history')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user?.id)
-          .eq('query_type', 'trending')
-          .gte('created_at', twentyFourHoursAgo);
-        
-        if (queryCountError) {
-          console.error('Error checking query count:', queryCountError);
-          setError('Could not verify query limits. Please try again.');
-          return;
-        }
-        
-        if (count !== null && count >= 2) {
-          // User has already used their trending queries
-          setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
-          return;
-        }
-        
-        // User has queries remaining
-        console.log('Free user has trending queries remaining, count:', count);
-        
-        let analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
-        
-        // Check if this is their FIRST or SECOND trending query
-        if (count === 0) {
-          console.log('This is first trending query - showing FULL PREMIUM quality pre-generated analysis');
-          // First trending query gets full premium quality
-          // Use the pre-generated analysis as-is
-        } else {
-          console.log('This is second trending query - showing REDUCED BASIC quality from pre-generated analysis');
-          // Second trending query gets reduced quality
-          // Filter the pre-generated analysis to show only 1 model and 1 bias
-          analysisResults = {
-            ...analysisResults,
-            recommendedTools: [
-              ...(analysisResults.recommendedTools?.filter(t => t.type === 'mental_model').slice(0, 1) || []),
-              ...(analysisResults.recommendedTools?.filter(t => t.type === 'cognitive_bias').slice(0, 1) || [])
-            ],
-            // Remove relationship summary for basic quality
-            relationshipsSummary: undefined,
-            metadata: {
-              ...analysisResults.metadata,
-              analysisQuality: 'basic'
-            }
-          };
-        }
-        
-        setResults(analysisResults);
-        await logPreGeneratedAnalysis(question.question, analysisResults, true);
-        
-        // Navigate to results page
-        navigate('/dashboard/results', { 
-          state: { 
-            results: analysisResults, 
-            query: question.question 
-          } 
-        });
-      }
-    } else {
-      // No pre-generated analysis available
-      if (userTier === 'premium') {
-        // Premium user - auto-submit for new analysis
-        setTimeout(() => {
-          handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
-        }, 100);
-      } else {
-        // Free user - check if they have trending queries left
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { count } = await supabase
-          .from('query_history')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user?.id)
-          .eq('query_type', 'trending')
-          .gte('created_at', twentyFourHoursAgo);
-        
-        if (count !== null && count >= 2) {
-          setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
-        } else {
-          // Submit as trending query - edge function will determine quality
-          setTimeout(() => {
-            handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
-          }, 100);
-        }
-      }
-    }
+    // Always submit to edge function for trending queries
+    // The edge function will handle:
+    // 1. Checking for pre-generated analysis
+    // 2. Determining quality based on user tier and count
+    // 3. Rate limiting
+    // 4. Logging to query history
+    setTimeout(() => {
+      handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
+    }, 100);
   };
 
   // Check for query parameter on mount
@@ -493,6 +333,8 @@ const Dashboard: React.FC = () => {
     try {
       const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights`;
       
+      console.log(`SUBMIT_DEBUG: Submitting ${queryType} query to edge function`);
+      
       const response = await fetch(edgeFunctionUrl, {
         method: 'POST',
         headers: {
@@ -539,6 +381,7 @@ const Dashboard: React.FC = () => {
       if (data.error) {
         setError(data.error);
       } else {
+        console.log('RESPONSE_DEBUG: Received analysis with', data.recommendedTools?.length, 'tools');
         setResults(data);
         // Navigate to results page with the data
         navigate('/dashboard/results', { 
