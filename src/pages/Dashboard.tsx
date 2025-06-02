@@ -224,7 +224,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Log pre-generated analysis to query history with duplicate prevention
-  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse, isTrending: boolean = false) => {
+  const logPreGeneratedAnalysis = async (question: string, analysis: LatticeInsightResponse, isTrending: boolean = false, forceQualityType?: string) => {
     if (!user?.id) return;
     
     try {
@@ -259,7 +259,7 @@ const Dashboard: React.FC = () => {
         .insert({
           user_id: user.id,
           query_text: question,
-          query_type: isTrending ? 'trending' : 'manual', // Add query_type
+          query_type: isTrending ? 'trending' : 'manual',
           llm_response_summary: llmSummary.substring(0, 250),
           recommended_tools: analysis.recommendedTools || [],
           relationships_summary: analysis.relationshipsSummary || null,
@@ -337,9 +337,35 @@ const Dashboard: React.FC = () => {
           return;
         }
         
-        // User has queries remaining, show pre-generated results
-        console.log('Free user has trending queries remaining, showing pre-generated analysis');
-        const analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
+        // User has queries remaining
+        console.log('Free user has trending queries remaining, count:', count);
+        
+        let analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
+        
+        // Check if this is their FIRST or SECOND trending query
+        if (count === 0) {
+          console.log('This is first trending query - showing FULL PREMIUM quality pre-generated analysis');
+          // First trending query gets full premium quality
+          // Use the pre-generated analysis as-is
+        } else {
+          console.log('This is second trending query - showing REDUCED BASIC quality from pre-generated analysis');
+          // Second trending query gets reduced quality
+          // Filter the pre-generated analysis to show only 1 model and 1 bias
+          analysisResults = {
+            ...analysisResults,
+            recommendedTools: [
+              ...(analysisResults.recommendedTools?.filter(t => t.type === 'mental_model').slice(0, 1) || []),
+              ...(analysisResults.recommendedTools?.filter(t => t.type === 'cognitive_bias').slice(0, 1) || [])
+            ],
+            // Remove relationship summary for basic quality
+            relationshipsSummary: undefined,
+            metadata: {
+              ...analysisResults.metadata,
+              analysisQuality: 'basic'
+            }
+          };
+        }
+        
         setResults(analysisResults);
         await logPreGeneratedAnalysis(question.question, analysisResults, true);
         
@@ -370,8 +396,12 @@ const Dashboard: React.FC = () => {
         
         if (count !== null && count >= 2) {
           setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
+        } else {
+          // Submit as trending query - edge function will determine quality
+          setTimeout(() => {
+            handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
+          }, 100);
         }
-        // They'll need to manually submit if they have queries left
       }
     }
   };
