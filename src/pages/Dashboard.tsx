@@ -378,6 +378,14 @@ const Dashboard: React.FC = () => {
 
       const data: LatticeInsightResponse = await response.json();
 
+      // ADD THIS DEBUG LOG
+      console.log('FRONTEND_DEBUG: Received from edge function:', {
+        toolCount: data.recommendedTools?.length,
+        tools: data.recommendedTools?.map(t => t.name),
+        hasRelationships: !!data.relationshipsSummary,
+        metadata: data.metadata
+      });
+
       if (data.error) {
         setError(data.error);
       } else {
