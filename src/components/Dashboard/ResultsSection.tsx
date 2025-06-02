@@ -20,6 +20,15 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   displayTier,
   onResetQuery,
 }) => {
+  // ADD THIS DEBUG LOG
+  console.log('RESULTS_SECTION_DEBUG:', {
+    totalTools: results.recommendedTools?.length,
+    mentalModels: results.recommendedTools?.filter(t => t.type === 'mental_model').length,
+    biases: results.recommendedTools?.filter(t => t.type === 'cognitive_bias').length,
+    hasRelationships: !!results.relationshipsSummary,
+    displayTier
+  });
+
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
   const isFreeUser = displayTier === 'free';
