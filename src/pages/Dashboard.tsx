@@ -35,6 +35,7 @@ const Dashboard: React.FC = () => {
   // State management
   const [userTier, setUserTier] = useState<UserTier>('free');
   const [query, setQuery] = useState('');
+  const [querySource, setQuerySource] = useState<'manual' | 'trending'>('manual'); // NEW STATE
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -161,6 +162,7 @@ const Dashboard: React.FC = () => {
       // Only clear if we had results (meaning we're coming back from results page)
       if (results) {
         setQuery('');
+        setQuerySource('manual'); // RESET SOURCE
         setResults(null);
         setError(null);
         setIsTypingAnimation(true);
@@ -243,13 +245,14 @@ const Dashboard: React.FC = () => {
       .then(() => console.log('Click tracked'))
       .catch(err => console.error('Error tracking click:', err));
     
-    // Set the query
+    // Set the query and mark source as trending
     setQuery(question.question);
+    setQuerySource('trending'); // MARK AS TRENDING
     setError(null);
     setIsTypingAnimation(false);
     
-    // Submit immediately - no setTimeout needed
-    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
+    // Submit immediately - no need to pass 'trending' anymore
+    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
   };
 
   // Check for query parameter on mount
@@ -260,6 +263,7 @@ const Dashboard: React.FC = () => {
     if (queryParam && !results && !isLoading && !isResultsPage) {
       const decodedQuery = decodeURIComponent(queryParam);
       setQuery(decodedQuery);
+      setQuerySource('manual'); // URL queries are manual
       setIsTypingAnimation(false);
       
       setTimeout(() => {
@@ -312,19 +316,29 @@ const Dashboard: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
+    const newValue = e.target.value;
+    setQuery(newValue);
     setError(null);
+    
+    // If user is typing/modifying, reset to manual
+    if (newValue !== query && querySource === 'trending') {
+      setQuerySource('manual');
+    }
   };
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
+    setQuerySource('manual'); // EXAMPLES ARE MANUAL
     setError(null);
     setIsTypingAnimation(false);
   };
 
-  const handleQuerySubmit = async (e: React.FormEvent, queryType: 'manual' | 'trending' = 'manual') => {
+  const handleQuerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
+
+    // Use the stored source
+    const queryType = querySource;
 
     setIsLoading(true);
     setResults(null);
@@ -349,7 +363,7 @@ const Dashboard: React.FC = () => {
         },
         body: JSON.stringify({ 
           query: query,
-          queryType: queryType // Pass query type to edge function
+          queryType: queryType // Use the stored source
         }),
       });
 
@@ -397,6 +411,8 @@ const Dashboard: React.FC = () => {
       } else {
         console.log('RESPONSE_DEBUG: Received analysis with', data.recommendedTools?.length, 'tools');
         setResults(data);
+        setQuerySource('manual'); // Reset after successful submission
+        
         // Navigate to results page with the data
         navigate('/dashboard/results', { 
           state: { 
@@ -419,6 +435,7 @@ const Dashboard: React.FC = () => {
 
   const resetQuery = () => {
     setQuery('');
+    setQuerySource('manual'); // RESET SOURCE
     setResults(null);
     setError(null);
     setIsLoading(false);
