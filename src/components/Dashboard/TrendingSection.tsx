@@ -1,7 +1,7 @@
 // src/components/Dashboard/TrendingSection.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, ChevronRight, ChevronDown, Globe, Crown, Lock, Sparkles } from 'lucide-react';
+import { TrendingUp, ChevronRight, ChevronDown, Globe, Lock, Sparkles, Clock } from 'lucide-react';
 import { TrendingQuestion, UserTier, QueryLimits } from './types';
 
 interface TrendingSectionProps {
@@ -9,7 +9,7 @@ interface TrendingSectionProps {
   loadingTrending: boolean;
   displayTier: UserTier;
   onTrendingClick: (question: TrendingQuestion) => void;
-  limits?: QueryLimits; // Add this
+  limits?: QueryLimits;
 }
 
 const TrendingSection: React.FC<TrendingSectionProps> = ({
@@ -32,15 +32,8 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
     return colors[category as keyof typeof colors] || '#6B7280';
   };
 
-  // Determine quality for each trending question based on usage
-  const getQuestionQuality = (index: number): 'premium' | 'basic' | 'locked' => {
-    if (displayTier === 'premium') return 'premium';
-    if (!limits) return 'basic';
-    
-    if (limits.trendingUsed >= 2) return 'locked';
-    if (limits.trendingUsed === 0 && index === 0) return 'premium';
-    return 'basic';
-  };
+  // Check if questions are locked (rate limit reached)
+  const isLocked = displayTier === 'free' && limits && limits.trendingUsed >= 2;
 
   if (loadingTrending) {
     return (
@@ -110,126 +103,109 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
           )}
         </div>
 
+        {/* Quality messaging banner for free users */}
+        {displayTier === 'free' && limits && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            {limits.trendingUsed === 0 && (
+              <div className="p-3 bg-gradient-to-r from-[#00FFFF]/10 to-[#8B5CF6]/10 rounded-lg border border-[#00FFFF]/30">
+                <p className="text-sm text-[#00FFFF] flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="font-medium">First trending analysis includes premium insights!</span>
+                  <span className="text-xs text-[#00FFFF]/80">(3-4 models, 2-3 biases, pattern connections)</span>
+                </p>
+              </div>
+            )}
+            {limits.trendingUsed === 1 && (
+              <div className="p-3 bg-[#252525]/50 rounded-lg border border-[#333333]">
+                <p className="text-sm text-gray-300 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-gray-400" />
+                  <span>1 basic trending analysis remaining today</span>
+                </p>
+              </div>
+            )}
+            {limits.trendingUsed >= 2 && (
+              <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/30">
+                <p className="text-sm text-red-400 flex items-center gap-2">
+                  <Lock className="h-4 w-4" />
+                  <span>Daily trending limit reached • Upgrade for unlimited access</span>
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Questions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
-            {questionsToShow.map((question, index) => {
-              const quality = getQuestionQuality(index);
-              const isLocked = quality === 'locked';
-              const isPremiumQuality = quality === 'premium' && displayTier === 'free';
-              
-              return (
-                <motion.button
-                  key={question.id}
-                  onClick={() => !isLocked && onTrendingClick(question)}
-                  disabled={isLocked}
-                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden min-h-[120px] flex flex-col ${
-                    isPremiumQuality
-                      ? 'bg-gradient-to-br from-[#252525]/80 to-[#1F1F1F]/80 border-2 border-[#00FFFF]/50 shadow-lg shadow-[#00FFFF]/10 hover:shadow-[#00FFFF]/20'
-                      : isLocked
-                      ? 'bg-[#1A1A1A]/50 border border-[#333333]/50 opacity-60 cursor-not-allowed'
-                      : 'bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30'
-                  }`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.03 }}
-                  whileHover={!isLocked ? { scale: 1.02 } : {}}
-                  whileTap={!isLocked ? { scale: 0.98 } : {}}
-                >
-                  {/* Quality indicator badge */}
-                  {displayTier === 'free' && limits && (
-                    <div className="absolute top-2 right-2 z-10">
-                      {isPremiumQuality && (
-                        <motion.span 
-                          className="px-2 py-1 bg-[#00FFFF]/20 text-[#00FFFF] text-xs rounded-full font-medium flex items-center gap-1"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          <Sparkles size={12} />
-                          <span>Premium</span>
-                        </motion.span>
-                      )}
-                      {quality === 'basic' && (
-                        <span className="px-2 py-1 bg-gray-600/20 text-gray-400 text-xs rounded-full flex items-center gap-1">
-                          <span>📊</span>
-                          <span>Basic</span>
-                        </span>
-                      )}
-                      {isLocked && (
-                        <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full flex items-center gap-1">
-                          <Lock size={12} />
-                          <span>Limit Reached</span>
-                        </span>
-                      )}
-                    </div>
-                  )}
+            {questionsToShow.map((question, index) => (
+              <motion.button
+                key={question.id}
+                onClick={() => !isLocked && onTrendingClick(question)}
+                disabled={isLocked}
+                className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden min-h-[120px] flex flex-col ${
+                  isLocked
+                    ? 'bg-[#1A1A1A]/50 border border-[#333333]/50 opacity-60 cursor-not-allowed'
+                    : 'bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30'
+                }`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.03 }}
+                whileHover={!isLocked ? { scale: 1.02 } : {}}
+                whileTap={!isLocked ? { scale: 0.98 } : {}}
+              >
+                {/* Category Dot */}
+                <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: getCategoryColor(question.category) }}
+                  />
+                  <span className="text-xs text-gray-500 capitalize">{question.category}</span>
+                </div>
 
-                  {/* Premium quality glow effect */}
-                  {isPremiumQuality && (
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-transparent"
-                      animate={{
-                        opacity: [0.3, 0.5, 0.3],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    />
-                  )}
+                {/* Question Text */}
+                <p className={`text-sm transition-colors flex-1 mb-3 ${
+                  isLocked 
+                    ? 'text-gray-500' 
+                    : 'text-gray-300 group-hover:text-white'
+                }`}>
+                  {question.question}
+                </p>
 
-                  {/* Category Dot */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <div 
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: getCategoryColor(question.category) }}
-                    />
-                    <span className="text-xs text-gray-500 capitalize">{question.category}</span>
+                {/* Bottom Info */}
+                <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+                  <span className="truncate max-w-[60%]" title={question.topic_source}>
+                    {question.topic_source}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    {question.click_count > 0 && (
+                      <>
+                        <span>{question.click_count}</span>
+                        <span>views</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                {/* Hover Arrow */}
+                {!isLocked && (
+                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ChevronRight className="w-4 h-4 text-[#00FFFF]" />
                   </div>
+                )}
 
-                  {/* Question Text */}
-                  <p className={`text-sm transition-colors flex-1 mb-3 ${
-                    isLocked 
-                      ? 'text-gray-500' 
-                      : 'text-gray-300 group-hover:text-white'
-                  }`}>
-                    {question.question}
-                  </p>
-
-                  {/* Bottom Info */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
-                    <span className="truncate max-w-[60%]" title={question.topic_source}>
-                      {question.topic_source}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      {question.click_count > 0 && (
-                        <>
-                          <span>{question.click_count}</span>
-                          <span>views</span>
-                        </>
-                      )}
-                    </span>
+                {/* Locked overlay */}
+                {isLocked && (
+                  <div className="absolute inset-0 bg-[#1A1A1A]/50 flex items-center justify-center">
+                    <Lock className="w-8 h-8 text-gray-600" />
                   </div>
-
-                  {/* Hover Arrow */}
-                  {!isLocked && (
-                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight className="w-4 h-4 text-[#00FFFF]" />
-                    </div>
-                  )}
-
-                  {/* Locked overlay */}
-                  {isLocked && (
-                    <div className="absolute inset-0 bg-[#1A1A1A]/50 flex items-center justify-center">
-                      <Lock className="w-8 h-8 text-gray-600" />
-                    </div>
-                  )}
-                </motion.button>
-              );
-            })}
+                )}
+              </motion.button>
+            ))}
           </AnimatePresence>
         </div>
 
@@ -238,9 +214,8 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
           <p className="text-xs text-gray-500">
             {displayTier === 'free' && limits ? (
               <>
-                {limits.trendingUsed === 0 && 'First trending analysis includes premium features • 2 trending analyses per day'}
-                {limits.trendingUsed === 1 && '1 basic trending analysis remaining today'}
-                {limits.trendingUsed >= 2 && 'Daily trending limit reached • Upgrade for unlimited access'}
+                {limits.trendingUsed < 2 && `${2 - limits.trendingUsed} trending analyses remaining today`}
+                {limits.trendingUsed >= 2 && 'Daily limit reached • Upgrade for unlimited'}
               </>
             ) : (
               'Click any pattern for detailed analysis'
