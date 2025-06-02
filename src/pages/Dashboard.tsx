@@ -236,11 +236,11 @@ const Dashboard: React.FC = () => {
     setIsTypingAnimation(false);
     
     // Always submit to edge function for trending queries
-    // The edge function will handle:
-    // 1. Checking for pre-generated analysis
-    // 2. Determining quality based on user tier and count
-    // 3. Rate limiting
-    // 4. Logging to query history
+    // The edge function handles everything:
+    // - Pre-generated analysis retrieval
+    // - Quality determination (premium/basic)
+    // - Rate limiting
+    // - Query history logging
     setTimeout(() => {
       handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
     }, 100);
@@ -343,7 +343,7 @@ const Dashboard: React.FC = () => {
         },
         body: JSON.stringify({ 
           query: query,
-          queryType: queryType // Add query type to request
+          queryType: queryType // Pass query type to edge function
         }),
       });
 
@@ -371,7 +371,7 @@ const Dashboard: React.FC = () => {
         
         // Recalculate limits after an error (might be rate limit)
         if (userTier === 'free') {
-          calculateQueryLimits();
+          setTimeout(() => calculateQueryLimits(), 100);
         }
         return;
       }
@@ -393,7 +393,7 @@ const Dashboard: React.FC = () => {
         
         // Recalculate limits after successful query
         if (userTier === 'free') {
-          calculateQueryLimits();
+          setTimeout(() => calculateQueryLimits(), 100);
         }
       }
 
@@ -461,7 +461,7 @@ const Dashboard: React.FC = () => {
                   onTrendingClick={handleTrendingClick}
                   shouldFocusAnalysis={shouldFocusAnalysis}
                   userId={user?.id}
-                  limits={queryLimits} // Pass the new limits
+                  limits={queryLimits} // Pass the limits for UI display
                 />
               )}
 
