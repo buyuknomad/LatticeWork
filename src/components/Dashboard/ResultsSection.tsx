@@ -242,8 +242,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Pattern Connections Summary - Premium Feature with Same Hover as Tool Cards */}
-      {displayTier === 'premium' && results.relationshipsSummary && (
+      {/* Pattern Connections Summary - Shows when available */}
+      {results.relationshipsSummary && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -323,7 +323,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                   className="text-xs px-3 py-1 rounded-full font-medium bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20"
                   whileHover={{ scale: 1.05 }}
                 >
-                  Premium Insight
+                  Pattern Connections
                 </motion.span>
               </div>
               
