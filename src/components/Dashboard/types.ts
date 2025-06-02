@@ -15,6 +15,12 @@ export interface LatticeInsightResponse {
   error?: string;
   message?: string;
   query_id?: string;
+  metadata?: {
+    queryType?: string;
+    complexity?: number;
+    themes?: string[];
+    analysisQuality?: 'premium' | 'basic';
+  };
 }
 
 export interface TrendingQuestion {
@@ -28,3 +34,11 @@ export interface TrendingQuestion {
 }
 
 export type UserTier = 'free' | 'premium';
+
+export interface QueryLimits {
+  trendingUsed: number;
+  trendingLimit: number;
+  manualUsed: number;
+  manualLimit: number;
+  resetTime: Date | null;
+}
