@@ -18,6 +18,15 @@ import {
   UserTier 
 } from '../components/Dashboard/types';
 
+// Add QueryLimits interface
+interface QueryLimits {
+  trendingUsed: number;
+  trendingLimit: number;
+  manualUsed: number;
+  manualLimit: number;
+  resetTime: Date | null;
+}
+
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
   const location = useLocation();
@@ -39,6 +48,15 @@ const Dashboard: React.FC = () => {
   // Trending questions states
   const [trendingQuestions, setTrendingQuestions] = useState<TrendingQuestion[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
+
+  // Query limits state
+  const [queryLimits, setQueryLimits] = useState<QueryLimits>({
+    trendingUsed: 0,
+    trendingLimit: 2,
+    manualUsed: 0,
+    manualLimit: 1,
+    resetTime: null
+  });
 
   // Check if we're on the results page
   const isResultsPage = location.pathname === '/dashboard/results';
@@ -64,6 +82,66 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchTrendingQuestions();
   }, []);
+
+  // Calculate query limits for free users
+  useEffect(() => {
+    if (userTier === 'free' && user?.id) {
+      calculateQueryLimits();
+    }
+  }, [userTier, user?.id, error]); // Recalculate when error changes (might be after a query)
+
+  const calculateQueryLimits = async () => {
+    if (!user?.id) return;
+
+    try {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      // Get trending count
+      const { count: trendingCount, error: trendingError } = await supabase
+        .from('query_history')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('query_type', 'trending')
+        .gte('created_at', twentyFourHoursAgo.toISOString());
+      
+      // Get manual count
+      const { count: manualCount, error: manualError } = await supabase
+        .from('query_history')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('query_type', 'manual')
+        .gte('created_at', twentyFourHoursAgo.toISOString());
+
+      if (trendingError || manualError) {
+        console.error('Error calculating query limits:', trendingError || manualError);
+        return;
+      }
+      
+      // Get reset time from first query
+      const { data: firstQuery } = await supabase
+        .from('query_history')
+        .select('created_at')
+        .eq('user_id', user.id)
+        .gte('created_at', twentyFourHoursAgo.toISOString())
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single();
+        
+      const resetTime = firstQuery 
+        ? new Date(new Date(firstQuery.created_at).getTime() + 24 * 60 * 60 * 1000)
+        : null;
+      
+      setQueryLimits({
+        trendingUsed: trendingCount || 0,
+        trendingLimit: 2,
+        manualUsed: manualCount || 0,
+        manualLimit: 1,
+        resetTime
+      });
+    } catch (error) {
+      console.error('Error calculating query limits:', error);
+    }
+  };
 
   // Handle navigation state for results
   useEffect(() => {
@@ -181,6 +259,7 @@ const Dashboard: React.FC = () => {
         .insert({
           user_id: user.id,
           query_text: question,
+          query_type: isTrending ? 'trending' : 'manual', // Add query_type
           llm_response_summary: llmSummary.substring(0, 250),
           recommended_tools: analysis.recommendedTools || [],
           relationships_summary: analysis.relationshipsSummary || null,
@@ -194,6 +273,10 @@ const Dashboard: React.FC = () => {
         console.error('Error logging pre-generated analysis:', logError);
       } else {
         console.log('Successfully logged pre-generated analysis to history');
+        // Recalculate limits after logging
+        if (userTier === 'free') {
+          calculateQueryLimits();
+        }
       }
     } catch (error) {
       console.error('Unexpected error logging pre-generated analysis:', error);
@@ -233,12 +316,13 @@ const Dashboard: React.FC = () => {
         // Free users need rate limit check first
         console.log('Checking rate limit for free user before showing pre-generated analysis');
         
-        // Check if user has queries remaining
+        // Check if user has trending queries remaining
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const { count, error: queryCountError } = await supabase
           .from('query_history')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user?.id)
+          .eq('query_type', 'trending')
           .gte('created_at', twentyFourHoursAgo);
         
         if (queryCountError) {
@@ -247,14 +331,14 @@ const Dashboard: React.FC = () => {
           return;
         }
         
-        if (count !== null && count >= 1) {
-          // User has already used their daily query
-          setError('Query limit reached. Free tier allows 1 query per 24 hours. Upgrade to Premium for unlimited queries.');
+        if (count !== null && count >= 2) {
+          // User has already used their trending queries
+          setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
           return;
         }
         
         // User has queries remaining, show pre-generated results
-        console.log('Free user has queries remaining, showing pre-generated analysis');
+        console.log('Free user has trending queries remaining, showing pre-generated analysis');
         const analysisResults = question.pre_generated_analysis as LatticeInsightResponse;
         setResults(analysisResults);
         await logPreGeneratedAnalysis(question.question, analysisResults, true);
@@ -272,13 +356,23 @@ const Dashboard: React.FC = () => {
       if (userTier === 'premium') {
         // Premium user - auto-submit for new analysis
         setTimeout(() => {
-          const form = document.querySelector('form');
-          if (form) {
-            form.dispatchEvent(new Event('submit', { bubbles: true }));
-          }
+          handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
         }, 100);
+      } else {
+        // Free user - check if they have trending queries left
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count } = await supabase
+          .from('query_history')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user?.id)
+          .eq('query_type', 'trending')
+          .gte('created_at', twentyFourHoursAgo);
+        
+        if (count !== null && count >= 2) {
+          setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
+        }
+        // They'll need to manually submit if they have queries left
       }
-      // Free users will need to manually submit (respecting their 1/day limit)
     }
   };
 
@@ -352,7 +446,7 @@ const Dashboard: React.FC = () => {
     setIsTypingAnimation(false);
   };
 
-  const handleQuerySubmit = async (e: React.FormEvent) => {
+  const handleQuerySubmit = async (e: React.FormEvent, queryType: 'manual' | 'trending' = 'manual') => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
@@ -375,7 +469,10 @@ const Dashboard: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ query: query }),
+        body: JSON.stringify({ 
+          query: query,
+          queryType: queryType // Add query type to request
+        }),
       });
 
       setIsLoading(false);
@@ -387,10 +484,22 @@ const Dashboard: React.FC = () => {
         }));
         
         // Check if it's a rate limit error and format consistently
-        if (response.status === 429 || errorData.error?.includes('Query limit reached')) {
-          setError('Query limit reached. Free tier allows 1 query per 24 hours. Upgrade to Premium for unlimited queries.');
+        if (response.status === 429 || errorData.error?.includes('limit reached')) {
+          // Format error message based on query type
+          if (errorData.error?.includes('trending')) {
+            setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
+          } else if (errorData.error?.includes('manual')) {
+            setError('Daily manual analysis limit reached (1 per day). Upgrade to Premium for unlimited queries.');
+          } else {
+            setError(errorData.error || 'Query limit reached. Upgrade to Premium for unlimited queries.');
+          }
         } else {
           setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
+        }
+        
+        // Recalculate limits after an error (might be rate limit)
+        if (userTier === 'free') {
+          calculateQueryLimits();
         }
         return;
       }
@@ -408,6 +517,11 @@ const Dashboard: React.FC = () => {
             query: query 
           } 
         });
+        
+        // Recalculate limits after successful query
+        if (userTier === 'free') {
+          calculateQueryLimits();
+        }
       }
 
     } catch (err: any) {
@@ -433,7 +547,7 @@ const Dashboard: React.FC = () => {
       
       
       <div className="relative z-10 min-h-screen">
-        <EmailVerificationBanner />  {/* Add this line */}
+        <EmailVerificationBanner />
         <DashboardHeader
           user={user}
           displayTier={userTier}
@@ -474,6 +588,7 @@ const Dashboard: React.FC = () => {
                   onTrendingClick={handleTrendingClick}
                   shouldFocusAnalysis={shouldFocusAnalysis}
                   userId={user?.id}
+                  limits={queryLimits} // Pass the new limits
                 />
               )}
 
