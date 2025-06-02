@@ -15,7 +15,7 @@ interface SearchSectionProps {
   animatedPlaceholder: string;
   displayTier: UserTier;
   remainingQueries?: number;
-  queryResetTime?: Date;
+  queryResetTime?: Date | null;
   onSubmit: (e: React.FormEvent) => void;
   onInputFocus: () => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -42,7 +42,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   const { session } = useAuth();
   const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const isRateLimitError = error?.includes('Query limit reached');
+  const isRateLimitError = error?.includes('limit reached');
 
   const formatTimeUntilReset = () => {
     if (!queryResetTime) return '';
@@ -138,7 +138,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
           </motion.div>
         )}
 
-        {/* Query Limit Indicator for Free Users */}
+        {/* Manual Query Limit Indicator for Free Users */}
         {displayTier === 'free' && remainingQueries !== undefined && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -152,11 +152,11 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                 : 'bg-red-500/10 text-red-400 border border-red-500/30'
             }`}>
               <div className="flex items-center gap-2">
-                <span className="text-base">⚡</span>
+                <span className="text-base">✍️</span>
                 <span>
                   {remainingQueries > 0 
-                    ? `${remainingQueries} analysis left today`
-                    : 'Daily limit reached'
+                    ? `${remainingQueries} manual ${remainingQueries === 1 ? 'analysis' : 'analyses'} left today`
+                    : 'Manual analysis limit reached'
                   }
                 </span>
                 {queryResetTime && remainingQueries === 0 && (
@@ -294,4 +294,4 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   );
 };
 
-export default SearchSection;  
+export default SearchSection;
