@@ -143,7 +143,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Handle navigation state for results
+  // Handle navigation state for results - UPDATED WITH QUERY CLEARING
   useEffect(() => {
     // If we're on results page but have no results, redirect to dashboard
     if (isResultsPage && !results && !location.state?.results) {
@@ -155,7 +155,18 @@ const Dashboard: React.FC = () => {
       setResults(location.state.results);
       setQuery(location.state.query);
     }
-  }, [isResultsPage, results, location.state, navigate]);
+    
+    // Clear query when returning to main dashboard
+    if (!isResultsPage && !location.search.includes('q=')) {
+      // Only clear if we had results (meaning we're coming back from results page)
+      if (results) {
+        setQuery('');
+        setResults(null);
+        setError(null);
+        setIsTypingAnimation(true);
+      }
+    }
+  }, [isResultsPage, results, location.state, location.pathname, navigate]);
 
   // Handle upgrade success redirect
   useEffect(() => {
