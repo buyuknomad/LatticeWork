@@ -31,7 +31,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
-  const isFreeUser = displayTier === 'free';
+  const isFreeUser = false; // FIXED: Always use premium layout to show all tools
   const [isHoveredConnections, setIsHoveredConnections] = useState(false);
 
   // Process markdown text to handle various syntax (same as in ToolCard)
@@ -83,216 +83,147 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
       {/* Main Results Area */}
       {results.recommendedTools && results.recommendedTools.length > 0 ? (
-        <div>
-          {isFreeUser ? (
-            /* Free Tier Layout - Elegant Side-by-Side */
-            <div className="relative">
-              {/* Background decoration */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/5 via-transparent to-[#8B5CF6]/5 rounded-3xl pointer-events-none"></div>
-              
-              <div className="relative z-10 bg-[#1F1F1F]/50 backdrop-blur-sm rounded-3xl p-8 border border-[#333333]/50">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Mental Model - Left Side */}
-                  {mentalModels.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: -50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                      className="relative"
-                    >
-                      <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#00FFFF]/10 rounded-full filter blur-2xl"></div>
-                      <div className="relative">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="p-3 bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10 rounded-xl">
-                            <Brain className="h-6 w-6 text-[#00FFFF]" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-white">Mental Model</h3>
-                            <p className="text-xs text-gray-400">Understanding the pattern</p>
-                          </div>
-                        </div>
-                        <ToolCard tool={mentalModels[0]} index={0} />
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Cognitive Bias - Right Side */}
-                  {cognitiveBiases.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
-                      className="relative"
-                    >
-                      <div className="absolute -top-4 -right-4 w-24 h-24 bg-amber-500/10 rounded-full filter blur-2xl"></div>
-                      <div className="relative">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="p-3 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-xl">
-                            <AlertTriangle className="h-6 w-6 text-amber-500" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-white">Cognitive Bias</h3>
-                            <p className="text-xs text-gray-400">What might cloud your view</p>
-                          </div>
-                        </div>
-                        <ToolCard tool={cognitiveBiases[0]} index={1} />
-                      </div>
-                    </motion.div>
-                  )}
+        <div className="space-y-8">
+          {/* Mental Models Section */}
+          {mentalModels.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10 rounded-xl">
+                  <Brain className="h-6 w-6 text-[#00FFFF]" />
                 </div>
-
-                {/* Connection Line - Visual Link Between Model and Bias */}
-                <div className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-32 bg-gradient-to-b from-transparent via-gray-600 to-transparent"></div>
-                <div className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-3 h-3 bg-gray-600 rounded-full animate-pulse"></div>
-                </div>
+                <h3 className="text-xl font-semibold">Mental Models That Explain This Pattern</h3>
+                <span className="ml-auto text-sm text-gray-400">{mentalModels.length} models identified</span>
               </div>
-            </div>
-          ) : (
-            /* Premium Tier Layout - Clean Hierarchy */
-            <div className="space-y-8">
-              {/* Mental Models Section */}
-              {mentalModels.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-gradient-to-br from-[#00FFFF]/20 to-[#00FFFF]/10 rounded-xl">
-                      <Brain className="h-6 w-6 text-[#00FFFF]" />
-                    </div>
-                    <h3 className="text-xl font-semibold">Mental Models That Explain This Pattern</h3>
-                    <span className="ml-auto text-sm text-gray-400">{mentalModels.length} models identified</span>
-                  </div>
+              
+              {/* Layout based on count */}
+              {mentalModels.length === 1 && (
+                <div className="max-w-3xl mx-auto">
+                  <ToolCard tool={mentalModels[0]} index={0} />
+                </div>
+              )}
+              
+              {mentalModels.length === 2 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {mentalModels.map((tool, index) => (
+                    <motion.div
+                      key={tool.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <ToolCard tool={tool} index={index} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+              
+              {mentalModels.length >= 3 && (
+                <div className="space-y-6">
+                  {/* First model - full width */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="max-w-3xl mx-auto"
+                  >
+                    <ToolCard tool={mentalModels[0]} index={0} />
+                  </motion.div>
                   
-                  {/* Layout based on count */}
-                  {mentalModels.length === 1 && (
-                    <div className="max-w-3xl mx-auto">
-                      <ToolCard tool={mentalModels[0]} index={0} />
-                    </div>
-                  )}
-                  
-                  {mentalModels.length === 2 && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {mentalModels.map((tool, index) => (
-                        <motion.div
-                          key={tool.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                        >
-                          <ToolCard tool={tool} index={index} />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {mentalModels.length >= 3 && (
-                    <div className="space-y-6">
-                      {/* First model - full width */}
+                  {/* Remaining models - side by side */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {mentalModels.slice(1, 3).map((tool, index) => (
                       <motion.div
+                        key={tool.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="max-w-3xl mx-auto"
+                        transition={{ duration: 0.3, delay: (index + 1) * 0.1 }}
                       >
-                        <ToolCard tool={mentalModels[0]} index={0} />
+                        <ToolCard tool={tool} index={index + 1} />
                       </motion.div>
-                      
-                      {/* Remaining models - side by side */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {mentalModels.slice(1, 3).map((tool, index) => (
-                          <motion.div
-                            key={tool.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: (index + 1) * 0.1 }}
-                          >
-                            <ToolCard tool={tool} index={index + 1} />
-                          </motion.div>
-                        ))}
-                      </div>
-                      
-                      {/* If more than 3, show the rest in pairs */}
-                      {mentalModels.length > 3 && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                          {mentalModels.slice(3).map((tool, index) => (
-                            <motion.div
-                              key={tool.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3, delay: (index + 3) * 0.1 }}
-                            >
-                              <ToolCard tool={tool} index={index + 3} />
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Cognitive Biases Section */}
-              {cognitiveBiases.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="relative"
-                >
-                  {/* Decorative separator */}
-                  <div className="absolute -top-4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
-                  
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-xl">
-                      <AlertTriangle className="h-6 w-6 text-amber-500" />
-                    </div>
-                    <h3 className="text-xl font-semibold">Biases That Might Cloud Your View</h3>
-                    <span className="ml-auto text-sm text-gray-400">{cognitiveBiases.length} biases detected</span>
+                    ))}
                   </div>
                   
-                  {/* Layout based on count - only 1 or 2 side by side */}
-                  {cognitiveBiases.length === 1 && (
-                    <div className="max-w-3xl mx-auto">
-                      <ToolCard tool={cognitiveBiases[0]} index={mentalModels.length} />
-                    </div>
-                  )}
-                  
-                  {cognitiveBiases.length >= 2 && (
+                  {/* If more than 3, show the rest in pairs */}
+                  {mentalModels.length > 3 && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {cognitiveBiases.slice(0, 2).map((tool, index) => (
+                      {mentalModels.slice(3).map((tool, index) => (
                         <motion.div
                           key={tool.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: (mentalModels.length + index) * 0.1 }}
+                          transition={{ duration: 0.3, delay: (index + 3) * 0.1 }}
                         >
-                          <ToolCard tool={tool} index={mentalModels.length + index} />
+                          <ToolCard tool={tool} index={index + 3} />
                         </motion.div>
                       ))}
                     </div>
                   )}
-                  
-                  {/* If more than 2 biases, show the rest in pairs */}
-                  {cognitiveBiases.length > 2 && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                      {cognitiveBiases.slice(2).map((tool, index) => (
-                        <motion.div
-                          key={tool.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: (mentalModels.length + index + 2) * 0.1 }}
-                        >
-                          <ToolCard tool={tool} index={mentalModels.length + index + 2} />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
+                </div>
               )}
-            </div>
+            </motion.div>
+          )}
+
+          {/* Cognitive Biases Section */}
+          {cognitiveBiases.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="relative"
+            >
+              {/* Decorative separator */}
+              <div className="absolute -top-4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+              
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-br from-amber-500/20 to-amber-500/10 rounded-xl">
+                  <AlertTriangle className="h-6 w-6 text-amber-500" />
+                </div>
+                <h3 className="text-xl font-semibold">Biases That Might Cloud Your View</h3>
+                <span className="ml-auto text-sm text-gray-400">{cognitiveBiases.length} biases detected</span>
+              </div>
+              
+              {/* Layout based on count - only 1 or 2 side by side */}
+              {cognitiveBiases.length === 1 && (
+                <div className="max-w-3xl mx-auto">
+                  <ToolCard tool={cognitiveBiases[0]} index={mentalModels.length} />
+                </div>
+              )}
+              
+              {cognitiveBiases.length >= 2 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {cognitiveBiases.slice(0, 2).map((tool, index) => (
+                    <motion.div
+                      key={tool.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: (mentalModels.length + index) * 0.1 }}
+                    >
+                      <ToolCard tool={tool} index={mentalModels.length + index} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+              
+              {/* If more than 2 biases, show the rest in pairs */}
+              {cognitiveBiases.length > 2 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                  {cognitiveBiases.slice(2).map((tool, index) => (
+                    <motion.div
+                      key={tool.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: (mentalModels.length + index + 2) * 0.1 }}
+                    >
+                      <ToolCard tool={tool} index={mentalModels.length + index + 2} />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
           )}
         </div>
       ) : (
@@ -443,7 +374,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       {/* Upgrade Prompt for Free Users */}
       {displayTier === 'free' && <UpgradePrompt />}
 
-      {/* Fixed Floating Action Button for New Analysis - UPDATED BEHAVIOR */}
+      {/* Fixed Floating Action Button for New Analysis */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
