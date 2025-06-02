@@ -224,26 +224,21 @@ const Dashboard: React.FC = () => {
   };
 
   const handleTrendingClick = async (question: TrendingQuestion) => {
-    // Track the click
-    await supabase
+    // Update click count in background (no await to prevent delays)
+    supabase
       .from('trending_questions')
       .update({ click_count: question.click_count + 1 })
-      .eq('id', question.id);
+      .eq('id', question.id)
+      .then(() => console.log('Click tracked'))
+      .catch(err => console.error('Error tracking click:', err));
     
     // Set the query
     setQuery(question.question);
     setError(null);
     setIsTypingAnimation(false);
     
-    // Always submit to edge function for trending queries
-    // The edge function handles everything:
-    // - Pre-generated analysis retrieval
-    // - Quality determination (premium/basic)
-    // - Rate limiting
-    // - Query history logging
-    setTimeout(() => {
-      handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
-    }, 100);
+    // Submit immediately - no setTimeout needed
+    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent, 'trending');
   };
 
   // Check for query parameter on mount
