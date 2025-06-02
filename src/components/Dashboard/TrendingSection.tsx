@@ -32,6 +32,19 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
     return colors[category as keyof typeof colors] || '#6B7280';
   };
 
+  // Helper function to format time until reset
+  const formatTimeUntilReset = (resetTime: Date) => {
+    const now = new Date();
+    const diff = resetTime.getTime() - now.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
   // Check if questions are locked (rate limit reached)
   const isLocked = displayTier === 'free' && limits && limits.trendingUsed >= 2;
 
@@ -128,11 +141,27 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
               </div>
             )}
             {limits.trendingUsed >= 2 && (
-              <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/30">
+              <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/30 flex items-center justify-between">
                 <p className="text-sm text-red-400 flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
-                  <span>Daily trending limit reached • Upgrade for unlimited access</span>
+                  <TrendingUp className="h-4 w-4" />
+                  <span>Trending analysis limit reached</span>
+                  {limits.resetTime && (
+                    <>
+                      <span className="text-gray-500">•</span>
+                      <span className="text-gray-400">
+                        Resets in {formatTimeUntilReset(limits.resetTime)}
+                      </span>
+                    </>
+                  )}
                 </p>
+                <motion.button
+                  onClick={() => window.location.href = '/pricing'}
+                  className="text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500/30 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Upgrade
+                </motion.button>
               </div>
             )}
           </motion.div>
@@ -209,13 +238,13 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Helper Text */}
+        {/* Helper Text - Simplified to avoid redundancy */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
             {displayTier === 'free' && limits ? (
               <>
                 {limits.trendingUsed < 2 && `${2 - limits.trendingUsed} trending analyses remaining today`}
-                {limits.trendingUsed >= 2 && 'Daily limit reached • Upgrade for unlimited'}
+                {/* Removed redundant limit reached message */}
               </>
             ) : (
               'Click any pattern for detailed analysis'
