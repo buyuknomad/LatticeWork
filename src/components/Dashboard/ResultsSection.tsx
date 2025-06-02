@@ -323,7 +323,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                   className="text-xs px-3 py-1 rounded-full font-medium bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20"
                   whileHover={{ scale: 1.05 }}
                 >
-                  Premium Insight
+                  Pattern Connections
                 </motion.span>
               </div>
               
@@ -371,8 +371,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Upgrade Prompt for Free Users */}
-      {displayTier === 'free' && <UpgradePrompt />}
+      {/* Upgrade Prompt for Basic Analysis Only */}
+      {displayTier === 'free' && !results.relationshipsSummary && <UpgradePrompt />}
 
       {/* Fixed Floating Action Button for New Analysis */}
       <motion.div
