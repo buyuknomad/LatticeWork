@@ -242,8 +242,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Pattern Connections Summary - Premium Feature with Same Hover as Tool Cards */}
-      {displayTier === 'premium' && results.relationshipsSummary && (
+      {/* Pattern Connections Summary - Shows when available */}
+      {results.relationshipsSummary && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
