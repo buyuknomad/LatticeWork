@@ -1,8 +1,7 @@
 // src/components/Dashboard/QuerySection.tsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '../../lib/supabase';
-import { TrendingQuestion, UserTier } from './types';
+import { TrendingQuestion, UserTier, QueryLimits } from './types';
 import SearchSection from './SearchSection';
 import TrendingSection from './TrendingSection';
 import ExamplesSection from './ExamplesSection';
@@ -24,6 +23,7 @@ interface QuerySectionProps {
   onTrendingClick: (question: TrendingQuestion) => void;
   shouldFocusAnalysis: boolean;
   userId?: string;
+  limits: QueryLimits; // Use the limits from Dashboard
 }
 
 const QuerySection: React.FC<QuerySectionProps> = ({
@@ -42,64 +42,76 @@ const QuerySection: React.FC<QuerySectionProps> = ({
   onExampleClick,
   onTrendingClick,
   shouldFocusAnalysis,
-  userId,
+  limits, // Use this instead of calculating
 }) => {
-  const [remainingQueries, setRemainingQueries] = useState<number | undefined>();
-  const [queryResetTime, setQueryResetTime] = useState<Date | undefined>();
-
-  // Calculate remaining queries for free users
-  useEffect(() => {
-    if (displayTier === 'free' && userId) {
-      calculateRemainingQueries();
-    }
-  }, [displayTier, userId, error]);
-
-  const calculateRemainingQueries = async () => {
-    if (!userId) return;
-
-    try {
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      
-      const { count, error: queryCountError } = await supabase
-        .from('query_history')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .gte('created_at', twentyFourHoursAgo.toISOString());
-
-      if (!queryCountError && count !== null) {
-        const remaining = Math.max(0, 1 - count);
-        setRemainingQueries(remaining);
-        
-        // Set reset time to 24 hours from the first query
-        if (count > 0) {
-          const { data: firstQuery } = await supabase
-            .from('query_history')
-            .select('created_at')
-            .eq('user_id', userId)
-            .gte('created_at', twentyFourHoursAgo.toISOString())
-            .order('created_at', { ascending: true })
-            .limit(1)
-            .single();
-            
-          if (firstQuery) {
-            const resetTime = new Date(firstQuery.created_at);
-            resetTime.setHours(resetTime.getHours() + 24);
-            setQueryResetTime(resetTime);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error calculating remaining queries:', error);
-    }
-  };
-
   const handleClearQuery = () => {
     setQuery('');
   };
 
   return (
     <div className="w-full space-y-8 md:space-y-10">
-      {/* Search Section - Primary Focus */}
+      {/* Query Limits Display for Free Users */}
+      {displayTier === 'free' && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            {/* Premium Trending */}
+            <div className="bg-[#252525]/50 backdrop-blur-sm rounded-lg p-4 border border-[#333333] hover:border-[#00FFFF]/20 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Premium Trending</span>
+                <span className="text-xs text-[#00FFFF]">
+                  {limits.trendingUsed > 0 ? '✓ Used' : '✨ Available'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                {Math.max(0, 1 - Math.min(limits.trendingUsed, 1))}/1
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Full analysis</p>
+            </div>
+            
+            {/* Basic Trending */}
+            <div className="bg-[#252525]/50 backdrop-blur-sm rounded-lg p-4 border border-[#333333] hover:border-[#333333]/50 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Basic Trending</span>
+                <span className="text-xs text-gray-400">
+                  {limits.trendingUsed > 1 ? '✓ Used' : '📊 Available'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                {Math.max(0, 1 - Math.max(0, limits.trendingUsed - 1))}/1
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Limited analysis</p>
+            </div>
+            
+            {/* Manual Query */}
+            <div className="bg-[#252525]/50 backdrop-blur-sm rounded-lg p-4 border border-[#333333] hover:border-[#333333]/50 transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Your Questions</span>
+                <span className="text-xs text-gray-400">
+                  {limits.manualUsed > 0 ? '✓ Used' : '✍️ Available'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                {Math.max(0, limits.manualLimit - limits.manualUsed)}/{limits.manualLimit}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Basic analysis</p>
+            </div>
+          </div>
+          
+          {/* Reset time info */}
+          {limits.resetTime && (limits.trendingUsed > 0 || limits.manualUsed > 0) && (
+            <p className="text-center text-xs text-gray-500 mt-4">
+              Resets in {Math.ceil((limits.resetTime.getTime() - Date.now()) / (1000 * 60 * 60))} hours
+            </p>
+          )}
+        </motion.div>
+      )}
+
+      {/* Search Section - Check only manual limits */}
       <SearchSection
         query={query}
         error={error}
@@ -107,8 +119,8 @@ const QuerySection: React.FC<QuerySectionProps> = ({
         isTypingAnimation={isTypingAnimation}
         animatedPlaceholder={animatedPlaceholder}
         displayTier={displayTier}
-        remainingQueries={remainingQueries}
-        queryResetTime={queryResetTime}
+        remainingQueries={displayTier === 'free' ? limits.manualLimit - limits.manualUsed : undefined}
+        queryResetTime={limits.resetTime}
         onSubmit={onSubmit}
         onInputFocus={onInputFocus}
         onInputChange={onInputChange}
@@ -116,15 +128,16 @@ const QuerySection: React.FC<QuerySectionProps> = ({
         shouldFocusAnalysis={shouldFocusAnalysis}
       />
 
-      {/* Trending Section - Secondary */}
+      {/* Trending Section - Pass limits for quality indicators */}
       <TrendingSection
         trendingQuestions={trendingQuestions}
         loadingTrending={loadingTrending}
         displayTier={displayTier}
         onTrendingClick={onTrendingClick}
+        limits={limits}
       />
 
-      {/* Examples Section - Tertiary but still visible */}
+      {/* Examples Section */}
       <ExamplesSection
         onExampleClick={onExampleClick}
       />
