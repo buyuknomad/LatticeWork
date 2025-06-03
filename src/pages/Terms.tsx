@@ -103,6 +103,7 @@ const Terms: React.FC = () => {
                   <li>Billed monthly at $9.99 USD (prices subject to change)</li>
                   <li>Automatic renewal unless cancelled</li>
                   <li>Prices exclude applicable taxes</li>
+                   <li>Subject to fair use policies</li>
                 </ul>
                 
                 <h3 className="text-xl font-medium text-white mb-3 mt-4">4.3 Billing</h3>
