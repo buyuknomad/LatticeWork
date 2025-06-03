@@ -77,7 +77,7 @@ const CallToAction = () => {
             </motion.button>
             
             <p className="mt-6 text-sm text-gray-400">
-              Free forever with 1 analysis per day · No credit card required · Upgrade anytime
+              Free forever with 3 analyses per day · No credit card required · Upgrade anytime
             </p>
           </div>
           
