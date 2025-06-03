@@ -256,7 +256,7 @@ const Pricing = () => {
     "Full premium insights on your first trending analysis",
     "Basic mental model explanations",
     "Access to curated trending topics",
-    "Daily pattern insights"
+    "Basic application guidance"
   ]}
   notIncluded={[
     "Unlimited daily analyses",
