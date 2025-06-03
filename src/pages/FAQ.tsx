@@ -55,7 +55,7 @@ const FAQ: React.FC = () => {
     {
       category: 'pricing',
       question: 'What\'s the difference between Free and Premium?',
-      answer: `Free users get 1 analysis per day with 1 mental model and 1 bias per query. Premium users ($${BRAND.pricing.premium.price}/month) get unlimited analyses, 3-4 models and 2-3 biases per query, plus advanced AI insights and pattern connections.`
+      answer: `Free users get 3 analyses per day (2 trending + 1 custom). Your first trending analysis each day includes premium-quality insights with 3-4 models and 2-3 biases. Other free analyses provide basic insights with 1 model and 1 bias each. Premium users ($${BRAND.pricing.premium.price}/month) get unlimited analyses, all with 3-4 models and 2-3 biases per query, plus advanced pattern connections and relationship insights.`
     },
     {
       category: 'pricing',
