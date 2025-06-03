@@ -210,11 +210,11 @@ const Hero = () => {
                 className="mt-4 text-sm text-gray-400"
               >
                 {user ? (
-                  question.trim() ? 'Press Enter or click to see the analysis' : 'Free: 1 real analysis daily • See thinking patterns instantly'
-                ) : (
-                  'Free: 1 real analysis daily • See thinking patterns instantly'
-                )}
-              </motion.p>
+    question.trim() ? 'Press Enter or click to see the analysis' : 'Free: 3 analyses daily (2 trending + 1 custom) • See thinking patterns instantly'
+  ) : (
+    'Free: 3 analyses daily (2 trending + 1 custom) • See thinking patterns instantly'
+  )}
+</motion.p>
             </div>
           </div>
         </motion.div>
