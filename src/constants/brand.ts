@@ -44,7 +44,7 @@ export const BRAND = {
   features: {
     mentalModels: "300+ mental models",
     cognitiveBiases: "200+ cognitive biases",
-    freeQueries: "3 analyses per day",,
+    freeQueries: "3 analyses per day",
     premiumQueries: "Unlimited analyses"
   },
   
