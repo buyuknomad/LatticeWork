@@ -91,11 +91,12 @@ const Terms: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-white mb-4">4. Subscription and Payment Terms</h2>
                 
                 <h3 className="text-xl font-medium text-white mb-3">4.1 Free Tier</h3>
-                <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-                  <li>Limited to 1 analysis per day</li>
-                  <li>Access to basic features as described on our pricing page</li>
-                  <li>Subject to fair use policies</li>
-                </ul>
+<ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
+  <li>Limited to 3 analyses per day (2 trending + 1 custom)</li>
+  <li>Premium quality on first trending analysis</li>
+  <li>Access to basic features as described on our pricing page</li>
+  <li>Subject to fair use policies</li>
+</ul>
                 
                 <h3 className="text-xl font-medium text-white mb-3 mt-4">4.2 Premium Subscription</h3>
                 <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
