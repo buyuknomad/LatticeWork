@@ -246,28 +246,28 @@ const Pricing = () => {
 
         {/* Grid with items-stretch to ensure equal heights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
-          {/* Free Tier */}
-          <PricingCard
-            title="Free"
-            price="Free"
-            description="Perfect for occasional use and getting started with mental models."
-            features={[
-              "1 query per day",
-              "1 mental model and 1 bias per query",
-              "Access to basic models and biases",
-              "Basic application guidance",
-              "Light AI Model",
-            ]}
-            notIncluded={[
-              "Advanced thinking depth",
-              "Detailed application guidance",
-              `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
-              "Premium AI Model (more accurate & detailed)"
-            ]}
-            buttonText={user ? "Go to Dashboard" : "Get Started"}
-            buttonAction={handleFreeSignup}
-            delay={0}
-          />
+        {/* Free Tier */}
+<PricingCard
+  title="Free"
+  price="Free"
+  description="Perfect for occasional use and getting started with mental models."
+  features={[
+    "3 analyses per day (2 trending + 1 custom)",
+    "Premium quality on first trending analysis",
+    "Basic quality on other analyses",
+    "Access to trending patterns",
+    "Basic application guidance",
+  ]}
+  notIncluded={[
+    "Unlimited analyses",
+    "Premium quality on all analyses",
+    `Full access to ${BRAND.features.mentalModels} and ${BRAND.features.cognitiveBiases}`,
+    "Advanced thinking depth"
+  ]}
+  buttonText={user ? "Go to Dashboard" : "Get Started"}
+  buttonAction={handleFreeSignup}
+  delay={0}
+/>
 
           {/* Premium Tier */}
           <PricingCard
