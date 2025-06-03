@@ -232,7 +232,7 @@ const Hero = () => {
           </div>
           
           <p className="text-xl text-gray-300 mb-6">
-            Understand today's headlines through timeless mental models
+            Understand trending news through timeless mental models
           </p>
           
           <div className="flex flex-wrap justify-center gap-3 text-sm">
