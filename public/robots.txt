@@ -1,6 +1,7 @@
 # Robots.txt for https://mindlattice.app
-# Allow all web crawlers
+# Last updated: 2025-06-04
 
+# Allow all web crawlers
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -8,9 +9,21 @@ Disallow: /settings
 Disallow: /history
 Disallow: /api/
 Disallow: /auth/
+Disallow: /reset-password
+Disallow: /confirm-email
+
+# Specific bot rules
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
 
 # Sitemap location
 Sitemap: https://mindlattice.app/sitemap.xml
 
-# Crawl-delay (in seconds)
+# Crawl-delay (Google ignores this, but Bing uses it)
 Crawl-delay: 1
