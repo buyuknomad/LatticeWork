@@ -40,6 +40,11 @@ const Dashboard: React.FC = () => {
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Set page title
+useEffect(() => {
+  document.title = 'Dashboard | Mind Lattice';
+}, []);
   
   // Animation states
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
