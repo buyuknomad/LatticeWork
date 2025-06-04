@@ -106,13 +106,14 @@ const AppContent: React.FC = () => {
 // Main App component with Router
 const App: React.FC = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <ScrollToTop /> {/* Add the ScrollToTop component here */}
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <HelmetProvider>
+      <Router>
+        <AuthProvider>
+          <ScrollToTop />
+          <AppContent />
+        </AuthProvider>
+      </Router>
+    </HelmetProvider>
   );
 };
-
 export default App;
