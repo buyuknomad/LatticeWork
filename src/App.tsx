@@ -19,6 +19,8 @@ import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
+import MentalModels from './pages/MentalModels';
+import CognitiveBiases from './pages/CognitiveBiases';
 
 
 // Import new pages
