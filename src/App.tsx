@@ -116,4 +116,5 @@ const App: React.FC = () => {
     </HelmetProvider>
   );
 };
+
 export default App;
