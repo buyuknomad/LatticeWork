@@ -56,6 +56,8 @@ const AppContent: React.FC = () => {
         <Routes>
           {/* Public routes */}
          <Route path="/" element={<HomePage />} />
+          <Route path="/mental-models" element={<MentalModels />} />
+<Route path="/cognitive-biases" element={<CognitiveBiases />} />
 
           
           <Route path="/login" element={<LoginPage />} />
@@ -75,6 +77,7 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/FAQ" element={<FAQ />} />
+          
       
           
           {/* Protected routes */}
