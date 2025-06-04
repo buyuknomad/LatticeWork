@@ -5,6 +5,7 @@ import { ChevronLeft, HelpCircle, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import { BRAND } from '../constants/brand';
+import SEO from '../components/SEO';
 
 interface FAQItem {
   question: string;
@@ -114,6 +115,20 @@ const FAQ: React.FC = () => {
 }
   ];
 
+  // Create FAQ Schema for SEO
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   const categories = [
     { id: 'general', label: 'General', icon: '🧠' },
     { id: 'pricing', label: 'Pricing & Billing', icon: '💳' },
@@ -122,141 +137,150 @@ const FAQ: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-      <BackgroundAnimation />
-      
-      <div className="relative z-10 pt-24 pb-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Back Link */}
-          <Link to="/" className="inline-flex items-center text-[#00FFFF] hover:underline mb-8">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Home
-          </Link>
-          
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-[#252525] rounded-xl">
-                <HelpCircle className="h-8 w-8 text-[#00FFFF]" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-white">Frequently Asked Questions</h1>
-                <p className="text-gray-400">Everything you need to know about {BRAND.name}</p>
-              </div>
-            </div>
-          </motion.div>
-          
-      <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.1 }}
-  className="mb-8"
->
-  <div className="flex flex-wrap gap-2">
-    {categories.map((category) => (
-      <a key={category.id} href={`#${category.id}`} className="px-4 py-2 bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2">
-        <span>{category.icon}</span>
-        <span>{category.label}</span>
-      </a>
-    ))}
-  </div>
-</motion.div>
-          
-          {/* FAQ Items */}
-          <div className="space-y-6">
-            {categories.map((category) => (
-              <motion.section
-                key={category.id}
-                id={category.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <span>{category.icon}</span>
-                  <span>{category.label}</span>
-                </h2>
-                
-                <div className="space-y-3">
-                  {faqs
-                    .filter(faq => faq.category === category.id)
-                    .map((faq, index) => {
-                      const globalIndex = faqs.indexOf(faq);
-                      const isOpen = openItems.includes(globalIndex);
-                      
-                      return (
-                        <motion.div
-                          key={globalIndex}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="bg-[#252525]/50 backdrop-blur-sm rounded-lg border border-[#333333] overflow-hidden"
-                        >
-                          <button
-                            onClick={() => toggleItem(globalIndex)}
-                            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#252525]/80 transition-colors"
-                          >
-                            <span className="text-white font-medium pr-4">{faq.question}</span>
-                            <motion.div
-                              animate={{ rotate: isOpen ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex-shrink-0"
-                            >
-                              <ChevronDown className="h-5 w-5 text-gray-400" />
-                            </motion.div>
-                          </button>
-                          
-                          <AnimatePresence>
-                            {isOpen && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <div className="px-6 pb-4 text-gray-300 leading-relaxed">
-                                  {faq.answer}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      );
-                    })}
-                </div>
-              </motion.section>
-            ))}
-          </div>
-          
-          {/* Contact Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-12 text-center bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-8 border border-[#333333]"
-          >
-            <h3 className="text-xl font-semibold text-white mb-3">Still have questions?</h3>
-            <p className="text-gray-300 mb-6">
-              We're here to help. Reach out to our support team for personalized assistance.
-            </p>
-            <Link to="/contact">
-              <motion.button
-                className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact Support
-              </motion.button>
+    <>
+      <SEO
+        title="Frequently Asked Questions"
+        description="Common questions about Mind Lattice - mental models tool, cognitive bias analyzer, pricing, features, and how to use our AI-powered decision analysis platform."
+        keywords="mind lattice faq, mental models questions, cognitive bias tool help, decision making app questions"
+        url="/faq"
+        schema={faqSchema}
+      />
+      <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
+        <BackgroundAnimation />
+        
+        <div className="relative z-10 pt-24 pb-20 px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Link */}
+            <Link to="/" className="inline-flex items-center text-[#00FFFF] hover:underline mb-8">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back to Home
             </Link>
-          </motion.div>
+            
+            {/* Header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-[#252525] rounded-xl">
+                  <HelpCircle className="h-8 w-8 text-[#00FFFF]" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white">Frequently Asked Questions</h1>
+                  <p className="text-gray-400">Everything you need to know about {BRAND.name}</p>
+                </div>
+              </div>
+            </motion.div>
+            
+        <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.1 }}
+    className="mb-8"
+  >
+    <div className="flex flex-wrap gap-2">
+      {categories.map((category) => (
+        <a key={category.id} href={`#${category.id}`} className="px-4 py-2 bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+          <span>{category.icon}</span>
+          <span>{category.label}</span>
+        </a>
+      ))}
+    </div>
+  </motion.div>
+            
+            {/* FAQ Items */}
+            <div className="space-y-6">
+              {categories.map((category) => (
+                <motion.section
+                  key={category.id}
+                  id={category.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <h2 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <span>{category.icon}</span>
+                    <span>{category.label}</span>
+                  </h2>
+                  
+                  <div className="space-y-3">
+                    {faqs
+                      .filter(faq => faq.category === category.id)
+                      .map((faq, index) => {
+                        const globalIndex = faqs.indexOf(faq);
+                        const isOpen = openItems.includes(globalIndex);
+                        
+                        return (
+                          <motion.div
+                            key={globalIndex}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="bg-[#252525]/50 backdrop-blur-sm rounded-lg border border-[#333333] overflow-hidden"
+                          >
+                            <button
+                              onClick={() => toggleItem(globalIndex)}
+                              className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#252525]/80 transition-colors"
+                            >
+                              <span className="text-white font-medium pr-4">{faq.question}</span>
+                              <motion.div
+                                animate={{ rotate: isOpen ? 180 : 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex-shrink-0"
+                              >
+                                <ChevronDown className="h-5 w-5 text-gray-400" />
+                              </motion.div>
+                            </button>
+                            
+                            <AnimatePresence>
+                              {isOpen && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <div className="px-6 pb-4 text-gray-300 leading-relaxed">
+                                    {faq.answer}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        );
+                      })}
+                  </div>
+                </motion.section>
+              ))}
+            </div>
+            
+            {/* Contact Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-12 text-center bg-[#252525]/50 backdrop-blur-sm rounded-2xl p-8 border border-[#333333]"
+            >
+              <h3 className="text-xl font-semibold text-white mb-3">Still have questions?</h3>
+              <p className="text-gray-300 mb-6">
+                We're here to help. Reach out to our support team for personalized assistance.
+              </p>
+              <Link to="/contact">
+                <motion.button
+                  className="bg-[#00FFFF] text-[#1A1A1A] font-bold py-3 px-8 rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Contact Support
+                </motion.button>
+              </Link>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
