@@ -55,9 +55,9 @@ const AppContent: React.FC = () => {
         <Header />
         <Routes>
           {/* Public routes */}
-         <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/mental-models" element={<MentalModels />} />
-<Route path="/cognitive-biases" element={<CognitiveBiases />} />
+          <Route path="/cognitive-biases" element={<CognitiveBiases />} />
 
           
           <Route path="/login" element={<LoginPage />} />
