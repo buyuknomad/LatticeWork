@@ -1,0 +1,16 @@
+# Robots.txt for https://mindlattice.app
+# Allow all web crawlers
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /history
+Disallow: /api/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: https://mindlattice.app/sitemap.xml
+
+# Crawl-delay (in seconds)
+Crawl-delay: 1
