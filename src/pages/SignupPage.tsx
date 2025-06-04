@@ -2,6 +2,7 @@ import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import SEO from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { AuthError } from '@supabase/supabase-js';
 
@@ -139,137 +140,158 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center p-3">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-sm bg-[#212327] rounded-xl p-5 sm:p-6"
-      >
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-1">
-            Join <span className="text-[#00FFFF]">Mind Lattice</span>
-          </h1>
-          <p className="text-gray-400 text-sm mb-8">Create your account</p>
-        </div>
-        
-        {errorMessage && (
-          <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
-            {errorMessage}
-          </div>
-        )}
-        
-        {/* Google Sign Up Button - Moved to top with better spacing */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          type="button"
-          onClick={handleGoogleSignup}
-          className="w-full bg-white text-gray-800 py-3 px-4 rounded-lg flex items-center justify-center gap-3 border border-gray-200 hover:bg-gray-50 transition-colors font-medium shadow-sm"
-          disabled={isLoading}
+    <>
+      <SEO
+        title="Sign Up Free - Start Using Mental Models Today"
+        description="Create your free Mind Lattice account. Get 3 daily AI-powered analyses of mental models and cognitive biases. No credit card required."
+        keywords="mind lattice signup, free mental models tool, cognitive bias analyzer free, decision making app"
+        url="/signup"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Sign Up for Mind Lattice",
+          "description": "Create a free account to start analyzing patterns with mental models",
+          "potentialAction": {
+            "@type": "RegisterAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://mindlattice.app/signup"
+            }
+          }
+        }}
+      />
+      <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center p-3">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm bg-[#212327] rounded-xl p-5 sm:p-6"
         >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-          Sign up with Google
-        </motion.button>
-        
-        {/* OR Divider */}
-        <div className="my-6 flex items-center">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <span className="mx-3 text-gray-400 text-xs uppercase tracking-wider">or</span>
-          <div className="flex-grow border-t border-gray-600"></div>
-        </div>
-        
-        {/* Email/Password Form */}
-        <form onSubmit={handleSignup} className="space-y-3">
-          <div>
-            <label htmlFor="email" className="block text-gray-300 text-sm mb-1">Email</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                <Mail className="h-4 w-4 text-gray-500" />
-              </div>
-              <input
-                type="email"
-                id="email"
-                className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={handleEmailChange}
-                required
-              />
-            </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white mb-1">
+              Join <span className="text-[#00FFFF]">Mind Lattice</span>
+            </h1>
+            <p className="text-gray-400 text-sm mb-8">Create your account</p>
           </div>
           
-          <div>
-            <label htmlFor="password" className="block text-gray-300 text-sm mb-1">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                <Lock className="h-4 w-4 text-gray-500" />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-8 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
-                placeholder="Create a password"
-                value={password}
-                onChange={handlePasswordChange}
-                required
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-2 flex items-center"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-gray-500" />
-                ) : (
-                  <Eye className="h-4 w-4 text-gray-500" />
-                )}
-              </button>
+          {errorMessage && (
+            <div className="mb-4 p-2 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-xs">
+              {errorMessage}
             </div>
-          </div>
+          )}
           
-          <div>
-            <label htmlFor="confirmPassword" className="block text-gray-300 text-sm mb-1">Confirm Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                <Lock className="h-4 w-4 text-gray-500" />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="confirmPassword"
-                className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                required
-              />
-            </div>
-          </div>
-          
+          {/* Google Sign Up Button - Moved to top with better spacing */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="w-full bg-[#00FFFF] text-[#1A1A1A] font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm mt-4"
+            type="button"
+            onClick={handleGoogleSignup}
+            className="w-full bg-white text-gray-800 py-3 px-4 rounded-lg flex items-center justify-center gap-3 border border-gray-200 hover:bg-gray-50 transition-colors font-medium shadow-sm"
             disabled={isLoading}
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'} 
-            {!isLoading && <span>→</span>}
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+            Sign up with Google
           </motion.button>
-        </form>
-        
-        <p className="mt-6 text-center text-gray-400 text-xs">
-          Already have an account?{' '}
-          <button
-            onClick={navigateToLogin}
-            className="text-[#00FFFF] hover:underline"
-            type="button"
-          >
-            Log In
-          </button>
-        </p>
-      </motion.div>
-    </div>
+          
+          {/* OR Divider */}
+          <div className="my-6 flex items-center">
+            <div className="flex-grow border-t border-gray-600"></div>
+            <span className="mx-3 text-gray-400 text-xs uppercase tracking-wider">or</span>
+            <div className="flex-grow border-t border-gray-600"></div>
+          </div>
+          
+          {/* Email/Password Form */}
+          <form onSubmit={handleSignup} className="space-y-3">
+            <div>
+              <label htmlFor="email" className="block text-gray-300 text-sm mb-1">Email</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <Mail className="h-4 w-4 text-gray-500" />
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
+                  placeholder="your.email@example.com"
+                  value={email}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-gray-300 text-sm mb-1">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <Lock className="h-4 w-4 text-gray-500" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-8 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-2 flex items-center"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="confirmPassword" className="block text-gray-300 text-sm mb-1">Confirm Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <Lock className="h-4 w-4 text-gray-500" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  className="bg-[#2A2D35] text-white rounded-lg block w-full pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#00FFFF]"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              className="w-full bg-[#00FFFF] text-[#1A1A1A] font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 text-sm mt-4"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating Account...' : 'Create Account'} 
+              {!isLoading && <span>→</span>}
+            </motion.button>
+          </form>
+          
+          <p className="mt-6 text-center text-gray-400 text-xs">
+            Already have an account?{' '}
+            <button
+              onClick={navigateToLogin}
+              className="text-[#00FFFF] hover:underline"
+              type="button"
+            >
+              Log In
+            </button>
+          </p>
+        </motion.div>
+      </div>
+    </>
   );
 };
 
