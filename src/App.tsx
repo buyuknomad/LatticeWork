@@ -21,6 +21,7 @@ import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
 import MentalModels from './pages/MentalModels';
 import CognitiveBiases from './pages/CognitiveBiases';
+import DashboardTest from './pages/DashboardTest';
 
 
 // Import new pages
@@ -86,6 +87,8 @@ const AppContent: React.FC = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/history" element={<History />} />
             <Route path="/dashboard/results" element={<Dashboard />} />
+            <Route path="/dashboard-test" element={<ProtectedRoute><DashboardTest /></ProtectedRoute>} />
+<Route path="/dashboard-test/results" element={<ProtectedRoute><DashboardTest /></ProtectedRoute>} />
             {/* Add other protected routes here */}
           </Route>
         </Routes>
