@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import EmailVerificationBanner from '../components/EmailVerificationBanner';
 
-// Import Dashboard components
+// Import Dashboard components - test versions
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuerySectionTest from '../components/Dashboard/QuerySectionTest';
 import LoadingStateTest from '../components/Dashboard/LoadingStateTest';
@@ -15,7 +15,8 @@ import ResultsSectionTest from '../components/Dashboard/ResultsSectionTest';
 import { 
   LatticeInsightNarrativeResponse, 
   TrendingQuestion,
-  UserTier 
+  UserTier,
+  isThreadedNarrative 
 } from '../components/Dashboard/types';
 
 // Add QueryLimits interface
@@ -49,7 +50,7 @@ const DashboardTest: React.FC = () => {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Dashboard Test (v14.3) | Mind Lattice';
+    document.title = 'Dashboard Test (v14.3 Thread System) | Mind Lattice';
   }, []);
   
   // Animation states
@@ -74,7 +75,7 @@ const DashboardTest: React.FC = () => {
   const isResultsPage = location.pathname === '/dashboard-test/results';
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
-  // Example queries for animation - including search-worthy ones
+  // Example queries for animation - including search-worthy examples
   const EXAMPLE_QUERIES = [
     "Why do I procrastinate even when I know the consequences?",
     "What drives people to repeat the same mistakes?",
@@ -83,7 +84,7 @@ const DashboardTest: React.FC = () => {
     "What causes us to ignore evidence that contradicts our beliefs?",
     "Why do we consistently underestimate how long things take?",
     "Latest on Elon Musk and Trump situation?", // Search-worthy
-    "What's happening with AI regulation in 2025?", // Search-worthy
+    "What's happening with AI regulation in Europe?", // Search-worthy
     "Current state of climate technology breakthroughs", // Search-worthy
   ];
 
@@ -293,10 +294,10 @@ const DashboardTest: React.FC = () => {
     }
 
     try {
-      // Use the narrative edge function (v14.3)
+      // Use the v14.3 narrative edge function
       const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights-narrative`;
       
-      console.log(`TEST_DEBUG: Submitting ${queryType} query to narrative edge function v14.3`);
+      console.log(`TEST_DEBUG: Submitting ${queryType} query to v14.3 narrative edge function`);
       
       // Build request body with test parameters
       const requestBody: any = { 
@@ -304,8 +305,9 @@ const DashboardTest: React.FC = () => {
         queryType: queryType
       };
       
-      // Add test parameters if in test mode using service role key
-      const isServiceRole = session.access_token?.includes(import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY);
+      // Add test parameters if in test mode with service role
+      const isServiceRole = session.access_token.includes(import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 'service_role_key_not_set');
+      
       if (testModeEnabled && isServiceRole) {
         requestBody.testTier = testTier;
         requestBody.allowSearchInTest = allowSearchInTest;
@@ -349,13 +351,16 @@ const DashboardTest: React.FC = () => {
 
       const data: LatticeInsightNarrativeResponse = await response.json();
 
-      console.log('TEST_DEBUG: Received from narrative edge function v14.3:', {
+      // Enhanced debug logging
+      console.log('TEST_DEBUG: Received from v14.3 narrative edge function:', {
         toolCount: data.recommendedTools?.length,
-        tools: data.recommendedTools?.map(t => t.name),
+        tools: data.recommendedTools?.map(t => ({ name: t.name, isSurprise: t.isSurprise })),
         hasRelationships: !!data.relationshipsSummary,
         hasNarrative: !!data.narrativeAnalysis,
-        narrativeType: data.narrativeAnalysis ? (typeof data.narrativeAnalysis === 'string' ? 'legacy' : 'threaded') : 'none',
-        threadCount: typeof data.narrativeAnalysis === 'object' ? data.narrativeAnalysis.threads?.length : 0,
+        isThreadedNarrative: data.narrativeAnalysis ? isThreadedNarrative(data.narrativeAnalysis) : false,
+        threadCount: data.narrativeAnalysis && isThreadedNarrative(data.narrativeAnalysis) 
+          ? (data.narrativeAnalysis as any).threads?.length 
+          : 0,
         keyLessonsCount: data.keyLessons?.length,
         searchPerformed: data.metadata?.searchPerformed,
         searchConfidence: data.metadata?.searchConfidence,
@@ -402,112 +407,107 @@ const DashboardTest: React.FC = () => {
       <BackgroundAnimation />
       
       <div className="relative z-10 min-h-screen">
-        {/* Test Mode Banner - Fixed position to avoid overlap */}
-        <div className="fixed top-0 left-0 right-0 z-50">
+        <EmailVerificationBanner />
+        
+        {/* Test Mode Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30"
+        >
+          <div className="max-w-6xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.3)</span>
+                <span className="text-xs text-gray-400">Thread System + Search + Dynamic Action Plans</span>
+              </div>
+              <div className="flex items-center gap-4 flex-wrap">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={allowSearchInTest}
+                    onChange={(e) => setAllowSearchInTest(e.target.checked)}
+                    className="rounded text-purple-500 focus:ring-purple-500"
+                  />
+                  <span className="text-gray-300">Enable Search</span>
+                </label>
+                <select
+                  value={testTier}
+                  onChange={(e) => setTestTier(e.target.value as UserTier)}
+                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600 focus:border-purple-500 focus:outline-none"
+                >
+                  <option value="free">Test as Free</option>
+                  <option value="premium">Test as Premium</option>
+                </select>
+                <button
+                  onClick={() => setShowDebugInfo(!showDebugInfo)}
+                  className="text-xs text-gray-400 hover:text-purple-300 transition-colors"
+                >
+                  {showDebugInfo ? 'Hide' : 'Show'} Debug
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+        
+        <DashboardHeader
+          user={user}
+          displayTier={testModeEnabled ? testTier : userTier}
+        />
+
+        {/* Success Message */}
+        {successMessage && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30 backdrop-blur-md"
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-6xl mx-auto px-4 mb-6"
           >
-            <div className="max-w-6xl mx-auto px-4 py-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.3)</span>
-                  <span className="text-xs text-gray-400">Thread narrative system with dynamic search</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={allowSearchInTest}
-                      onChange={(e) => setAllowSearchInTest(e.target.checked)}
-                      className="rounded text-purple-500 focus:ring-purple-500"
-                    />
-                    <span className="text-gray-300">Enable Search</span>
-                  </label>
-                  <select
-                    value={testTier}
-                    onChange={(e) => setTestTier(e.target.value as UserTier)}
-                    className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600"
-                  >
-                    <option value="free">Test as Free</option>
-                    <option value="premium">Test as Premium</option>
-                  </select>
-                  <button
-                    onClick={() => setShowDebugInfo(!showDebugInfo)}
-                    className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 rounded hover:bg-white/5"
-                  >
-                    {showDebugInfo ? 'Hide' : 'Show'} Debug
-                  </button>
-                </div>
-              </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 text-center font-medium">{successMessage}</p>
             </div>
           </motion.div>
-        </div>
-        
-        {/* Main content - Add padding to account for fixed test banner */}
-        <div className="pt-14">
-          <EmailVerificationBanner />
-          
-          <DashboardHeader
-            user={user}
-            displayTier={testModeEnabled ? testTier : userTier}
-          />
+        )}
 
-          {/* Success Message */}
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="max-w-6xl mx-auto px-4 mb-6"
-            >
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                <p className="text-green-400 text-center font-medium">{successMessage}</p>
-              </div>
-            </motion.div>
-          )}
+        <div className="px-4 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <AnimatePresence mode="wait">
+              {!isResultsPage && !isLoading && (
+                <QuerySectionTest
+                  query={query}
+                  setQuery={setQuery}
+                  error={error}
+                  isLoading={isLoading}
+                  isTypingAnimation={isTypingAnimation}
+                  animatedPlaceholder={animatedPlaceholder}
+                  trendingQuestions={trendingQuestions}
+                  loadingTrending={loadingTrending}
+                  displayTier={testModeEnabled ? testTier : userTier}
+                  onSubmit={handleQuerySubmit}
+                  onInputFocus={handleInputFocus}
+                  onInputChange={handleInputChange}
+                  onExampleClick={handleExampleClick}
+                  onTrendingClick={handleTrendingClick}
+                  shouldFocusAnalysis={shouldFocusAnalysis}
+                  userId={user?.id}
+                  limits={queryLimits}
+                  showDebugInfo={showDebugInfo}
+                  testModeEnabled={testModeEnabled}
+                />
+              )}
 
-          <div className="px-4 pb-20">
-            <div className="max-w-6xl mx-auto">
-              <AnimatePresence mode="wait">
-                {!isResultsPage && !isLoading && !results && (
-                  <QuerySectionTest
-                    query={query}
-                    setQuery={setQuery}
-                    error={error}
-                    isLoading={isLoading}
-                    isTypingAnimation={isTypingAnimation}
-                    animatedPlaceholder={animatedPlaceholder}
-                    trendingQuestions={trendingQuestions}
-                    loadingTrending={loadingTrending}
-                    displayTier={testModeEnabled ? testTier : userTier}
-                    onSubmit={handleQuerySubmit}
-                    onInputFocus={handleInputFocus}
-                    onInputChange={handleInputChange}
-                    onExampleClick={handleExampleClick}
-                    onTrendingClick={handleTrendingClick}
-                    shouldFocusAnalysis={shouldFocusAnalysis}
-                    userId={user?.id}
-                    limits={queryLimits}
-                    showDebugInfo={showDebugInfo}
-                    testModeEnabled={testModeEnabled}
-                  />
-                )}
+              {isLoading && <LoadingStateTest />}
 
-                {isLoading && <LoadingStateTest />}
-
-                {isResultsPage && results && !isLoading && (
-                  <ResultsSectionTest
-                    results={results}
-                    query={query}
-                    displayTier={testModeEnabled ? testTier : userTier}
-                    onResetQuery={resetQuery}
-                    showDebugInfo={showDebugInfo}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+              {isResultsPage && results && !isLoading && (
+                <ResultsSectionTest
+                  results={results}
+                  query={query}
+                  displayTier={testModeEnabled ? testTier : userTier}
+                  onResetQuery={resetQuery}
+                  showDebugInfo={showDebugInfo}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
