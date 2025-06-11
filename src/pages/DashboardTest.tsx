@@ -317,13 +317,12 @@ const DashboardTest: React.FC = () => {
         queryType: queryType
       };
       
-      // Add test parameters if in test mode with service role
-      const isServiceRole = session.access_token.includes(import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 'service_role_key_not_set');
-      
-      if (testModeEnabled && isServiceRole) {
+      // Add test parameters if in test mode
+      if (testModeEnabled) {
         requestBody.testTier = testTier;
         requestBody.allowSearchInTest = allowSearchInTest;
-        console.log('TEST_DEBUG: Including test parameters:', { testTier, allowSearchInTest });
+        requestBody.testMode = true; // Flag to indicate this is a test request
+        console.log('TEST_DEBUG: Including test parameters:', { testTier, allowSearchInTest, testMode: true });
       }
       
       const response = await fetch(edgeFunctionUrl, {
