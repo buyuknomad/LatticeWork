@@ -28,11 +28,6 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
   onResetQuery,
   showDebugInfo = false,
 }) => {
-  // Add null safety check
-  if (!results) {
-    return null;
-  }
-
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
   const [isHoveredConnections, setIsHoveredConnections] = useState(false);
