@@ -28,6 +28,22 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
   onResetQuery,
   showDebugInfo = false,
 }) => {
+  // Safety check for undefined results
+  if (!results) {
+    console.error('ResultsSectionTest: results prop is undefined');
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-400">Error: No results data available</p>
+        <button
+          onClick={onResetQuery}
+          className="mt-4 px-4 py-2 bg-[#00FFFF]/20 text-[#00FFFF] rounded-lg hover:bg-[#00FFFF]/30"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
   const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
   const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
   const [isHoveredConnections, setIsHoveredConnections] = useState(false);
