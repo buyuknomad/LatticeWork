@@ -470,18 +470,8 @@ const DashboardTest: React.FC = () => {
 
           <div className="px-4 pb-20">
             <div className="max-w-6xl mx-auto">
-              {/* Debug info */}
-              {showDebugInfo && (
-                <div className="mb-4 p-4 bg-purple-900/20 rounded-lg text-xs text-gray-300">
-                  <div>isResultsPage: {String(isResultsPage)}</div>
-                  <div>isLoading: {String(isLoading)}</div>
-                  <div>results: {results ? 'exists' : 'null'}</div>
-                  <div>pathname: {location.pathname}</div>
-                </div>
-              )}
-
               <AnimatePresence mode="wait">
-                {!isResultsPage && !isLoading && (
+                {!isResultsPage && !isLoading && !results && (
                   <QuerySectionTest
                     query={query}
                     setQuery={setQuery}
