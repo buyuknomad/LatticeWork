@@ -498,15 +498,15 @@ const DashboardTest: React.FC = () => {
 
               {isLoading && <LoadingStateTest />}
 
-              {isResultsPage && results && !isLoading && results.recommendedTools && (
-                <ResultsSectionTest
-                  results={results}
-                  query={query}
-                  displayTier={testModeEnabled ? testTier : userTier}
-                  onResetQuery={resetQuery}
-                  showDebugInfo={showDebugInfo}
-                />
-              )}
+           {isResultsPage && results && !isLoading && (
+  <ResultsSectionTest
+    results={results}
+    query={query}
+    displayTier={testModeEnabled ? testTier : userTier}
+    onResetQuery={resetQuery}
+    showDebugInfo={showDebugInfo}
+  />
+)}
             </AnimatePresence>
           </div>
         </div>
