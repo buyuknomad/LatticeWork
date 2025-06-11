@@ -7,7 +7,29 @@ export interface RecommendedTool {
   summary: string;
   type: 'mental_model' | 'cognitive_bias';
   explanation: string;
-  isSurprise?: boolean; // NEW: For premium surprising tool selection
+  isSurprise?: boolean; // For premium surprising tool selection
+}
+
+// NEW: Thread interfaces for v14.3
+export interface NarrativeThread {
+  id: number;
+  type: 'opening' | 'pattern' | 'insight' | 'connection' | 'synthesis' | 'conclusion';
+  content: string; // 50-80 words
+  tools: string[]; // Tool names referenced
+  emoji?: string;
+  highlight?: boolean; // For surprise tools
+}
+
+export interface ThreadedNarrative {
+  hook: string; // 15-20 words
+  threads: NarrativeThread[];
+  bottomLine: string; // 15-20 words
+  actionPlan: {
+    type: 'personal' | 'strategic' | 'awareness' | 'analytical';
+    sections: {
+      [key: string]: string[]; // Dynamic sections with action items
+    };
+  };
 }
 
 // Original interface for backward compatibility
@@ -25,11 +47,11 @@ export interface LatticeInsightResponse {
   };
 }
 
-// NEW: Enhanced response for v14.2 narrative edge function
+// Enhanced response for v14.3 with threaded narrative
 export interface LatticeInsightNarrativeResponse extends LatticeInsightResponse {
-  narrativeAnalysis?: string; // 400-600 word narrative for premium
+  narrativeAnalysis?: string | ThreadedNarrative; // Changed to support both types
   keyLessons?: string[]; // 3-5 actionable lessons for premium
-  searchGrounding?: { // NEW: Search metadata
+  searchGrounding?: { // Search metadata
     wasSearchUsed: boolean;
     searchQuery?: string;
     sourcesCount?: number;
@@ -43,11 +65,11 @@ export interface LatticeInsightNarrativeResponse extends LatticeInsightResponse 
     totalToolsConsidered?: number;
     usingGeminiCache?: boolean;
     geminiCacheName?: string;
-    searchPerformed?: boolean; // NEW
-    searchConfidence?: number; // NEW: 0.0-1.0
-    searchSkipped?: string; // NEW: Reason why search wasn't performed
-    enhancedWithSearch?: boolean; // NEW
-    hasSurpriseElement?: boolean; // NEW: For premium
+    searchPerformed?: boolean;
+    searchConfidence?: number; // 0.0-1.0
+    searchSkipped?: string; // Reason why search wasn't performed
+    enhancedWithSearch?: boolean;
+    hasSurpriseElement?: boolean; // For premium
   };
 }
 
@@ -71,10 +93,21 @@ export interface QueryLimits {
   resetTime: Date | null;
 }
 
-// NEW: Search usage tracking
+// Search usage tracking
 export interface SearchUsage {
   dailyLimit: number;
   used: number;
   softLimit: number;
   resetTime?: Date;
+}
+
+// Type guard to check if narrative is threaded
+export function isThreadedNarrative(narrative: any): narrative is ThreadedNarrative {
+  return narrative && 
+    typeof narrative === 'object' && 
+    'hook' in narrative &&
+    'threads' in narrative &&
+    'bottomLine' in narrative &&
+    'actionPlan' in narrative &&
+    Array.isArray(narrative.threads);
 }
