@@ -75,6 +75,18 @@ const DashboardTest: React.FC = () => {
   const isResultsPage = location.pathname === '/dashboard-test/results';
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
 
+  // Debug logging
+  useEffect(() => {
+    console.log('DashboardTest Debug:', {
+      isResultsPage,
+      hasResults: !!results,
+      isLoading,
+      resultsType: results ? typeof results : 'undefined',
+      pathname: location.pathname,
+      resultsStructure: results ? Object.keys(results) : null
+    });
+  }, [isResultsPage, results, isLoading, location.pathname]);
+
   // Example queries for animation - including search-worthy examples
   const EXAMPLE_QUERIES = [
     "Why do I procrastinate even when I know the consequences?",
@@ -498,15 +510,15 @@ const DashboardTest: React.FC = () => {
 
               {isLoading && <LoadingStateTest />}
 
-           {isResultsPage && results && !isLoading && (
-  <ResultsSectionTest
-    results={results}
-    query={query}
-    displayTier={testModeEnabled ? testTier : userTier}
-    onResetQuery={resetQuery}
-    showDebugInfo={showDebugInfo}
-  />
-)}
+              {isResultsPage && !isLoading && (
+                <ResultsSectionTest
+                  results={results!} // Use non-null assertion since we check results exists
+                  query={query}
+                  displayTier={testModeEnabled ? testTier : userTier}
+                  onResetQuery={resetQuery}
+                  showDebugInfo={showDebugInfo}
+                />
+              )}
             </AnimatePresence>
           </div>
         </div>
