@@ -9,6 +9,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
+import EnhancedNarrativeDisplay from './EnhancedNarrativeDisplay';
 import { LatticeInsightNarrativeResponse, UserTier } from './types';
 
 interface ResultsSectionTestProps {
@@ -485,75 +486,12 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            {/* Narrative Analysis Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative group"
-            >
-              <div className="absolute -inset-0.5 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] group-hover:opacity-20" />
-              
-              <div className="relative bg-[#1F1F1F]/80 backdrop-blur-xl rounded-2xl border border-[#333333] hover:border-[#444444] transition-all duration-300 overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 bg-gradient-to-br from-[#8B5CF6]/10 via-transparent to-[#00FFFF]/10" />
-
-                <div className="relative p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 bg-gradient-to-br from-[#8B5CF6]/20 to-[#00FFFF]/20 rounded-xl">
-                      <BookOpen className="h-6 w-6 text-[#8B5CF6]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white">Deep Pattern Analysis</h3>
-                    {results.metadata?.enhancedWithSearch && (
-                      <span className="ml-auto text-xs px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full flex items-center gap-1">
-                        <Globe size={12} />
-                        <span>Current Context Included</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="prose prose-lg max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        p: ({ children }: any) => (
-                          <p className="text-gray-300 leading-relaxed mb-6 last:mb-0">{children}</p>
-                        ),
-                        strong: ({ children }: any) => (
-                          <strong className="font-semibold text-white">{children}</strong>
-                        ),
-                        em: ({ children }: any) => (
-                          <em className="text-gray-200 italic">{children}</em>
-                        ),
-                        h1: ({ children }: any) => (
-                          <h1 className="text-2xl font-bold text-white mb-4 mt-8">{children}</h1>
-                        ),
-                        h2: ({ children }: any) => (
-                          <h2 className="text-xl font-semibold text-white mb-3 mt-6">{children}</h2>
-                        ),
-                        h3: ({ children }: any) => (
-                          <h3 className="text-lg font-semibold text-white mb-2 mt-4">{children}</h3>
-                        ),
-                        ul: ({ children }: any) => (
-                          <ul className="list-disc list-inside space-y-2 text-gray-300 my-4">{children}</ul>
-                        ),
-                        ol: ({ children }: any) => (
-                          <ol className="list-decimal list-inside space-y-2 text-gray-300 my-4">{children}</ol>
-                        ),
-                        li: ({ children }: any) => (
-                          <li className="text-gray-300 ml-4">{children}</li>
-                        ),
-                        blockquote: ({ children }: any) => (
-                          <blockquote className="border-l-4 border-[#8B5CF6] pl-6 py-2 my-6 text-gray-300 italic">{children}</blockquote>
-                        ),
-                        code: ({ children }: any) => (
-                          <code className="px-2 py-1 bg-[#333333] text-[#00FFFF] rounded text-sm font-mono">{children}</code>
-                        ),
-                      }}
-                    >
-                      {processMarkdown(results.narrativeAnalysis)}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            {/* Enhanced Narrative Display */}
+            <EnhancedNarrativeDisplay
+              narrativeAnalysis={results.narrativeAnalysis}
+              relationshipsSummary={results.relationshipsSummary}
+              searchGrounding={results.searchGrounding}
+            />
 
             {/* Key Lessons Card */}
             {results.keyLessons && results.keyLessons.length > 0 && (
