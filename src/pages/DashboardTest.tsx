@@ -401,11 +401,12 @@ const DashboardTest: React.FC = () => {
         <EmailVerificationBanner />
         
         {/* Test Mode Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30"
-        >
+      <motion.div
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="bg-gradient-to-r from-purple-500/40 to-pink-500/40 border-y-2 border-purple-500 p-4" // Made more visible
+  style={{ position: 'relative', zIndex: 50 }} // Ensure it's on top
+>
           <div className="max-w-6xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
