@@ -503,8 +503,8 @@ useEffect(() => {
 
               {isLoading && <LoadingState />}
 
-              {isResultsPage && results && !isLoading && (
-                <ResultsSection
+            {isResultsPage && results && !isLoading && results.recommendedTools && (
+  <ResultsSection
                   results={results}
                   query={query}
                   displayTier={userTier}
