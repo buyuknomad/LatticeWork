@@ -1,4 +1,4 @@
-// src/pages/DashboardTest.tsx
+// src/pages/DashboardTest.tsx - Fixed JSX syntax error by properly structuring the component return
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -398,12 +398,6 @@ const DashboardTest: React.FC = () => {
       <BackgroundAnimation />
       
       <div className="relative z-10 min-h-screen">
-        <EmailVerificationBanner />
-        
-  // Replace this section in your DashboardTest.tsx file (around line 345-385)
-// This fixes the test banner visibility issue
-
-      <div className="relative z-10 min-h-screen">
         {/* Test Mode Banner - Fixed at top with higher z-index */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -467,8 +461,6 @@ const DashboardTest: React.FC = () => {
             </div>
           </motion.div>
         )}
-
-        {/* Rest of your content continues here... */}
 
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
