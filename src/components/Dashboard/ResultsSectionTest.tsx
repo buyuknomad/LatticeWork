@@ -10,7 +10,8 @@ import ReactMarkdown from 'react-markdown';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
 import EnhancedNarrativeDisplay from './EnhancedNarrativeDisplay';
-import { LatticeInsightNarrativeResponse, UserTier } from './types';
+import ThreadNarrative from './ThreadNarrative';
+import { LatticeInsightNarrativeResponse, UserTier, isThreadedNarrative } from './types';
 
 interface ResultsSectionTestProps {
   results: LatticeInsightNarrativeResponse;
@@ -52,6 +53,10 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
     });
   };
 
+  // Check if narrative is threaded format
+  const hasThreadedNarrative = results.narrativeAnalysis && isThreadedNarrative(results.narrativeAnalysis);
+  const hasLegacyNarrative = results.narrativeAnalysis && typeof results.narrativeAnalysis === 'string';
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -81,9 +86,15 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
               <span className="text-gray-300 ml-1">{results.metadata?.searchPerformed ? 'Yes' : 'No'}</span>
             </div>
             <div>
-              <span className="text-gray-500">Confidence:</span>
-              <span className="text-gray-300 ml-1">{results.metadata?.searchConfidence?.toFixed(2) || 'N/A'}</span>
+              <span className="text-gray-500">Narrative Type:</span>
+              <span className="text-gray-300 ml-1">{hasThreadedNarrative ? 'Threaded' : hasLegacyNarrative ? 'Legacy' : 'None'}</span>
             </div>
+            {results.metadata?.searchConfidence !== undefined && (
+              <div>
+                <span className="text-gray-500">Confidence:</span>
+                <span className="text-gray-300 ml-1">{results.metadata.searchConfidence.toFixed(2)}</span>
+              </div>
+            )}
             {results.metadata?.searchSkipped && (
               <div className="col-span-full">
                 <span className="text-gray-500">Skip Reason:</span>
@@ -476,7 +487,7 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
           </motion.div>
         )}
 
-        {/* NEW: Narrative Tab Content */}
+        {/* Narrative Tab Content */}
         {activeTab === 'narrative' && displayTier === 'premium' && results.narrativeAnalysis && (
           <motion.div
             key="narrative"
@@ -486,14 +497,34 @@ const ResultsSectionTest: React.FC<ResultsSectionTestProps> = ({
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            {/* Enhanced Narrative Display */}
-            <EnhancedNarrativeDisplay
-              narrativeAnalysis={results.narrativeAnalysis}
-              relationshipsSummary={results.relationshipsSummary}
-              searchGrounding={results.searchGrounding}
-            />
+            {/* Check if narrative is threaded or legacy format */}
+            {hasThreadedNarrative ? (
+              // NEW: Threaded Narrative Display
+              <ThreadNarrative
+                narrative={results.narrativeAnalysis as any}
+                tools={results.recommendedTools || []}
+                onToolClick={(toolName) => {
+                  // Optional: Scroll to tool card in analysis tab
+                  setActiveTab('analysis');
+                  // You could add logic here to highlight the specific tool
+                  console.log('Tool clicked from narrative:', toolName);
+                }}
+              />
+            ) : hasLegacyNarrative ? (
+              // FALLBACK: Legacy Narrative Display
+              <EnhancedNarrativeDisplay
+                narrativeAnalysis={results.narrativeAnalysis as string}
+                relationshipsSummary={results.relationshipsSummary}
+                searchGrounding={results.searchGrounding}
+              />
+            ) : (
+              // No narrative available
+              <div className="text-center py-16">
+                <p className="text-gray-400">No narrative analysis available</p>
+              </div>
+            )}
 
-            {/* Key Lessons Card */}
+            {/* Key Lessons Card - Show for both formats */}
             {results.keyLessons && results.keyLessons.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
