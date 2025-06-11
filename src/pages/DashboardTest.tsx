@@ -49,7 +49,7 @@ const DashboardTest: React.FC = () => {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Dashboard Test (v14.3) | Mind Lattice';
+    document.title = 'Dashboard Test (v14.2) | Mind Lattice';
   }, []);
   
   // Animation states
@@ -398,17 +398,19 @@ const DashboardTest: React.FC = () => {
       <BackgroundAnimation />
       
       <div className="relative z-10 min-h-screen">
-        {/* Test Mode Banner - Fixed at top with higher z-index */}
+        <EmailVerificationBanner />
+        
+        {/* Test Mode Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30 backdrop-blur-sm"
+          className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30"
         >
           <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.3)</span>
-                <span className="text-xs text-gray-400 hidden sm:inline">Using narrative edge function with thread system</span>
+                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.2)</span>
+                <span className="text-xs text-gray-400">Using narrative edge function with search capabilities</span>
               </div>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 text-sm">
@@ -416,21 +418,21 @@ const DashboardTest: React.FC = () => {
                     type="checkbox"
                     checked={allowSearchInTest}
                     onChange={(e) => setAllowSearchInTest(e.target.checked)}
-                    className="rounded text-purple-500 focus:ring-purple-500"
+                    className="rounded"
                   />
                   <span className="text-gray-300">Enable Search</span>
                 </label>
                 <select
                   value={testTier}
                   onChange={(e) => setTestTier(e.target.value as UserTier)}
-                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600 focus:border-purple-500"
+                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600"
                 >
                   <option value="free">Test as Free</option>
                   <option value="premium">Test as Premium</option>
                 </select>
                 <button
                   onClick={() => setShowDebugInfo(!showDebugInfo)}
-                  className="text-xs px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+                  className="text-xs text-gray-400 hover:text-gray-300"
                 >
                   {showDebugInfo ? 'Hide' : 'Show'} Debug
                 </button>
@@ -439,14 +441,10 @@ const DashboardTest: React.FC = () => {
           </div>
         </motion.div>
         
-        {/* Add padding to account for fixed banner */}
-        <div className="pt-12">
-          <EmailVerificationBanner />
-          <DashboardHeader
-            user={user}
-            displayTier={testModeEnabled ? testTier : userTier}
-          />
-        </div>
+        <DashboardHeader
+          user={user}
+          displayTier={testModeEnabled ? testTier : userTier}
+        />
 
         {/* Success Message */}
         {successMessage && (
