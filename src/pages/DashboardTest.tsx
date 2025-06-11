@@ -11,7 +11,7 @@ import EmailVerificationBanner from '../components/EmailVerificationBanner';
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuerySectionTest from '../components/Dashboard/QuerySectionTest';
 import LoadingStateTest from '../components/Dashboard/LoadingStateTest';
-import ResultsSectionTest from '../components/Dashboard/ResultsSectionTest';
+import ResultsSectionWrapper from '../components/Dashboard/ResultsSectionWrapper';
 import { 
   LatticeInsightNarrativeResponse, 
   TrendingQuestion,
@@ -511,8 +511,8 @@ const DashboardTest: React.FC = () => {
               {isLoading && <LoadingStateTest />}
 
               {isResultsPage && !isLoading && (
-                <ResultsSectionTest
-                  results={results!} // Use non-null assertion since we check results exists
+                <ResultsSectionWrapper
+                  results={results}
                   query={query}
                   displayTier={testModeEnabled ? testTier : userTier}
                   onResetQuery={resetQuery}
