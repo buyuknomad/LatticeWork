@@ -1,4 +1,4 @@
-// src/pages/DashboardTest.tsx - Fixed JSX syntax error by properly structuring the component return
+// src/pages/DashboardTest.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -49,7 +49,7 @@ const DashboardTest: React.FC = () => {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Dashboard Test (v14.2) | Mind Lattice';
+    document.title = 'Dashboard Test (v14.3) | Mind Lattice';
   }, []);
   
   // Animation states
