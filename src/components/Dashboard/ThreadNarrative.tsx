@@ -26,10 +26,10 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
   const [activeThreadIndex, setActiveThreadIndex] = useState(-1);
   const [showFullNarrative, setShowFullNarrative] = useState(false);
 
-  // Calculate tool counts
-  const mentalModels = tools.filter(t => t.type === 'mental_model');
-  const cognitiveBiases = tools.filter(t => t.type === 'cognitive_bias');
-  const surpriseTools = tools.filter(t => t.isSurprise);
+  // Calculate tool counts with null safety
+  const mentalModels = tools?.filter(t => t.type === 'mental_model') || [];
+  const cognitiveBiases = tools?.filter(t => t.type === 'cognitive_bias') || [];
+  const surpriseTools = tools?.filter(t => t.isSurprise) || [];
 
   // Auto-reveal threads progressively
   useEffect(() => {
