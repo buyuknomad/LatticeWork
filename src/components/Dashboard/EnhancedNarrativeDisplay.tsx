@@ -1,15 +1,18 @@
-// Enhanced Narrative Display Section for ResultsSectionTest.tsx
-// This replaces the narrative display portion
-
+// src/components/Dashboard/EnhancedNarrativeDisplay.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Lightbulb, TrendingUp, AlertCircle, Target, Quote } from 'lucide-react';
+import { BookOpen, Lightbulb, TrendingUp, Quote, Globe } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface EnhancedNarrativeProps {
   narrativeAnalysis: string;
   relationshipsSummary?: string;
-  searchGrounding?: any;
+  searchGrounding?: {
+    wasSearchUsed: boolean;
+    searchQuery?: string;
+    sourcesCount?: number;
+    searchTimestamp?: string;
+  };
 }
 
 const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
@@ -60,8 +63,13 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
         return { type: 'connection', content: paragraph };
       }
       
+      // Check for separator
+      if (paragraph === '---') {
+        return { type: 'separator', content: '' };
+      }
+      
       // Check for key insights (shorter paragraphs with strong language)
-      if (paragraph.length < 200 && paragraph.includes('**')) {
+      if (paragraph.length < 200 && paragraph.includes('**') && !paragraph.startsWith('**How These')) {
         return { type: 'insight', content: paragraph };
       }
       
@@ -76,7 +84,7 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
       return { type: 'regular', content: paragraph };
     });
     
-    return sections;
+    return sections.filter(s => s.type !== 'separator');
   };
 
   const sections = parseNarrativeSections(narrativeAnalysis);
@@ -131,11 +139,14 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
                         <div className="prose prose-sm max-w-none">
                           <ReactMarkdown
                             components={{
-                              p: ({ children }) => (
+                              p: ({ children }: any) => (
                                 <p className="text-gray-300 leading-relaxed italic">{children}</p>
                               ),
-                              strong: ({ children }) => (
+                              strong: ({ children }: any) => (
                                 <strong className="font-semibold text-white">{children}</strong>
+                              ),
+                              em: ({ children }: any) => (
+                                <em className="text-gray-300">{children}</em>
                               ),
                             }}
                           >
@@ -162,11 +173,14 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
                         <div className="prose prose-sm max-w-none flex-1">
                           <ReactMarkdown
                             components={{
-                              p: ({ children }) => (
+                              p: ({ children }: any) => (
                                 <p className="text-gray-200 leading-relaxed mb-0">{children}</p>
                               ),
-                              strong: ({ children }) => (
+                              strong: ({ children }: any) => (
                                 <strong className="font-semibold text-[#00FFFF]">{children}</strong>
+                              ),
+                              em: ({ children }: any) => (
+                                <em className="text-gray-200">{children}</em>
                               ),
                             }}
                           >
@@ -193,11 +207,14 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
                         <div className="prose prose-sm max-w-none flex-1">
                           <ReactMarkdown
                             components={{
-                              p: ({ children }) => (
+                              p: ({ children }: any) => (
                                 <p className="text-gray-300 leading-relaxed mb-0 italic">{children}</p>
                               ),
-                              strong: ({ children }) => (
+                              strong: ({ children }: any) => (
                                 <strong className="font-semibold text-gray-100">{children}</strong>
+                              ),
+                              em: ({ children }: any) => (
+                                <em className="text-gray-300">{children}</em>
                               ),
                             }}
                           >
@@ -220,20 +237,29 @@ const EnhancedNarrativeDisplay: React.FC<EnhancedNarrativeProps> = ({
                   >
                     <ReactMarkdown
                       components={{
-                        p: ({ children }) => (
+                        p: ({ children }: any) => (
                           <p className="text-gray-300 leading-relaxed mb-4">{children}</p>
                         ),
-                        strong: ({ children }) => (
+                        strong: ({ children }: any) => (
                           <strong className="font-semibold text-white">{children}</strong>
                         ),
-                        em: ({ children }) => (
+                        em: ({ children }: any) => (
                           <em className="text-gray-200 italic">{children}</em>
                         ),
-                        ul: ({ children }) => (
+                        ul: ({ children }: any) => (
                           <ul className="list-disc list-inside space-y-2 text-gray-300 my-4 ml-4">{children}</ul>
                         ),
-                        li: ({ children }) => (
+                        li: ({ children }: any) => (
                           <li className="text-gray-300">{children}</li>
+                        ),
+                        h1: ({ children }: any) => (
+                          <h1 className="text-2xl font-bold text-white mb-4 mt-6">{children}</h1>
+                        ),
+                        h2: ({ children }: any) => (
+                          <h2 className="text-xl font-semibold text-white mb-3 mt-5">{children}</h2>
+                        ),
+                        h3: ({ children }: any) => (
+                          <h3 className="text-lg font-semibold text-white mb-2 mt-4">{children}</h3>
                         ),
                       }}
                     >
