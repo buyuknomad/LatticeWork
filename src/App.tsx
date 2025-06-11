@@ -87,6 +87,9 @@ const AppContent: React.FC = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/history" element={<History />} />
             <Route path="/dashboard/results" element={<Dashboard />} />
+            {/* Test Dashboard Routes - Fixed */}
+            <Route path="/dashboard-test" element={<DashboardTest />} />
+            <Route path="/dashboard-test/results" element={<DashboardTest />} />
         
             {/* Add other protected routes here */}
           </Route>
