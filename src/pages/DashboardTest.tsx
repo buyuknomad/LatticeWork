@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import EmailVerificationBanner from '../components/EmailVerificationBanner';
+import { Settings, Clock, Crown, Sparkles } from 'lucide-react';
 
 // Import Dashboard components - test versions
-import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuerySectionTest from '../components/Dashboard/QuerySectionTest';
 import LoadingStateTest from '../components/Dashboard/LoadingStateTest';
 import ResultsSectionWrapper from '../components/Dashboard/ResultsSectionWrapper';
@@ -421,51 +421,125 @@ const DashboardTest: React.FC = () => {
       <div className="relative z-10 min-h-screen">
         <EmailVerificationBanner />
         
-        {/* Test Mode Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30"
-        >
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.3)</span>
-                <span className="text-xs text-gray-400">Thread System + Search + Dynamic Action Plans</span>
+        {/* Custom header with integrated test controls */}
+        <div className="pt-20 pb-8 px-4">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+            >
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+                    Welcome back,
+                  </span>{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
+                    {user?.user_metadata?.username || user?.email?.split('@')[0] || 'User'}
+                  </span>
+                </h1>
+                <p className="text-gray-400 text-sm sm:text-base">
+                  Let's decode the patterns shaping your world
+                </p>
               </div>
-              <div className="flex items-center gap-4 flex-wrap">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={allowSearchInTest}
-                    onChange={(e) => setAllowSearchInTest(e.target.checked)}
-                    className="rounded text-purple-500 focus:ring-purple-500"
-                  />
-                  <span className="text-gray-300">Enable Search</span>
-                </label>
-                <select
-                  value={testTier}
-                  onChange={(e) => setTestTier(e.target.value as UserTier)}
-                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600 focus:border-purple-500 focus:outline-none"
+
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Test Mode Controls - Compact Design */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/30 rounded-lg"
                 >
-                  <option value="free">Test as Free</option>
-                  <option value="premium">Test as Premium</option>
-                </select>
-                <button
-                  onClick={() => setShowDebugInfo(!showDebugInfo)}
-                  className="text-xs text-gray-400 hover:text-purple-300 transition-colors"
-                >
-                  {showDebugInfo ? 'Hide' : 'Show'} Debug
-                </button>
+                  <span className="text-xs font-semibold text-purple-300 hidden sm:inline">🧪 Test</span>
+                  
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={allowSearchInTest}
+                        onChange={(e) => setAllowSearchInTest(e.target.checked)}
+                        className="w-3 h-3 rounded text-purple-500 focus:ring-purple-500 focus:ring-1"
+                      />
+                      <span className="text-xs text-gray-300">Search</span>
+                    </label>
+                    
+                    <div className="w-px h-4 bg-gray-600" />
+                    
+                    <select
+                      value={testTier}
+                      onChange={(e) => setTestTier(e.target.value as UserTier)}
+                      className="text-xs bg-[#252525] text-gray-300 px-2 py-0.5 rounded border border-gray-600 focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="free">Free</option>
+                      <option value="premium">Premium</option>
+                    </select>
+                    
+                    <div className="w-px h-4 bg-gray-600" />
+                    
+                    <button
+                      onClick={() => setShowDebugInfo(!showDebugInfo)}
+                      className="text-xs text-gray-400 hover:text-purple-300 transition-colors px-1"
+                      title={showDebugInfo ? 'Hide Debug' : 'Show Debug'}
+                    >
+                      {showDebugInfo ? '🐛' : '👁️'}
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* History Button */}
+                <Link to="/history">
+                  <motion.button
+                    className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 hover:bg-[#252525]/80 transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Clock className="h-5 w-5 text-gray-400 group-hover:text-[#00FFFF] transition-colors" />
+                    <span className="hidden sm:inline text-sm font-medium text-gray-400 group-hover:text-[#00FFFF] transition-colors">
+                      History
+                    </span>
+                  </motion.button>
+                </Link>
+
+                {/* Settings Button */}
+                <Link to="/settings">
+                  <motion.button
+                    className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 hover:bg-[#252525]/80 transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Settings className="h-5 w-5 text-gray-400 group-hover:text-[#00FFFF] transition-colors" />
+                    <span className="hidden sm:inline text-sm font-medium text-gray-400 group-hover:text-[#00FFFF] transition-colors">
+                      Settings
+                    </span>
+                  </motion.button>
+                </Link>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Tier Badge */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mt-6 inline-flex items-center gap-2"
+            >
+              {testTier === 'premium' ? (
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#8B5CF6]/20 to-[#8B5CF6]/10 backdrop-blur-sm border border-[#8B5CF6]/30 rounded-full">
+                  <Crown size={16} className="text-[#8B5CF6]" />
+                  <span className="text-sm font-medium text-[#8B5CF6]">Premium Member</span>
+                  <span className="text-xs text-[#8B5CF6]/60">(Test Mode)</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#00FFFF]/20 to-[#00FFFF]/10 backdrop-blur-sm border border-[#00FFFF]/30 rounded-full">
+                  <Sparkles size={16} className="text-[#00FFFF]" />
+                  <span className="text-sm font-medium text-[#00FFFF]">Free Tier</span>
+                  <span className="text-xs text-[#00FFFF]/60">(Test Mode)</span>
+                </div>
+              )}
+            </motion.div>
           </div>
-        </motion.div>
-        
-        <DashboardHeader
-          user={user}
-          displayTier={testModeEnabled ? testTier : userTier}
-        />
+        </div>
 
         {/* Success Message */}
         {successMessage && (
