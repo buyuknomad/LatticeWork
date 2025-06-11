@@ -400,18 +400,21 @@ const DashboardTest: React.FC = () => {
       <div className="relative z-10 min-h-screen">
         <EmailVerificationBanner />
         
-        {/* Test Mode Banner */}
-      <motion.div
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="bg-gradient-to-r from-purple-500/40 to-pink-500/40 border-y-2 border-purple-500 p-4" // Made more visible
-  style={{ position: 'relative', zIndex: 50 }} // Ensure it's on top
->
+  // Replace this section in your DashboardTest.tsx file (around line 345-385)
+// This fixes the test banner visibility issue
+
+      <div className="relative z-10 min-h-screen">
+        {/* Test Mode Banner - Fixed at top with higher z-index */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30 backdrop-blur-sm"
+        >
           <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.2)</span>
-                <span className="text-xs text-gray-400">Using narrative edge function with search capabilities</span>
+                <span className="text-sm font-semibold text-purple-300">🧪 Test Mode (v14.3)</span>
+                <span className="text-xs text-gray-400 hidden sm:inline">Using narrative edge function with thread system</span>
               </div>
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 text-sm">
@@ -419,21 +422,21 @@ const DashboardTest: React.FC = () => {
                     type="checkbox"
                     checked={allowSearchInTest}
                     onChange={(e) => setAllowSearchInTest(e.target.checked)}
-                    className="rounded"
+                    className="rounded text-purple-500 focus:ring-purple-500"
                   />
                   <span className="text-gray-300">Enable Search</span>
                 </label>
                 <select
                   value={testTier}
                   onChange={(e) => setTestTier(e.target.value as UserTier)}
-                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600"
+                  className="text-sm bg-[#252525] text-gray-300 px-3 py-1 rounded border border-gray-600 focus:border-purple-500"
                 >
                   <option value="free">Test as Free</option>
                   <option value="premium">Test as Premium</option>
                 </select>
                 <button
                   onClick={() => setShowDebugInfo(!showDebugInfo)}
-                  className="text-xs text-gray-400 hover:text-gray-300"
+                  className="text-xs px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
                 >
                   {showDebugInfo ? 'Hide' : 'Show'} Debug
                 </button>
@@ -442,10 +445,14 @@ const DashboardTest: React.FC = () => {
           </div>
         </motion.div>
         
-        <DashboardHeader
-          user={user}
-          displayTier={testModeEnabled ? testTier : userTier}
-        />
+        {/* Add padding to account for fixed banner */}
+        <div className="pt-12">
+          <EmailVerificationBanner />
+          <DashboardHeader
+            user={user}
+            displayTier={testModeEnabled ? testTier : userTier}
+          />
+        </div>
 
         {/* Success Message */}
         {successMessage && (
@@ -460,6 +467,8 @@ const DashboardTest: React.FC = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Rest of your content continues here... */}
 
         <div className="px-4 pb-20">
           <div className="max-w-6xl mx-auto">
