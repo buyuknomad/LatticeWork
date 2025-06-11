@@ -369,7 +369,7 @@ const DashboardTest: React.FC = () => {
 
       if (data.error) {
         setError(data.error);
-      } else if (data.recommendedTools && data.recommendedTools.length > 0) {
+      } else {
         setResults(data);
         setQuerySource('manual');
         
@@ -383,8 +383,6 @@ const DashboardTest: React.FC = () => {
         if (userTier === 'free' && !testModeEnabled) {
           setTimeout(() => calculateQueryLimits(), 100);
         }
-      } else {
-        setError('No patterns identified. Please try a different query.');
       }
 
     } catch (err: any) {
