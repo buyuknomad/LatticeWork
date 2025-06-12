@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
-import ThreadNarrativeSafe from './ThreadNarrativeSafe';
+import ResultsSectionTest from './ResultsSectionTest';
 import { LatticeInsightNarrativeResponse, UserTier } from './types';
 
 interface ResultsSectionWrapperProps {
@@ -20,21 +20,15 @@ const ResultsSectionWrapper: React.FC<ResultsSectionWrapperProps> = ({
   onResetQuery,
   showDebugInfo = false,
 }) => {
-  // Debug logging to understand the structure
-  console.log('ResultsSectionWrapper received:', {
-    results,
-    type: typeof results,
-    isNull: results === null,
-    isUndefined: results === undefined,
-    hasRecommendedTools: results?.recommendedTools !== undefined,
-    recommendedToolsType: typeof results?.recommendedTools,
-    narrativeType: typeof results?.narrativeAnalysis,
-    resultsKeys: results ? Object.keys(results) : 'N/A'
-  });
-
   // Comprehensive safety check
-  if (!results || typeof results !== 'object' || !results.recommendedTools) {
-    console.error('ResultsSectionWrapper: Invalid or missing results');
+  if (!results || typeof results !== 'object' || Array.isArray(results)) {
+    console.error('ResultsSectionWrapper: Invalid or missing results', { 
+      results, 
+      type: typeof results,
+      isNull: results === null,
+      isUndefined: results === undefined,
+      isArray: Array.isArray(results)
+    });
     
     return (
       <motion.div
@@ -63,50 +57,22 @@ const ResultsSectionWrapper: React.FC<ResultsSectionWrapperProps> = ({
     );
   }
 
-  // Additional validation for narrative if it's threaded
-  if (results.narrativeAnalysis && typeof results.narrativeAnalysis === 'object') {
-    const narrative = results.narrativeAnalysis as any;
-    
-    // Validate thread structure
-    if (narrative.threads && !Array.isArray(narrative.threads)) {
-      console.error('ResultsSectionWrapper: Invalid thread structure - threads is not an array');
-      
-      // Try to fix it if possible
-      if (typeof narrative.threads === 'object') {
-        narrative.threads = Object.values(narrative.threads);
-      } else {
-        narrative.threads = [];
-      }
-    }
-    
-    // Validate action plan sections
-    if (narrative.actionPlan && narrative.actionPlan.sections && typeof narrative.actionPlan.sections !== 'object') {
-      console.error('ResultsSectionWrapper: Invalid action plan sections');
-      narrative.actionPlan.sections = {};
-    }
+  // Additional check for required properties
+  if (!results.recommendedTools) {
+    console.error('ResultsSectionWrapper: Results missing recommendedTools', results);
+    results.recommendedTools = [];
   }
 
-  // Create a safe results object with all required properties
+  // Create a safe results object with default values
   const safeResults: LatticeInsightNarrativeResponse = {
-    recommendedTools: Array.isArray(results.recommendedTools) ? results.recommendedTools : [],
+    recommendedTools: results.recommendedTools || [],
     relationshipsSummary: results.relationshipsSummary || null,
     narrativeAnalysis: results.narrativeAnalysis || null,
-    keyLessons: Array.isArray(results.keyLessons) ? results.keyLessons : [],
+    keyLessons: results.keyLessons || [],
     searchGrounding: results.searchGrounding || undefined,
     metadata: results.metadata || {},
     error: results.error || null
   };
-
-  // Ensure all arrays are actually arrays
-  if (!Array.isArray(safeResults.recommendedTools)) {
-    console.error('recommendedTools is not an array, converting...');
-    safeResults.recommendedTools = [];
-  }
-  
-  if (!Array.isArray(safeResults.keyLessons)) {
-    console.error('keyLessons is not an array, converting...');
-    safeResults.keyLessons = [];
-  }
 
   return (
     <ResultsSectionTest
