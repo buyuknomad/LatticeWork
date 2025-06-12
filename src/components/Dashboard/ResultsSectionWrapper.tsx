@@ -74,6 +74,25 @@ const ResultsSectionWrapper: React.FC<ResultsSectionWrapperProps> = ({
     error: results.error || null
   };
 
+  // Transform narrative analysis if it's in the new format
+  if (safeResults.narrativeAnalysis && typeof safeResults.narrativeAnalysis === 'object' && 'actionPlan' in safeResults.narrativeAnalysis) {
+    const narrative = safeResults.narrativeAnalysis as any;
+    
+    // Transform actionPlan.sections from array to object format if needed
+    if (narrative.actionPlan && Array.isArray(narrative.actionPlan.sections)) {
+      const sectionsObject: { [key: string]: string[] } = {};
+      
+      narrative.actionPlan.sections.forEach((section: any) => {
+        if (section.name && Array.isArray(section.actions)) {
+          sectionsObject[section.name] = section.actions;
+        }
+      });
+      
+      narrative.actionPlan.sections = sectionsObject;
+      console.log('Transformed actionPlan sections from array to object format');
+    }
+  }
+
   return (
     <ResultsSectionTest
       results={safeResults}
