@@ -1,183 +1,122 @@
-// src/components/Dashboard/ThreadNarrativeSafe.tsx
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, AlertTriangle, Layers, ChevronDown, Eye } from 'lucide-react';
-import { ThreadedNarrative, RecommendedTool } from './types';
-import NarrativeHook from './NarrativeHook';
-import ThreadItem from './ThreadItem';
-import ThreadTimeline from './ThreadTimeline';
-import BottomLine from './BottomLine';
-import ActionPlan from './ActionPlan';
+// src/components/Dashboard/ResultsSectionWrapper.tsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
+import ThreadNarrativeSafe from './ThreadNarrativeSafe';
+import { LatticeInsightNarrativeResponse, UserTier } from './types';
 
-interface ThreadNarrativeProps {
-  narrative: ThreadedNarrative;
-  tools: RecommendedTool[];
-  className?: string;
-  onToolClick?: (toolName: string) => void;
+interface ResultsSectionWrapperProps {
+  results: LatticeInsightNarrativeResponse | null | undefined;
+  query: string;
+  displayTier: UserTier;
+  onResetQuery: () => void;
+  showDebugInfo?: boolean;
 }
 
-const ThreadNarrativeSafe: React.FC<ThreadNarrativeProps> = ({
-  narrative,
-  tools,
-  className = '',
-  onToolClick
+const ResultsSectionWrapper: React.FC<ResultsSectionWrapperProps> = ({
+  results,
+  query,
+  displayTier,
+  onResetQuery,
+  showDebugInfo = false,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeThreadIndex, setActiveThreadIndex] = useState(-1);
-  const [showFullNarrative, setShowFullNarrative] = useState(false);
+  // Debug logging to understand the structure
+  console.log('ResultsSectionWrapper received:', {
+    results,
+    type: typeof results,
+    isNull: results === null,
+    isUndefined: results === undefined,
+    hasRecommendedTools: results?.recommendedTools !== undefined,
+    recommendedToolsType: typeof results?.recommendedTools,
+    narrativeType: typeof results?.narrativeAnalysis,
+    resultsKeys: results ? Object.keys(results) : 'N/A'
+  });
 
-  // Validate narrative structure
-  if (!narrative || typeof narrative !== 'object') {
-    console.error('ThreadNarrativeSafe: Invalid narrative structure', narrative);
-    return (
-      <div className="text-center py-16">
-        <p className="text-red-400">Error: Invalid narrative structure</p>
-      </div>
-    );
-  }
-
-  // Ensure threads is an array
-  const threads = Array.isArray(narrative.threads) ? narrative.threads : [];
-  
-  if (threads.length === 0) {
-    console.error('ThreadNarrativeSafe: No threads found', narrative);
-    return (
-      <div className="text-center py-16">
-        <p className="text-gray-400">No narrative threads available</p>
-      </div>
-    );
-  }
-
-  // Ensure tools is an array with null safety
-  const safeTools = Array.isArray(tools) ? tools : [];
-  const mentalModels = safeTools.filter(t => t?.type === 'mental_model') || [];
-  const cognitiveBiases = safeTools.filter(t => t?.type === 'cognitive_bias') || [];
-  const surpriseTools = safeTools.filter(t => t?.isSurprise) || [];
-
-  // Validate other required properties
-  const hook = narrative.hook || 'Analysis of your query...';
-  const bottomLine = narrative.bottomLine || 'Take action on these insights.';
-  const actionPlan = narrative.actionPlan || { type: 'analytical', sections: {} };
-
-  // Auto-reveal threads progressively
-  useEffect(() => {
-    setIsVisible(true);
+  // Comprehensive safety check
+  if (!results || typeof results !== 'object' || !results.recommendedTools) {
+    console.error('ResultsSectionWrapper: Invalid or missing results');
     
-    // Progressive thread reveal
-    const revealThreads = () => {
-      let currentIndex = 0;
-      const interval = setInterval(() => {
-        if (currentIndex < threads.length) {
-          setActiveThreadIndex(currentIndex);
-          currentIndex++;
-        } else {
-          clearInterval(interval);
-          setShowFullNarrative(true);
-        }
-      }, 600); // Reveal a new thread every 600ms
-
-      return () => clearInterval(interval);
-    };
-
-    const timer = setTimeout(revealThreads, 500);
-    return () => clearTimeout(timer);
-  }, [threads.length]);
-
-  return (
-    <motion.div
-      className={`relative ${className}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isVisible ? 1 : 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Tool Count Indicator Bar */}
+    return (
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-3xl mx-auto mt-20"
       >
-        <div className="bg-[#1F1F1F]/80 backdrop-blur-xl rounded-xl border border-[#333333] p-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            {/* Left side - Pattern Analysis label */}
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-[#8B5CF6]/20 to-[#00FFFF]/20 rounded-lg">
-                <Layers className="h-5 w-5 text-[#8B5CF6]" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-white">Pattern Analysis Narrative</h3>
-                <p className="text-xs text-gray-400">
-                  {threads.length} insights • ~3 min read
-                </p>
-              </div>
-            </div>
-
-            {/* Right side - Tool counts */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-[#00FFFF]/10 rounded-lg">
-                  <Brain className="h-4 w-4 text-[#00FFFF]" />
-                </div>
-                <span className="text-sm text-gray-300">
-                  {mentalModels.length} Models
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-amber-500/10 rounded-lg">
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                </div>
-                <span className="text-sm text-gray-300">
-                  {cognitiveBiases.length} Biases
-                </span>
-              </div>
-
-              {surpriseTools.length > 0 && (
-                <motion.div
-                  className="flex items-center gap-2 px-3 py-1 bg-[#8B5CF6]/10 rounded-full border border-[#8B5CF6]/30"
-                  animate={{
-                    borderColor: ['rgba(139, 92, 246, 0.3)', 'rgba(139, 92, 246, 0.6)', 'rgba(139, 92, 246, 0.3)']
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <span className="text-xs text-[#8B5CF6] font-medium">
-                    ✨ {surpriseTools.length} Surprise
-                  </span>
-                </motion.div>
-              )}
-            </div>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500/20 rounded-full mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-400" />
           </div>
-
-          {/* Progress indicator */}
-          <div className="mt-3 h-1 bg-[#252525] rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]"
-              initial={{ width: '0%' }}
-              animate={{ 
-                width: `${((activeThreadIndex + 1) / threads.length) * 100}%`
-              }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
+          <h3 className="text-xl font-semibold text-red-400 mb-2">No Results Available</h3>
+          <p className="text-gray-400 mb-6">
+            The analysis results could not be loaded. This might happen if you navigated directly to this page.
+          </p>
+          <motion.button
+            onClick={onResetQuery}
+            className="px-6 py-3 bg-[#00FFFF]/20 text-[#00FFFF] rounded-lg hover:bg-[#00FFFF]/30 transition-colors font-medium"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Return to Dashboard
+          </motion.button>
         </div>
       </motion.div>
+    );
+  }
 
-      {/* Narrative Hook */}
-      <NarrativeHook hook={hook} className="mb-12 text-center" />
+  // Additional validation for narrative if it's threaded
+  if (results.narrativeAnalysis && typeof results.narrativeAnalysis === 'object') {
+    const narrative = results.narrativeAnalysis as any;
+    
+    // Validate thread structure
+    if (narrative.threads && !Array.isArray(narrative.threads)) {
+      console.error('ResultsSectionWrapper: Invalid thread structure - threads is not an array');
+      
+      // Try to fix it if possible
+      if (typeof narrative.threads === 'object') {
+        narrative.threads = Object.values(narrative.threads);
+      } else {
+        narrative.threads = [];
+      }
+    }
+    
+    // Validate action plan sections
+    if (narrative.actionPlan && narrative.actionPlan.sections && typeof narrative.actionPlan.sections !== 'object') {
+      console.error('ResultsSectionWrapper: Invalid action plan sections');
+      narrative.actionPlan.sections = {};
+    }
+  }
 
-      {/* Threads Container */}
-      <div className="relative max-w-3xl mx-auto">
-        {/* Timeline - only show on larger screens */}
-        <div className="hidden sm:block">
-          <ThreadTimeline 
-            threadCount={threads.length} 
-            activeIndex={activeThreadIndex}
-            className="z-0"
-          />
-        </div>
+  // Create a safe results object with all required properties
+  const safeResults: LatticeInsightNarrativeResponse = {
+    recommendedTools: Array.isArray(results.recommendedTools) ? results.recommendedTools : [],
+    relationshipsSummary: results.relationshipsSummary || null,
+    narrativeAnalysis: results.narrativeAnalysis || null,
+    keyLessons: Array.isArray(results.keyLessons) ? results.keyLessons : [],
+    searchGrounding: results.searchGrounding || undefined,
+    metadata: results.metadata || {},
+    error: results.error || null
+  };
 
-        {/* Thre
+  // Ensure all arrays are actually arrays
+  if (!Array.isArray(safeResults.recommendedTools)) {
+    console.error('recommendedTools is not an array, converting...');
+    safeResults.recommendedTools = [];
+  }
+  
+  if (!Array.isArray(safeResults.keyLessons)) {
+    console.error('keyLessons is not an array, converting...');
+    safeResults.keyLessons = [];
+  }
+
+  return (
+    <ResultsSectionTest
+      results={safeResults}
+      query={query}
+      displayTier={displayTier}
+      onResetQuery={onResetQuery}
+      showDebugInfo={showDebugInfo}
+    />
+  );
+};
+
+export default ResultsSectionWrapper;
