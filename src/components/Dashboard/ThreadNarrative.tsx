@@ -26,10 +26,32 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
   const [activeThreadIndex, setActiveThreadIndex] = useState(-1);
   const [showFullNarrative, setShowFullNarrative] = useState(false);
 
+  // Validate narrative structure
+  if (!narrative || typeof narrative !== 'object') {
+    console.error('ThreadNarrative: Invalid narrative structure', narrative);
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-400">Error: Invalid narrative format</p>
+      </div>
+    );
+  }
+
+  // Ensure threads is an array
+  const threads = Array.isArray(narrative.threads) ? narrative.threads : [];
+  
+  if (threads.length === 0) {
+    console.error('ThreadNarrative: No threads found in narrative');
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-400">No narrative threads available</p>
+      </div>
+    );
+  }
+
   // Calculate tool counts with null safety
-  const mentalModels = tools?.filter(t => t.type === 'mental_model') || [];
-  const cognitiveBiases = tools?.filter(t => t.type === 'cognitive_bias') || [];
-  const surpriseTools = tools?.filter(t => t.isSurprise) || [];
+  const mentalModels = Array.isArray(tools) ? tools.filter(t => t?.type === 'mental_model') : [];
+  const cognitiveBiases = Array.isArray(tools) ? tools.filter(t => t?.type === 'cognitive_bias') : [];
+  const surpriseTools = Array.isArray(tools) ? tools.filter(t => t?.isSurprise) : [];
 
   // Auto-reveal threads progressively
   useEffect(() => {
@@ -39,7 +61,7 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
     const revealThreads = () => {
       let currentIndex = 0;
       const interval = setInterval(() => {
-        if (currentIndex < narrative.threads.length) {
+        if (currentIndex < threads.length) {
           setActiveThreadIndex(currentIndex);
           currentIndex++;
         } else {
@@ -53,7 +75,7 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
 
     const timer = setTimeout(revealThreads, 500);
     return () => clearTimeout(timer);
-  }, [narrative.threads.length]);
+  }, [threads.length]);
 
   return (
     <motion.div
@@ -79,7 +101,7 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
               <div>
                 <h3 className="text-base font-semibold text-white">Pattern Analysis Narrative</h3>
                 <p className="text-xs text-gray-400">
-                  {narrative.threads.length} insights • ~3 min read
+                  {threads.length} insights • ~3 min read
                 </p>
               </div>
             </div>
@@ -130,7 +152,7 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
               className="h-full bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]"
               initial={{ width: '0%' }}
               animate={{ 
-                width: `${((activeThreadIndex + 1) / narrative.threads.length) * 100}%`
+                width: `${((activeThreadIndex + 1) / threads.length) * 100}%`
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
@@ -139,14 +161,16 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
       </motion.div>
 
       {/* Narrative Hook */}
-      <NarrativeHook hook={narrative.hook} className="mb-12 text-center" />
+      {narrative.hook && (
+        <NarrativeHook hook={narrative.hook} className="mb-12 text-center" />
+      )}
 
       {/* Threads Container */}
       <div className="relative max-w-3xl mx-auto">
         {/* Timeline - only show on larger screens */}
         <div className="hidden sm:block">
           <ThreadTimeline 
-            threadCount={narrative.threads.length} 
+            threadCount={threads.length} 
             activeIndex={activeThreadIndex}
             className="z-0"
           />
@@ -155,24 +179,42 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
         {/* Thread Items */}
         <div className="relative z-10 space-y-6 pl-0 sm:pl-16">
           <AnimatePresence>
-            {narrative.threads.map((thread, index) => (
-              <motion.div
-                key={thread.id}
-                initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: index <= activeThreadIndex ? 1 : 0.3,
-                  scale: index <= activeThreadIndex ? 1 : 0.95
-                }}
-                transition={{ duration: 0.5 }}
-              >
-                <ThreadItem
-                  thread={thread}
-                  index={index}
-                  totalThreads={narrative.threads.length}
-                  onToolClick={onToolClick}
-                />
-              </motion.div>
-            ))}
+            {threads.map((thread, index) => {
+              // Validate thread structure
+              if (!thread || typeof thread !== 'object') {
+                console.warn(`ThreadNarrative: Invalid thread at index ${index}`, thread);
+                return null;
+              }
+
+              // Ensure thread has required properties
+              const safeThread = {
+                id: thread.id || index,
+                type: thread.type || 'opening',
+                content: thread.content || '',
+                emoji: thread.emoji || '',
+                tools: Array.isArray(thread.tools) ? thread.tools : [],
+                highlight: thread.highlight || false
+              };
+
+              return (
+                <motion.div
+                  key={safeThread.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ 
+                    opacity: index <= activeThreadIndex ? 1 : 0.3,
+                    scale: index <= activeThreadIndex ? 1 : 0.95
+                  }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <ThreadItem
+                    thread={safeThread}
+                    index={index}
+                    totalThreads={threads.length}
+                    onToolClick={onToolClick}
+                  />
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       </div>
@@ -187,10 +229,14 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
             className="mt-12 space-y-8"
           >
             {/* Bottom Line */}
-            <BottomLine bottomLine={narrative.bottomLine} />
+            {narrative.bottomLine && (
+              <BottomLine bottomLine={narrative.bottomLine} />
+            )}
 
             {/* Action Plan */}
-            <ActionPlan actionPlan={narrative.actionPlan} />
+            {narrative.actionPlan && (
+              <ActionPlan actionPlan={narrative.actionPlan} />
+            )}
 
             {/* Scroll indicator for mobile */}
             <motion.div
@@ -228,8 +274,9 @@ const ThreadNarrative: React.FC<ThreadNarrativeProps> = ({
       {/* Debug info (dev only) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-4 bg-black/80 text-white text-xs p-2 rounded">
-          <div>Active Thread: {activeThreadIndex + 1}/{narrative.threads.length}</div>
+          <div>Active Thread: {activeThreadIndex + 1}/{threads.length}</div>
           <div>Show Full: {showFullNarrative ? 'Yes' : 'No'}</div>
+          <div>Thread Types: {threads.map(t => t.type).join(', ')}</div>
         </div>
       )}
     </motion.div>
