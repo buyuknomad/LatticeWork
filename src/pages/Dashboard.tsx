@@ -15,17 +15,10 @@ import ResultsSection from '../components/Dashboard/ResultsSection';
 import { 
   LatticeInsightResponse, 
   TrendingQuestion,
-  UserTier 
+  UserTier,
+  QueryLimits,
+  isV14Response
 } from '../components/Dashboard/types';
-
-// Add QueryLimits interface
-interface QueryLimits {
-  trendingUsed: number;
-  trendingLimit: number;
-  manualUsed: number;
-  manualLimit: number;
-  resetTime: Date | null;
-}
 
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
@@ -35,16 +28,16 @@ const Dashboard: React.FC = () => {
   // State management
   const [userTier, setUserTier] = useState<UserTier>('free');
   const [query, setQuery] = useState('');
-  const [querySource, setQuerySource] = useState<'manual' | 'trending'>('manual'); // NEW STATE
+  const [querySource, setQuerySource] = useState<'manual' | 'trending'>('manual');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Set page title
-useEffect(() => {
-  document.title = 'Dashboard | Mind Lattice';
-}, []);
+  useEffect(() => {
+    document.title = 'Dashboard | Mind Lattice';
+  }, []);
   
   // Animation states
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
@@ -94,7 +87,7 @@ useEffect(() => {
     if (userTier === 'free' && user?.id) {
       calculateQueryLimits();
     }
-  }, [userTier, user?.id, error]); // Recalculate when error changes (might be after a query)
+  }, [userTier, user?.id, error]);
 
   const calculateQueryLimits = async () => {
     if (!user?.id) return;
@@ -149,7 +142,7 @@ useEffect(() => {
     }
   };
 
-  // Handle navigation state for results - UPDATED WITH QUERY CLEARING
+  // Handle navigation state for results
   useEffect(() => {
     // If we're on results page but have no results, redirect to dashboard
     if (isResultsPage && !results && !location.state?.results) {
@@ -167,7 +160,7 @@ useEffect(() => {
       // Only clear if we had results (meaning we're coming back from results page)
       if (results) {
         setQuery('');
-        setQuerySource('manual'); // RESET SOURCE
+        setQuerySource('manual');
         setResults(null);
         setError(null);
         setIsTypingAnimation(true);
@@ -252,11 +245,11 @@ useEffect(() => {
     
     // Set the query and mark source as trending
     setQuery(question.question);
-    setQuerySource('trending'); // MARK AS TRENDING
+    setQuerySource('trending');
     setError(null);
     setIsTypingAnimation(false);
     
-    // Submit immediately - no need to pass 'trending' anymore
+    // Submit immediately
     handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
   };
 
@@ -268,7 +261,7 @@ useEffect(() => {
     if (queryParam && !results && !isLoading && !isResultsPage) {
       const decodedQuery = decodeURIComponent(queryParam);
       setQuery(decodedQuery);
-      setQuerySource('manual'); // URL queries are manual
+      setQuerySource('manual');
       setIsTypingAnimation(false);
       
       setTimeout(() => {
@@ -333,7 +326,7 @@ useEffect(() => {
 
   const handleExampleClick = (example: string) => {
     setQuery(example);
-    setQuerySource('manual'); // EXAMPLES ARE MANUAL
+    setQuerySource('manual');
     setError(null);
     setIsTypingAnimation(false);
   };
@@ -368,7 +361,7 @@ useEffect(() => {
         },
         body: JSON.stringify({ 
           query: query,
-          queryType: queryType // Use the stored source
+          queryType: queryType
         }),
       });
 
@@ -403,11 +396,13 @@ useEffect(() => {
 
       const data: LatticeInsightResponse = await response.json();
 
-      // ADD THIS DEBUG LOG
-      console.log('FRONTEND_DEBUG: Received from edge function:', {
+      // Updated debug log for v14.7
+      console.log('RESPONSE_DEBUG: Received from edge function:', {
         toolCount: data.recommendedTools?.length,
         tools: data.recommendedTools?.map(t => t.name),
-        hasRelationships: !!data.relationshipsSummary,
+        hasNarrative: !!data.narrativeAnalysis,
+        hasKeyLessons: !!data.keyLessons,
+        isV14: isV14Response(data),
         metadata: data.metadata
       });
 
@@ -440,7 +435,7 @@ useEffect(() => {
 
   const resetQuery = () => {
     setQuery('');
-    setQuerySource('manual'); // RESET SOURCE
+    setQuerySource('manual');
     setResults(null);
     setError(null);
     setIsLoading(false);
@@ -453,7 +448,6 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
       <BackgroundAnimation />
-      
       
       <div className="relative z-10 min-h-screen">
         <EmailVerificationBanner />
@@ -497,14 +491,14 @@ useEffect(() => {
                   onTrendingClick={handleTrendingClick}
                   shouldFocusAnalysis={shouldFocusAnalysis}
                   userId={user?.id}
-                  limits={queryLimits} // Pass the limits for UI display
+                  limits={queryLimits}
                 />
               )}
 
               {isLoading && <LoadingState />}
 
-            {isResultsPage && results && !isLoading && results.recommendedTools && (
-  <ResultsSection
+              {isResultsPage && results && !isLoading && results.recommendedTools && (
+                <ResultsSection
                   results={results}
                   query={query}
                   displayTier={userTier}
