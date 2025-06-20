@@ -18,7 +18,7 @@ import {
   UserTier,
   QueryLimits,
   isV14Response
-} from '../components/Dashboard/types';
+} from '../components/Dashboard/types'; 
 
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
