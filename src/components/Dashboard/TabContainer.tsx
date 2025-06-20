@@ -1,7 +1,6 @@
-// src/components/Dashboard/TabContainer.tsx
-import React, { useState, useEffect } from 'react';
+// src/components/Dashboard/TabContainer.tsx - SAFE VERSION
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSwipeable } from 'react-swipeable';
 import { useResponsive } from '../../hooks/useResponsive';
 import { LatticeInsightResponse, UserTier, TabType, TabConfig } from './types';
 import AnalysisTab from './tabs/AnalysisTab';
@@ -33,36 +32,19 @@ const TabContainer: React.FC<TabContainerProps> = ({
   displayTier
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('analysis');
-  const [swipeDirection, setSwipeDirection] = useState(0);
   const { isMobile, isTablet } = useResponsive();
   
-  // Swipe handlers for mobile
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (activeTab === 'analysis') {
-        setSwipeDirection(1);
-        setActiveTab('deepDive');
-      }
-    },
-    onSwipedRight: () => {
-      if (activeTab === 'deepDive') {
-        setSwipeDirection(-1);
-        setActiveTab('analysis');
-      }
-    },
-    trackMouse: false,
-    preventScrollOnSwipe: true,
-    delta: 50, // Minimum swipe distance
-  });
-
-  // Reset swipe direction after animation
-  useEffect(() => {
-    const timer = setTimeout(() => setSwipeDirection(0), 300);
-    return () => clearTimeout(timer);
-  }, [activeTab]);
+  // Safety check
+  if (!results || !results.recommendedTools || results.recommendedTools.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-400">No analysis results to display</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative" {...(isMobile ? handlers : {})}>
+    <div className="relative">
       {/* Tab Navigation */}
       <div className={`
         ${isMobile ? 'fixed bottom-0 left-0 right-0 z-40' : 'relative mb-6'}
@@ -110,46 +92,16 @@ const TabContainer: React.FC<TabContainerProps> = ({
             );
           })}
         </div>
-
-        {/* Swipe Indicator for Mobile */}
-        {isMobile && (
-          <div className="absolute -top-8 left-0 right-0 flex justify-center">
-            <div className="flex gap-1">
-              {Object.keys(TAB_CONFIG).map((key, index) => (
-                <div
-                  key={key}
-                  className={`
-                    h-1 rounded-full transition-all duration-300
-                    ${activeTab === key 
-                      ? 'w-6 bg-[#00FFFF]' 
-                      : 'w-1 bg-gray-600'
-                    }
-                  `}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Tab Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
-          initial={{ 
-            x: swipeDirection > 0 ? 300 : swipeDirection < 0 ? -300 : 0, 
-            opacity: 0 
-          }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ 
-            x: swipeDirection > 0 ? -300 : swipeDirection < 0 ? 300 : 0, 
-            opacity: 0 
-          }}
-          transition={{ 
-            type: "spring", 
-            damping: 25,
-            stiffness: 300
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
           className={`
             ${isMobile ? 'pb-24' : ''} // Space for fixed bottom nav on mobile
           `}
@@ -197,4 +149,4 @@ const TabContainer: React.FC<TabContainerProps> = ({
   );
 };
 
-export default TabContainer; 
+export default TabContainer;
