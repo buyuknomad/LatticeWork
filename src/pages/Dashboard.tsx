@@ -18,7 +18,7 @@ import {
   UserTier,
   QueryLimits,
   isV14Response
-} from '../components/Dashboard/types'; 
+} from '../components/Dashboard/types';
 
 const Dashboard: React.FC = () => {
   const { user, session } = useAuth();
@@ -117,18 +117,25 @@ const Dashboard: React.FC = () => {
       }
       
       // Get reset time from first query
-      const { data: firstQuery } = await supabase
-        .from('query_history')
-        .select('created_at')
-        .eq('user_id', user.id)
-        .gte('created_at', twentyFourHoursAgo.toISOString())
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .single();
+      let resetTime = null;
+      try {
+        const { data: firstQuery, error: firstQueryError } = await supabase
+          .from('query_history')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', twentyFourHoursAgo.toISOString())
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
         
-      const resetTime = firstQuery 
-        ? new Date(new Date(firstQuery.created_at).getTime() + 24 * 60 * 60 * 1000)
-        : null;
+        if (firstQueryError) {
+          console.warn('Error fetching first query:', firstQueryError);
+        } else if (firstQuery) {
+          resetTime = new Date(new Date(firstQuery.created_at).getTime() + 24 * 60 * 60 * 1000);
+        }
+      } catch (error) {
+        console.warn('Error calculating reset time:', error);
+      }
       
       setQueryLimits({
         trendingUsed: trendingCount || 0,
@@ -349,7 +356,7 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights`;
+      const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights-narrative`;
       
       console.log(`SUBMIT_DEBUG: Submitting ${queryType} query to edge function`);
       
