@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { LatticeInsightResponse, UserTier } from './types';
 import ToolCard from './ToolCard';
 import UpgradePrompt from './UpgradePrompt';
@@ -41,48 +42,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       default:
         return 'bg-gray-500/20 text-gray-400';
     }
-  };
-
-  // Helper to highlight tool names in thread content
-  const highlightToolNames = (content: string, tools: string[]) => {
-    let highlighted = content;
-    tools.forEach(tool => {
-      // Escape special regex characters in tool name
-      const escapedTool = tool.replace(/[.*+?^${}()|[\]\\]/g, '\\const ResultsSection: React.FC<ResultsSectionProps> = ({
-  results,
-  query,
-  displayTier,
-  onResetQuery,
-}) => {
-  const [showNarrative, setShowNarrative] = useState(true);
-  const [showLessons, setShowLessons] = useState(true);
-  
-  const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
-  const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
-
-  // Helper to get thread type color/style
-  const getThreadStyle = (type: string) => {
-    switch (type) {
-      case 'opening':
-        return 'bg-gray-500/20 text-gray-400';
-      case 'pattern':
-        return 'bg-[#00FFFF]/20 text-[#00FFFF]';
-      case 'insight':
-        return 'bg-amber-500/20 text-amber-500';
-      case 'connection':
-        return 'bg-[#8B5CF6]/20 text-[#8B5CF6]';
-      case 'conclusion':
-        return 'bg-green-500/20 text-green-500';
-      default:
-        return 'bg-gray-500/20 text-gray-400';
-    }
-  };');
-      highlighted = highlighted.replace(
-        new RegExp(`\\b${escapedTool}\\b`, 'gi'),
-        `<strong class="text-[#00FFFF] font-semibold">${tool}</strong>`
-      );
-    });
-    return highlighted;
   };
 
   return (
@@ -165,12 +124,26 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                         <span className={`text-xs px-2 py-0.5 rounded-full inline-block mb-2 font-medium ${getThreadStyle(thread.type)}`}>
                           {thread.type.charAt(0).toUpperCase() + thread.type.slice(1)}
                         </span>
-                        <p 
-                          className="text-sm text-gray-300 leading-relaxed"
-                          dangerouslySetInnerHTML={{ 
-                            __html: highlightToolNames(thread.content, thread.tools) 
-                          }}
-                        />
+                        <div className="text-sm text-gray-300 leading-relaxed">
+                          <ReactMarkdown
+                            components={{
+                              strong: ({ children }) => (
+                                <strong className="font-semibold text-[#00FFFF]">{children}</strong>
+                              ),
+                              em: ({ children }) => (
+                                <em className="text-gray-200 italic">{children}</em>
+                              ),
+                              p: ({ children }) => (
+                                <p className="mb-0">{children}</p>
+                              ),
+                              code: ({ children }) => (
+                                <code className="px-1 py-0.5 bg-[#333333] text-[#00FFFF] rounded text-xs">{children}</code>
+                              ),
+                            }}
+                          >
+                            {thread.content}
+                          </ReactMarkdown>
+                        </div>
                         {thread.tools.length > 0 && (
                           <div className="mt-3 flex flex-wrap gap-2">
                             {thread.tools.map((tool, idx) => (
@@ -219,8 +192,24 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                         <ul className="space-y-2">
                           {section.actionItems.map((item, itemIdx) => (
                             <li key={itemIdx} className="flex items-start gap-2 text-sm text-gray-300">
-                              <span className="text-[#8B5CF6] mt-0.5">→</span>
-                              <span>{item}</span>
+                              <span className="text-[#8B5CF6] mt-0.5 flex-shrink-0">→</span>
+                              <div className="flex-1">
+                                <ReactMarkdown
+                                  components={{
+                                    strong: ({ children }) => (
+                                      <strong className="font-semibold text-white">{children}</strong>
+                                    ),
+                                    em: ({ children }) => (
+                                      <em className="italic">{children}</em>
+                                    ),
+                                    p: ({ children }) => (
+                                      <p className="mb-0">{children}</p>
+                                    ),
+                                  }}
+                                >
+                                  {item}
+                                </ReactMarkdown>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -268,7 +257,23 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                   <span className="flex-shrink-0 w-8 h-8 bg-amber-500/10 rounded-full flex items-center justify-center text-sm font-semibold text-amber-500">
                     {index + 1}
                   </span>
-                  <p className="text-sm text-gray-300 leading-relaxed">{lesson}</p>
+                  <div className="text-sm text-gray-300 leading-relaxed">
+                    <ReactMarkdown
+                      components={{
+                        strong: ({ children }) => (
+                          <strong className="font-semibold text-amber-400">{children}</strong>
+                        ),
+                        em: ({ children }) => (
+                          <em className="italic">{children}</em>
+                        ),
+                        p: ({ children }) => (
+                          <p className="mb-0">{children}</p>
+                        ),
+                      }}
+                    >
+                      {lesson}
+                    </ReactMarkdown>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -351,4 +356,4 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   );
 };
 
-export default ResultsSection; 
+export default ResultsSection;
