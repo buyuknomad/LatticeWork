@@ -43,6 +43,48 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     }
   };
 
+  // Helper to highlight tool names in thread content
+  const highlightToolNames = (content: string, tools: string[]) => {
+    let highlighted = content;
+    tools.forEach(tool => {
+      // Escape special regex characters in tool name
+      const escapedTool = tool.replace(/[.*+?^${}()|[\]\\]/g, '\\const ResultsSection: React.FC<ResultsSectionProps> = ({
+  results,
+  query,
+  displayTier,
+  onResetQuery,
+}) => {
+  const [showNarrative, setShowNarrative] = useState(true);
+  const [showLessons, setShowLessons] = useState(true);
+  
+  const mentalModels = results.recommendedTools?.filter(t => t.type === 'mental_model') || [];
+  const cognitiveBiases = results.recommendedTools?.filter(t => t.type === 'cognitive_bias') || [];
+
+  // Helper to get thread type color/style
+  const getThreadStyle = (type: string) => {
+    switch (type) {
+      case 'opening':
+        return 'bg-gray-500/20 text-gray-400';
+      case 'pattern':
+        return 'bg-[#00FFFF]/20 text-[#00FFFF]';
+      case 'insight':
+        return 'bg-amber-500/20 text-amber-500';
+      case 'connection':
+        return 'bg-[#8B5CF6]/20 text-[#8B5CF6]';
+      case 'conclusion':
+        return 'bg-green-500/20 text-green-500';
+      default:
+        return 'bg-gray-500/20 text-gray-400';
+    }
+  };');
+      highlighted = highlighted.replace(
+        new RegExp(`\\b${escapedTool}\\b`, 'gi'),
+        `<strong class="text-[#00FFFF] font-semibold">${tool}</strong>`
+      );
+    });
+    return highlighted;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -123,9 +165,12 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                         <span className={`text-xs px-2 py-0.5 rounded-full inline-block mb-2 font-medium ${getThreadStyle(thread.type)}`}>
                           {thread.type.charAt(0).toUpperCase() + thread.type.slice(1)}
                         </span>
-                        <p className="text-sm text-gray-300 leading-relaxed">
-                          {thread.content}
-                        </p>
+                        <p 
+                          className="text-sm text-gray-300 leading-relaxed"
+                          dangerouslySetInnerHTML={{ 
+                            __html: highlightToolNames(thread.content, thread.tools) 
+                          }}
+                        />
                         {thread.tools.length > 0 && (
                           <div className="mt-3 flex flex-wrap gap-2">
                             {thread.tools.map((tool, idx) => (
