@@ -226,14 +226,37 @@ const Dashboard: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('trending_questions')
-        .select('*')
+        .select('id, question, category, topic_source, click_count, metadata, created_at')
         .eq('active', true)
         .order('created_at', { ascending: false })
         .limit(12);
       
       if (error) throw error;
       
-      setTrendingQuestions(data || []);
+      // Sort to prioritize hot topics
+      const sortedQuestions = (data || []).sort((a, b) => {
+        // Hot topics first
+        const aIsHot = a.metadata?.isHot || false;
+        const bIsHot = b.metadata?.isHot || false;
+        if (aIsHot && !bIsHot) return -1;
+        if (!aIsHot && bIsHot) return 1;
+        
+        // Then by engagement
+        const aEngagement = a.metadata?.engagement || 0;
+        const bEngagement = b.metadata?.engagement || 0;
+        if (aEngagement !== bEngagement) return bEngagement - aEngagement;
+        
+        // Finally by recency
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setTrendingQuestions(sortedQuestions);
+      
+      // Log metadata stats for debugging
+      const hotCount = sortedQuestions.filter(q => q.metadata?.isHot).length;
+      const withEngagement = sortedQuestions.filter(q => q.metadata?.engagement > 0).length;
+      console.log(`Trending questions loaded: ${sortedQuestions.length} total, ${hotCount} hot, ${withEngagement} with engagement`);
+      
     } catch (error) {
       console.error('Error fetching trending questions:', error);
     } finally {
@@ -245,7 +268,14 @@ const Dashboard: React.FC = () => {
     // Update click count in background (no await to prevent delays)
     supabase
       .from('trending_questions')
-      .update({ click_count: question.click_count + 1 })
+      .update({ 
+        click_count: (question.click_count || 0) + 1,
+        // Optionally update metadata to mark as "viewed"
+        metadata: {
+          ...question.metadata,
+          lastClickedAt: new Date().toISOString()
+        }
+      })
       .eq('id', question.id)
       .then(() => console.log('Click tracked'))
       .catch(err => console.error('Error tracking click:', err));
