@@ -1,5 +1,5 @@
-// src/components/Dashboard/TrendingSection.tsx v2.0
-// Updated to remove question truncation and add viral content detection
+// src/components/Dashboard/TrendingSection.tsx v2.1
+// Updated to remove question truncation and show full question text
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -146,6 +146,16 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
     return `${minutes}m`;
   };
 
+  // Helper function to format numbers
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}k`;
+    }
+    return num.toString();
+  };
+
   const handleUpgradeClick = async (e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
@@ -194,16 +204,6 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
       setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
       setIsLoadingCheckout(false);
     }
-  };
-
-  // Helper function to format numbers
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-    return num.toString();
   };
 
   // Check if questions are locked (rate limit reached)
@@ -386,7 +386,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                   key={question.id}
                   onClick={() => !isLocked && onTrendingClick(question)}
                   disabled={isLocked}
-                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden min-h-[160px] flex flex-col ${
+                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden flex flex-col ${
                     isLocked
                       ? 'bg-[#1A1A1A]/50 border border-[#333333]/50 opacity-60 cursor-not-allowed'
                       : isViral
@@ -403,7 +403,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                   whileTap={!isLocked ? { scale: 0.98 } : {}}
                 >
                   {/* Top Row: Category and Recency */}
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{getCategoryIcon(question.category)}</span>
                       <span className="text-xs text-gray-500 capitalize">{question.category}</span>
@@ -411,8 +411,8 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                     {getRecencyBadge(question)}
                   </div>
 
-                  {/* Question Text */}
-                  <p className={`text-sm transition-colors flex-1 mb-3 ${
+                  {/* Question Text - REMOVED line-clamp-2 to show full text */}
+                  <p className={`text-sm transition-colors flex-1 mb-3 leading-relaxed ${
                     isLocked 
                       ? 'text-gray-500' 
                       : isViral
