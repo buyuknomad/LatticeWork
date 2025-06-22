@@ -1,4 +1,4 @@
-// src/components/Dashboard/ResultsSection.tsx - MOBILE-OPTIMIZED VERSION
+// src/components/Dashboard/ResultsSection.tsx - REFERENCE GUIDE IN THREADS
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles, ChevronDown, ChevronUp, Info } from 'lucide-react';
@@ -226,82 +226,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
           
           {showNarrative && (
             <div className="space-y-4 md:space-y-6">
-              {/* Mobile Reference Toggle */}
-              <div className="md:hidden">
-                <button
-                  onClick={() => setShowReferences(!showReferences)}
-                  className="w-full flex items-center justify-between p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30"
-                >
-                  <span className="flex items-center gap-2 text-sm text-gray-300">
-                    <Info className="w-4 h-4" />
-                    Reference Guide
-                  </span>
-                  {showReferences ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                
-                {showReferences && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="mt-2 p-3 bg-[#1A1A1A]/50 rounded-lg"
-                  >
-                    <p className="text-xs text-gray-400 mb-3">
-                      Tap any code to jump to its explanation
-                    </p>
-                    <div className="space-y-2">
-                      {Object.entries(toolIdMap)
-                        .filter(([id]) => id.match(/^(MM|SI|ST|CB)\d{3}$/))
-                        .map(([id, tool]) => (
-                          <button
-                            key={id}
-                            onClick={() => {
-                              scrollToTool(tool.elementId);
-                              setShowReferences(false);
-                            }}
-                            className="w-full flex items-center gap-2 p-2 bg-[#1A1A1A]/30 rounded text-left"
-                          >
-                            <span className={`font-mono text-sm ${tool.type === 'mental_model' ? 'text-[#00FFFF]' : 'text-amber-500'}`}>
-                              {id}
-                            </span>
-                            <span className="text-xs text-gray-300 flex-1">
-                              {tool.name}
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Desktop Reference Guide */}
-              {Object.keys(toolIdMap).length > 0 && (
-                <div className="hidden md:block p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30">
-                  <p className="text-xs text-gray-400 mb-2 font-semibold">
-                    💡 Click on reference codes to jump to detailed explanations
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(toolIdMap)
-                      .filter(([id]) => id.match(/^(MM|SI|ST|CB)\d{3}$/))
-                      .map(([id, tool]) => (
-                        <button
-                          key={id}
-                          onClick={() => scrollToTool(tool.elementId)}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/70 rounded text-xs transition-all duration-200 group"
-                        >
-                          <span className={`font-mono ${tool.type === 'mental_model' ? 'text-[#00FFFF]' : 'text-amber-500'}`}>
-                            {id}
-                          </span>
-                          <span className="text-gray-500">=</span>
-                          <span className="text-gray-300 group-hover:text-white">
-                            {tool.name}
-                          </span>
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-
               {/* Hook */}
               <div className="text-center py-4">
                 <p className="text-lg md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] px-2">
@@ -309,8 +233,85 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                 </p>
               </div>
               
-              {/* Threads */}
+              {/* Threads Section with Reference Guide */}
               <div className="space-y-3">
+                {/* Mobile Reference Toggle - Now inside threads section */}
+                <div className="md:hidden mb-3">
+                  <button
+                    onClick={() => setShowReferences(!showReferences)}
+                    className="w-full flex items-center justify-between p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30"
+                  >
+                    <span className="flex items-center gap-2 text-sm text-gray-300">
+                      <Info className="w-4 h-4" />
+                      Reference Guide
+                    </span>
+                    {showReferences ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  
+                  {showReferences && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="mt-2 p-3 bg-[#1A1A1A]/50 rounded-lg"
+                    >
+                      <p className="text-xs text-gray-400 mb-3">
+                        Tap any code to jump to its explanation
+                      </p>
+                      <div className="space-y-2">
+                        {Object.entries(toolIdMap)
+                          .filter(([id]) => id.match(/^(MM|SI|ST|CB)\d{3}$/))
+                          .map(([id, tool]) => (
+                            <button
+                              key={id}
+                              onClick={() => {
+                                scrollToTool(tool.elementId);
+                                setShowReferences(false);
+                              }}
+                              className="w-full flex items-center gap-2 p-2 bg-[#1A1A1A]/30 rounded text-left"
+                            >
+                              <span className={`font-mono text-sm ${tool.type === 'mental_model' ? 'text-[#00FFFF]' : 'text-amber-500'}`}>
+                                {id}
+                              </span>
+                              <span className="text-xs text-gray-300 flex-1">
+                                {tool.name}
+                              </span>
+                            </button>
+                          ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Desktop Reference Guide - Now inside threads section */}
+                {Object.keys(toolIdMap).length > 0 && (
+                  <div className="hidden md:block p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30 mb-4">
+                    <p className="text-xs text-gray-400 mb-2 font-semibold">
+                      💡 Click on reference codes to jump to detailed explanations
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(toolIdMap)
+                        .filter(([id]) => id.match(/^(MM|SI|ST|CB)\d{3}$/))
+                        .map(([id, tool]) => (
+                          <button
+                            key={id}
+                            onClick={() => scrollToTool(tool.elementId)}
+                            className="inline-flex items-center gap-1 px-2 py-1 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/70 rounded text-xs transition-all duration-200 group"
+                          >
+                            <span className={`font-mono ${tool.type === 'mental_model' ? 'text-[#00FFFF]' : 'text-amber-500'}`}>
+                              {id}
+                            </span>
+                            <span className="text-gray-500">=</span>
+                            <span className="text-gray-300 group-hover:text-white">
+                              {tool.name}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Individual Threads */}
                 {results.narrativeAnalysis.threads.map((thread, index) => (
                   <motion.div 
                     key={thread.id}
