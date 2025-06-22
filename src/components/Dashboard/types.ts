@@ -110,3 +110,24 @@ export interface TabConfig {
     label: string;
   };
 }
+
+export interface TrendingQuestion {
+  id: string;
+  question: string;
+  category: string;
+  topic_source: string;
+  click_count?: number;
+  created_at?: string;
+  expires_at?: string;
+  active?: boolean;
+  pre_generated_analysis?: any;
+  // New metadata fields
+  metadata?: {
+    engagement?: number; // Comments count from Reddit/HN
+    score?: number; // Upvotes/points
+    isHot?: boolean; // High engagement indicator
+    recency?: 'now' | 'today' | 'yesterday' | 'recent';
+    sourceType?: 'reddit' | 'hackernews' | 'news';
+    url?: string; // Original source URL
+  };
+}
