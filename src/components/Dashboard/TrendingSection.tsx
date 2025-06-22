@@ -208,9 +208,9 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
     return null;
   }
 
-  // Count hot topics
+  // Count hot topics (handle missing metadata)
   const hotTopicsCount = trendingQuestions.filter(q => 
-    q.metadata?.isHot || q.metadata?.engagement > 500
+    q.metadata?.isHot || (q.metadata?.engagement && q.metadata.engagement > 500)
   ).length;
 
   return (
@@ -342,7 +342,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
             {questionsToShow.map((question, index) => {
-              const isHot = question.metadata?.isHot || question.metadata?.engagement > 500;
+              const isHot = question.metadata?.isHot || (question.metadata?.engagement && question.metadata.engagement > 500);
               
               return (
                 <motion.button
