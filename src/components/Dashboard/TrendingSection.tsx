@@ -1,4 +1,5 @@
-// src/components/Dashboard/TrendingSection.tsx
+// src/components/Dashboard/TrendingSection.tsx v2.0
+// Updated to remove question truncation and add viral content detection
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -42,7 +43,22 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
   const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   
-  const questionsToShow = showAll ? trendingQuestions : trendingQuestions.slice(0, 6);
+  // Sort questions to show hot topics first
+  const sortedQuestions = [...trendingQuestions].sort((a, b) => {
+    const aIsHot = a.metadata?.isHot || (a.metadata?.engagement && a.metadata.engagement > 500);
+    const bIsHot = b.metadata?.isHot || (b.metadata?.engagement && b.metadata.engagement > 500);
+    
+    if (aIsHot && !bIsHot) return -1;
+    if (!aIsHot && bIsHot) return 1;
+    
+    // Secondary sort by engagement
+    const aEngagement = a.metadata?.engagement || 0;
+    const bEngagement = b.metadata?.engagement || 0;
+    
+    return bEngagement - aEngagement;
+  });
+  
+  const questionsToShow = showAll ? sortedQuestions : sortedQuestions.slice(0, 6);
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -75,6 +91,16 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
   const getRecencyBadge = (question: ExtendedTrendingQuestion) => {
     const metadata = question.metadata;
     if (!metadata) return null;
+
+    // Check for viral content first
+    if (metadata.engagement && metadata.engagement > 2000) {
+      return (
+        <div className="flex items-center gap-1 px-2 py-0.5 bg-red-500/20 rounded-full">
+          <Zap className="w-3 h-3 text-red-500" />
+          <span className="text-xs text-red-400 font-medium">Viral</span>
+        </div>
+      );
+    }
 
     if (metadata.isHot || metadata.engagement > 500) {
       return (
@@ -170,6 +196,16 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
     }
   };
 
+  // Helper function to format numbers
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}k`;
+    }
+    return num.toString();
+  };
+
   // Check if questions are locked (rate limit reached)
   const isLocked = displayTier === 'free' && limits && limits.trendingUsed >= 2;
 
@@ -243,12 +279,12 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
             </div>
           </div>
           
-          {trendingQuestions.length > 6 && (
+          {sortedQuestions.length > 6 && (
             <button
               onClick={() => setShowAll(!showAll)}
               className="text-sm text-[#00FFFF] hover:text-[#00FFFF]/80 flex items-center gap-1 transition-colors"
             >
-              {showAll ? 'Show Less' : `View All (${trendingQuestions.length})`}
+              {showAll ? 'Show Less' : `View All (${sortedQuestions.length})`}
               <ChevronDown className={`w-4 h-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
             </button>
           )}
@@ -343,18 +379,21 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
           <AnimatePresence mode="popLayout">
             {questionsToShow.map((question, index) => {
               const isHot = question.metadata?.isHot || (question.metadata?.engagement && question.metadata.engagement > 500);
+              const isViral = question.metadata?.engagement && question.metadata.engagement > 2000;
               
               return (
                 <motion.button
                   key={question.id}
                   onClick={() => !isLocked && onTrendingClick(question)}
                   disabled={isLocked}
-                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden min-h-[140px] flex flex-col ${
+                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden min-h-[160px] flex flex-col ${
                     isLocked
                       ? 'bg-[#1A1A1A]/50 border border-[#333333]/50 opacity-60 cursor-not-allowed'
-                      : isHot
-                        ? 'bg-gradient-to-br from-[#2A2A2A]/50 to-[#252525]/50 border border-orange-500/30 hover:border-orange-500/50'
-                        : 'bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30'
+                      : isViral
+                        ? 'bg-gradient-to-br from-orange-900/30 to-red-900/20 border-2 border-orange-400/50 hover:border-orange-400/70 shadow-lg shadow-orange-500/20'
+                        : isHot
+                          ? 'bg-gradient-to-br from-[#2A2A2A]/50 to-[#252525]/50 border border-orange-500/30 hover:border-orange-500/50'
+                          : 'bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] hover:border-[#00FFFF]/30'
                   }`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -373,12 +412,14 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                   </div>
 
                   {/* Question Text */}
-                  <p className={`text-sm transition-colors flex-1 mb-3 line-clamp-2 ${
+                  <p className={`text-sm transition-colors flex-1 mb-3 ${
                     isLocked 
                       ? 'text-gray-500' 
-                      : isHot
-                        ? 'text-gray-200 group-hover:text-white font-medium'
-                        : 'text-gray-300 group-hover:text-white'
+                      : isViral
+                        ? 'text-gray-100 group-hover:text-white font-semibold'
+                        : isHot
+                          ? 'text-gray-200 group-hover:text-white font-medium'
+                          : 'text-gray-300 group-hover:text-white'
                   }`}>
                     {question.question}
                   </p>
@@ -393,23 +434,27 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      {question.metadata?.engagement > 0 && (
+                      {question.metadata?.engagement !== undefined && question.metadata.engagement > 0 && (
                         <div className="flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
-                          <span>{question.metadata.engagement}</span>
+                          <span>{formatNumber(question.metadata.engagement)}</span>
                         </div>
                       )}
-                      {question.metadata?.score > 0 && (
+                      {question.metadata?.score !== undefined && question.metadata.score > 0 && (
                         <div className="flex items-center gap-1">
                           <ArrowUp className="w-3 h-3" />
-                          <span>{question.metadata.score > 1000 ? `${(question.metadata.score / 1000).toFixed(1)}k` : question.metadata.score}</span>
+                          <span>{formatNumber(question.metadata.score)}</span>
                         </div>
                       )}
-                      {question.click_count > 0 && (
+                      {(question.click_count !== undefined && question.click_count > 0) && (
                         <div className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          <span>{question.click_count}</span>
+                          <span>{formatNumber(question.click_count)}</span>
                         </div>
+                      )}
+                      {/* Show a placeholder if no metadata */}
+                      {(!question.metadata || Object.keys(question.metadata).length === 0) && (
+                        <span className="text-gray-600 italic text-xs">No engagement data</span>
                       )}
                     </div>
                   </div>
@@ -421,11 +466,30 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                     </div>
                   )}
 
-                  {/* Hot topic glow effect */}
-                  {isHot && !isLocked && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent pointer-events-none" />
+                  {/* Hot/Viral topic glow effect */}
+                  {(isViral || isHot) && !isLocked && (
+                    <div className={`absolute inset-0 pointer-events-none ${
+                      isViral 
+                        ? 'bg-gradient-to-br from-red-500/10 via-orange-500/5 to-transparent' 
+                        : 'bg-gradient-to-br from-orange-500/5 to-transparent'
+                    }`} />
                   )}
 
+                  {/* Viral pulse animation */}
+                  {isViral && !isLocked && (
+                    <motion.div
+                      className="absolute -inset-[2px] bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl pointer-events-none"
+                      animate={{
+                        opacity: [0.3, 0.6, 0.3],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  )}
+                  
                   {/* Locked overlay */}
                   {isLocked && (
                     <div className="absolute inset-0 bg-[#1A1A1A]/50 flex items-center justify-center backdrop-blur-sm">
