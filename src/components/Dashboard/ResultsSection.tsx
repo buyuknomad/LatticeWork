@@ -1,4 +1,4 @@
-// src/components/Dashboard/ResultsSection.tsx - ENHANCED VERSION WITH TOOL LINKS
+// src/components/Dashboard/ResultsSection.tsx - FIXED VERSION
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
@@ -92,53 +92,39 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     }
   };
 
-  // Function to style IDs in text
-  const enhanceTextWithStyledIds = (text: string) => {
-    if (!text) return text;
-    
+  // Custom component for rendering text with styled IDs
+  const TextWithStyledIds: React.FC<{ text: string }> = ({ text }) => {
     const parts = text.split(/\b((MM|SI|ST|CB)\d{3})\b/g);
     
-    return parts.map((part, index) => {
-      const match = part.match(/^(MM|SI|ST|CB)\d{3}$/);
-      if (match) {
-        const toolInfo = toolMap[part];
-        if (toolInfo) {
-          return (
-            <span 
-              key={index}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#00FFFF]/10 text-[#00FFFF] rounded text-xs font-mono"
-              title={toolInfo.name}
-            >
-              {part}
-            </span>
-          );
-        }
-      }
-      return part;
-    });
+    return (
+      <>
+        {parts.map((part, index) => {
+          const match = part.match(/^(MM|SI|ST|CB)\d{3}$/);
+          if (match) {
+            const toolInfo = toolMap[part];
+            if (toolInfo) {
+              return (
+                <span 
+                  key={index}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#00FFFF]/10 text-[#00FFFF] rounded text-xs font-mono mx-1"
+                  title={toolInfo.name}
+                >
+                  {part}
+                </span>
+              );
+            }
+            // If no tool info found, just show the ID
+            return (
+              <span key={index} className="font-mono text-xs text-[#00FFFF] mx-1">
+                {part}
+              </span>
+            );
+          }
+          return <span key={index}>{part}</span>;
+        })}
+      </>
+    );
   };
-
-  // Create markdown components that enhance IDs
-  const createMarkdownComponents = () => ({
-    strong: ({ children }: any) => (
-      <strong className="font-semibold text-[#00FFFF]">{children}</strong>
-    ),
-    em: ({ children }: any) => (
-      <em className="text-gray-200 italic">{children}</em>
-    ),
-    p: ({ children }: any) => {
-      const processedChildren = React.Children.map(children, child => {
-        if (typeof child === 'string') {
-          return enhanceTextWithStyledIds(child);
-        }
-        return child;
-      });
-      return <p className="mb-0">{processedChildren}</p>;
-    },
-    code: ({ children }: any) => (
-      <code className="px-1 py-0.5 bg-[#333333] text-[#00FFFF] rounded text-xs">{children}</code>
-    ),
-  });
 
   return (
     <motion.div
@@ -226,9 +212,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                             {thread.type.charAt(0).toUpperCase() + thread.type.slice(1)}
                           </span>
                           <div className="text-sm text-gray-300 leading-relaxed">
-                            <ReactMarkdown components={createMarkdownComponents()}>
-                              {thread.content}
-                            </ReactMarkdown>
+                            <TextWithStyledIds text={thread.content} />
                           </div>
                           
                           {/* Tool Links under each thread */}
@@ -297,9 +281,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                             <li key={itemIdx} className="flex items-start gap-2 text-sm text-gray-300">
                               <span className="text-[#8B5CF6] mt-0.5 flex-shrink-0">→</span>
                               <div className="flex-1">
-                                <ReactMarkdown components={createMarkdownComponents()}>
-                                  {item}
-                                </ReactMarkdown>
+                                <TextWithStyledIds text={item} />
                               </div>
                             </li>
                           ))}
@@ -349,9 +331,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                     {index + 1}
                   </span>
                   <div className="text-sm text-gray-300 leading-relaxed">
-                    <ReactMarkdown components={createMarkdownComponents()}>
-                      {lesson}
-                    </ReactMarkdown>
+                    <TextWithStyledIds text={lesson} />
                   </div>
                 </motion.div>
               ))}
