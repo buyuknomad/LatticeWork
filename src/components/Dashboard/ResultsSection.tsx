@@ -327,7 +327,9 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                             {thread.content}
                           </ReactMarkdown>
                         </div>
-                        <ThreadToolLinks content={thread.content} tools={thread.tools} />
+                        {thread.tools && thread.tools.length > 0 && (
+                          <ThreadToolLinks content={thread.content} tools={thread.tools} allTools={results.recommendedTools || []} />
+                        )}
                       </div>
                     </div>
                   </motion.div>
