@@ -200,116 +200,39 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       {/* Premium Quality Badge for Free Users */}
       {isFreeUserWithPremium && (
         <motion.div
-          initial={{ opacity: 0, y: -20, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ 
-            duration: 0.6, 
-            type: "spring",
-            stiffness: 100,
-            damping: 15
+            duration: 0.5,
+            ease: "easeOut"
           }}
-          className="flex justify-center mb-2"
+          className="flex justify-center mb-4"
         >
           <div className="relative">
-            {/* Multiple glow layers for depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] rounded-full blur-2xl opacity-60 scale-150 animate-pulse"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] rounded-full blur-md opacity-40 scale-125"></div>
+            {/* Subtle glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/25 to-[#00FFFF]/25 rounded-full blur-2xl"></div>
             
-            {/* Animated border gradient */}
-            <motion.div 
-              className="absolute -inset-[2px] bg-gradient-to-r from-[#8B5CF6] via-[#00FFFF] to-[#8B5CF6] rounded-full opacity-90"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                backgroundSize: "200% 200%",
-              }}
-            />
-            
-            {/* Badge content with solid background */}
-            <div className="relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#1A1A1A] to-[#252525] rounded-full overflow-hidden">
-              {/* Shimmer effect */}
-              <motion.div
-                className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
-                animate={{
-                  translateX: ["0%", "200%"],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 1,
-                  ease: "easeInOut"
-                }}
-              />
-              
-              {/* Left icon with glow */}
-              <motion.div 
-                className="relative z-10"
-                animate={{ rotate: [0, -10, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-              >
-                <Crown className="w-6 h-6 text-[#8B5CF6] drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
-              </motion.div>
-              
-              {/* Main text with gradient */}
-              <div className="flex flex-col items-center z-10">
-                <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] via-white to-[#00FFFF] tracking-wide">
-                  Premium Quality Analysis
-                </span>
-                <span className="text-xs text-gray-300 font-medium mt-0.5">
-                  Your 1st trending analysis today • Full premium features
-                </span>
+            {/* Gradient border */}
+            <div className="p-[1.5px] bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] rounded-full">
+              {/* Badge content */}
+              <div className="flex items-center gap-4 px-8 py-4 bg-[#1A1A1A] rounded-full">
+                {/* Left icon */}
+                <Crown className="w-6 h-6 text-[#8B5CF6]" />
+                
+                {/* Main text */}
+                <div className="flex flex-col items-center">
+                  <span className="text-lg font-bold text-white tracking-wide">
+                    Premium Quality Analysis
+                  </span>
+                  <span className="text-sm text-gray-300 mt-1">
+                    Your 1st trending analysis today • Full premium features
+                  </span>
+                </div>
+                
+                {/* Right icon */}
+                <Sparkles className="w-5 h-5 text-[#00FFFF]" />
               </div>
-              
-              {/* Right icon with animation */}
-              <motion.div
-                className="relative z-10"
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 180, 360]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  repeatDelay: 0.5
-                }}
-              >
-                <Sparkles className="w-5 h-5 text-[#00FFFF] drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" />
-              </motion.div>
             </div>
-            
-            {/* Floating particles */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                initial={{ 
-                  x: 0, 
-                  y: 0,
-                  opacity: 0 
-                }}
-                animate={{
-                  x: [0, (i - 1) * 30],
-                  y: [0, -30, 0],
-                  opacity: [0, 1, 0]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: i * 0.3,
-                  ease: "easeOut"
-                }}
-                style={{
-                  left: '50%',
-                  top: '50%'
-                }}
-              />
-            ))}
           </div>
         </motion.div>
       )}
@@ -343,13 +266,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               Narrative Analysis
               {isFreeUserWithPremium && (
                 <motion.span 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="ml-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-[#8B5CF6]/20 to-[#8B5CF6]/10 text-[#8B5CF6] rounded-full border border-[#8B5CF6]/40"
+                  className="ml-2 inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-full border border-[#8B5CF6]/30"
                 >
                   <Crown className="w-3 h-3" />
-                  <span className="text-xs font-semibold">Premium Feature</span>
+                  <span className="text-xs font-medium">Premium</span>
                 </motion.span>
               )}
             </h3>
@@ -486,13 +409,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               Key Takeaways
               {isFreeUserWithPremium && (
                 <motion.span 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="ml-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-[#8B5CF6]/20 to-[#8B5CF6]/10 text-[#8B5CF6] rounded-full border border-[#8B5CF6]/40"
+                  className="ml-2 inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-full border border-[#8B5CF6]/30"
                 >
                   <Crown className="w-3 h-3" />
-                  <span className="text-xs font-semibold">Premium Feature</span>
+                  <span className="text-xs font-medium">Premium</span>
                 </motion.span>
               )}
             </h3>
