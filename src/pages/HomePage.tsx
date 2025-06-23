@@ -5,6 +5,7 @@ import Hero from '../components/Hero';
 import SeeItWork from '../components/SeeItWork';
 import Differentiators from '../components/Differentiators';
 import Features from '../components/Features';
+import ExamplesSection from '../components/ExamplesSection'; // New import
 import CallToAction from '../components/CallToAction';
 import Pricing from '../components/Pricing';
 
@@ -39,6 +40,7 @@ const HomePage: React.FC = () => {
         <SeeItWork /> 
         <Differentiators />
         <Features />
+        <ExamplesSection /> {/* Add the new section here */}
         <CallToAction />
         <Pricing />
       </main>
