@@ -198,7 +198,7 @@ const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGetStarted}
                 >
-                  {user ? (question.trim() ? 'See It In Action' : 'Go to Dashboard') : 'See It In Action'}
+                  {user ? (question.trim() ? 'Start Free' : 'Go to Dashboard') : 'Sign Up Now'}
                 </motion.button>
               </div>
               
