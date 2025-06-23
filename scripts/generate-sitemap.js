@@ -27,6 +27,51 @@ const routes = [
     files: ['src/pages/SignupPage.tsx'] 
   },
   { 
+    path: '/examples', 
+    priority: 0.9,
+    files: ['src/pages/Examples.tsx'] 
+  },
+  { 
+    path: '/examples/why-procrastinate-consequences', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/examples/repeat-same-mistakes', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/examples/investors-think-differently-risk', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/examples/teams-conflict-patterns', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/examples/ignore-contradicting-evidence', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/examples/underestimate-time-planning', 
+    priority: 0.8,
+    files: ['src/pages/ExampleDetail.tsx'] 
+  },
+  { 
+    path: '/mental-models', 
+    priority: 0.9,
+    files: ['src/pages/MentalModels.tsx'] 
+  },
+  { 
+    path: '/cognitive-biases', 
+    priority: 0.9,
+    files: ['src/pages/CognitiveBiases.tsx'] 
+  },
+  { 
     path: '/about', 
     priority: 0.7,
     files: ['src/pages/About.tsx'] 
@@ -55,16 +100,6 @@ const routes = [
     path: '/refunds', 
     priority: 0.5,
     files: ['src/pages/Refunds.tsx'] 
-  },
-  { 
-    path: '/mental-models', 
-    priority: 0.9,
-    files: ['src/pages/MentalModels.tsx'] // Future file
-  },
-  { 
-    path: '/cognitive-biases', 
-    priority: 0.9,
-    files: ['src/pages/CognitiveBiases.tsx'] // Future file
   },
 ];
 
@@ -118,6 +153,7 @@ ${routes.map(route => {
   console.log('✅ Sitemap generated successfully at:', sitemapPath);
   console.log('📝 Using actual file modification dates for lastmod');
   console.log('🚀 Google-compliant: no changefreq tags included');
+  console.log(`📊 Total URLs: ${routes.length}`);
 }
 
 // Generate robots.txt with additional directives
