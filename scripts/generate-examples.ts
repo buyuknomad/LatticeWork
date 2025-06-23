@@ -7,7 +7,7 @@ dotenv.config();
 
 // Initialize Supabase client with service role key
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
 const edgeFunctionUrl = process.env.VITE_SUPABASE_FUNCTIONS_URL!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
