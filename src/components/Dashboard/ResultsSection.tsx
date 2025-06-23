@@ -532,4 +532,4 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   );
 };
 
-export default ResultsSection; 
+export default ResultsSection;
