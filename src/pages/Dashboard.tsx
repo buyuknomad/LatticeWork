@@ -38,6 +38,18 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     document.title = 'Dashboard | Mind Lattice';
   }, []);
+
+  // Handle pre-filled questions from examples page
+  useEffect(() => {
+    // Check if we have a pre-filled question from the examples page
+    const state = location.state as { prefilledQuestion?: string };
+    if (state?.prefilledQuestion && !query) {
+      setQuery(state.prefilledQuestion);
+      setIsTypingAnimation(false); // Skip the animation
+      // Clear the state to prevent re-filling on navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   
   // Animation states
   const [isTypingAnimation, setIsTypingAnimation] = useState(true);
