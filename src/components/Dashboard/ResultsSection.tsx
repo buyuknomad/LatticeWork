@@ -1,4 +1,4 @@
-// src/components/Dashboard/ResultsSection.tsx
+// src/components/Dashboard/ResultsSection.tsx - Enhanced Version with Redesigned Tool Reference Legend
 import React, { useState, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink, Crown, Zap, ChevronRight, Brain, AlertTriangle } from 'lucide-react';
@@ -12,7 +12,6 @@ interface ResultsSectionProps {
   query: string;
   displayTier: UserTier;
   onResetQuery: () => void;
-  isExampleView?: boolean; // Add this optional prop for example pages
 }
 
 const ResultsSection: React.FC<ResultsSectionProps> = ({
@@ -20,7 +19,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   query,
   displayTier,
   onResetQuery,
-  isExampleView = false // Default to false
 }) => {
   const [showNarrative, setShowNarrative] = useState(true);
   const [showLessons, setShowLessons] = useState(true);
@@ -748,27 +746,25 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       )}
 
       {/* Upgrade Prompt - Show only for truly free users (not those seeing premium content) */}
-      {displayTier === 'free' && !showPremiumFeatures && !isExampleView && <UpgradePrompt />}
+      {displayTier === 'free' && !showPremiumFeatures && <UpgradePrompt />}
 
-      {/* New Analysis Button - Hide in example view */}
-      {!isExampleView && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          className="fixed bottom-6 right-6 z-40"
+      {/* New Analysis Button */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5 }}
+        className="fixed bottom-6 right-6 z-40"
+      >
+        <motion.button
+          onClick={onResetQuery}
+          className="group flex items-center gap-3 px-4 md:px-6 py-3 bg-[#1A1A1A] border border-[#00FFFF]/30 rounded-full shadow-xl hover:shadow-2xl hover:shadow-[#00FFFF]/20 transition-all duration-300"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <motion.button
-            onClick={onResetQuery}
-            className="group flex items-center gap-3 px-4 md:px-6 py-3 bg-[#1A1A1A] border border-[#00FFFF]/30 rounded-full shadow-xl hover:shadow-2xl hover:shadow-[#00FFFF]/20 transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <RotateCcw className="w-5 h-5 text-[#00FFFF] group-hover:rotate-180 transition-transform duration-500" />
-            <span className="text-white font-medium hidden sm:inline">New Analysis</span>
-          </motion.button>
-        </motion.div>
-      )}
+          <RotateCcw className="w-5 h-5 text-[#00FFFF] group-hover:rotate-180 transition-transform duration-500" />
+          <span className="text-white font-medium hidden sm:inline">New Analysis</span>
+        </motion.button>
+      </motion.div>
     </motion.div>
   );
 };
