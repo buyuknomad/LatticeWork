@@ -39,10 +39,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     const map: Record<string, { name: string; type: string; id: string }> = {};
     results.recommendedTools?.forEach(tool => {
       if (tool.id) {
-        const idParts = tool.id.match(/^([A-Z]+)(\d+)$/);
-        if (idParts) {
-          const prefix = idParts[1];
-          const number = idParts[2];
+        // Handle various ID formats
+        const idMatch = tool.id.match(/([A-Z]+)(\d+)/);
+        if (idMatch) {
+          const prefix = idMatch[1];
+          const number = idMatch[2].padStart(3, '0'); // Ensure 3 digits
           const fullId = `${prefix}${number}`;
           map[fullId.toUpperCase()] = {
             name: tool.name,
@@ -89,7 +90,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
   // Extract tool IDs from text
   const extractToolIds = (text: string): string[] => {
     const matches = text.match(/\b(MM|SI|ST|CB)\d{3}\b/g) || [];
-    return [...new Set(matches)]; // Remove duplicates
+    return [...new Set(matches.map(m => m.toUpperCase()))]; // Remove duplicates and uppercase
   };
 
   // Function to enhance text with interactive tool references
@@ -105,16 +106,19 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         const toolInfo = toolIdMap[part.toUpperCase()];
         
         if (toolInfo) {
+          const isBias = toolInfo.type === 'cognitive_bias';
           return (
-            <button
+            <span
               key={index}
+              className={`inline-block px-1.5 py-0.5 ${
+                isBias ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border-amber-500/20 hover:border-amber-500/40' 
+                      : 'bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] border-[#00FFFF]/20 hover:border-[#00FFFF]/40'
+              } rounded text-xs font-mono transition-all duration-200 cursor-pointer mx-0.5 border`}
               onClick={() => scrollToTool(toolInfo.id)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] rounded text-xs font-mono transition-all duration-200 cursor-pointer"
-              title={`Click to view ${toolInfo.name}`}
+              title={`${toolInfo.name} - Click to view details`}
             >
               {part}
-              <span className="text-[10px] opacity-70">({toolInfo.name})</span>
-            </button>
+            </span>
           );
         }
       }
@@ -147,30 +151,55 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
   // Component for tool links under each thread
   const ThreadToolLinks: React.FC<{ content: string; tools: string[] }> = ({ content, tools }) => {
+    // Extract tool IDs from the content
     const referencedIds = extractToolIds(content);
-    const referencedTools = referencedIds
-      .map(id => ({ id, info: toolIdMap[id.toUpperCase()] }))
-      .filter(item => item.info);
+    
+    // Also check if tool names are mentioned directly
+    const referencedTools = [
+      ...referencedIds.map(id => ({ id, info: toolIdMap[id.toUpperCase()] })),
+      ...tools.map(toolName => {
+        const toolEntry = Object.entries(toolIdMap).find(([_, info]) => info.name === toolName);
+        return toolEntry ? { id: toolEntry[0], info: toolEntry[1] } : null;
+      }).filter(Boolean)
+    ].filter((item, index, self) => 
+      // Remove duplicates
+      item && item.info && index === self.findIndex(t => t?.info.id === item.info.id)
+    );
 
     if (referencedTools.length === 0) return null;
 
+    // Sort tools: mental models first, then cognitive biases
+    const sortedTools = referencedTools.sort((a, b) => {
+      if (a.info.type === 'mental_model' && b.info.type === 'cognitive_bias') return -1;
+      if (a.info.type === 'cognitive_bias' && b.info.type === 'mental_model') return 1;
+      return 0;
+    });
+
     return (
-      <div className="mt-3 pt-3 border-t border-[#333333]/30">
+      <div className="px-3 pb-3 bg-[#1A1A1A]/60 border-t border-[#333333]/30">
+        <div className="flex items-center gap-2 mb-2 pt-3">
+          <span className="text-xs font-semibold text-gray-400">Referenced in this section:</span>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-gray-500">Referenced tools:</span>
-          {referencedTools.map(({ id, info }) => (
+          {sortedTools.map(({ id, info }) => (
             <button
-              key={id}
+              key={info.id}
               onClick={() => scrollToTool(info.id)}
-              className="group flex items-center gap-1 px-2 py-1 bg-[#1A1A1A]/50 hover:bg-[#00FFFF]/10 rounded-md transition-all duration-200"
+              className="group inline-flex items-center gap-2 px-3 py-1.5 bg-[#252525]/60 hover:bg-[#252525] rounded-md transition-all duration-200 border border-[#333333]/50 hover:border-[#444444]"
             >
               <span className={`text-xs ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
                 {info.type === 'cognitive_bias' ? '⚠️' : '🧠'}
               </span>
-              <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+              <span className={`text-xs font-mono ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
+                {id}
+              </span>
+              <span className="text-gray-500">:</span>
+              <span className={`text-xs font-medium group-hover:text-white transition-colors ${
+                info.type === 'cognitive_bias' ? 'text-amber-400' : 'text-[#00FFFF]/90'
+              }`}>
                 {info.name}
               </span>
-              <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-[#00FFFF] transition-colors" />
+              <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-[#00FFFF] transition-colors opacity-0 group-hover:opacity-100" />
             </button>
           ))}
         </div>
@@ -293,28 +322,6 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                 </p>
               </div>
 
-              {/* Tool Reference Legend */}
-              {Object.keys(toolIdMap).length > 0 && (
-                <div className="mb-4 p-3 bg-[#1A1A1A]/30 rounded-lg text-xs">
-                  <span className="text-gray-400 font-semibold">Tool references in this analysis:</span>
-                  <div className="mt-2 flex flex-wrap gap-3">
-                    {Object.entries(toolIdMap).map(([id, info]) => (
-                      <button
-                        key={id}
-                        onClick={() => scrollToTool(info.id)}
-                        className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
-                      >
-                        <span className={`font-mono ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
-                          {id}
-                        </span>
-                        <span className="text-gray-400">=</span>
-                        <span className="text-gray-300">{info.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
               {/* Threads */}
               <div className="space-y-3">
                 {results.narrativeAnalysis.threads.map((thread, index) => (
