@@ -8,7 +8,7 @@ dotenv.config();
 // Initialize Supabase client with service role key
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
-const edgeFunctionUrl = process.env.VITE_SUPABASE_FUNCTIONS_URL!;
+const edgeFunctionUrl = 'https://auth.mindlattice.app/functions/v1';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -194,7 +194,7 @@ async function verifyExamples() {
 async function main() {
   try {
     // Check environment variables
-    if (!supabaseUrl || !supabaseServiceKey || !edgeFunctionUrl) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       throw new Error('Missing required environment variables. Please check your .env file.');
     }
 
