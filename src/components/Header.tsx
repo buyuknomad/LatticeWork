@@ -22,8 +22,6 @@ const Header: React.FC = () => {
   }, []);
 
   const navigationItems = [
-    { name: 'Mental Models', href: '/mental-models' },
-    { name: 'Cognitive Biases', href: '/cognitive-biases' },
     { name: 'Examples', href: '/examples' }, // Added Examples navigation
     { name: 'Pricing', href: '/#pricing' },
     { name: 'FAQ', href: '/FAQ' },
