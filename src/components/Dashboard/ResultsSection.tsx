@@ -1,7 +1,7 @@
 // src/components/Dashboard/ResultsSection.tsx - Enhanced Version with Interactive Tool References
 import React, { useState, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink, Crown, Zap } from 'lucide-react';
+import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink, Crown, Zap, ChevronRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { LatticeInsightResponse, UserTier } from './types';
 import ToolCard from './ToolCard';
@@ -157,20 +157,19 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     return (
       <div className="mt-3 pt-3 border-t border-[#333333]/30">
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-gray-500">Referenced tools:</span>
+          <span className="text-[10px] text-gray-500 uppercase tracking-wide">Referenced:</span>
           {referencedTools.map(({ id, info }) => (
             <button
               key={id}
               onClick={() => scrollToTool(info.id)}
-              className="group flex items-center gap-1 px-2 py-1 bg-[#1A1A1A]/50 hover:bg-[#00FFFF]/10 rounded-md transition-all duration-200"
+              className="flex items-center gap-1.5 px-2 py-1 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 rounded transition-all"
             >
-              <span className={`text-xs ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
+              <span className={`text-[10px] ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
                 {info.type === 'cognitive_bias' ? '⚠️' : '🧠'}
               </span>
-              <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+              <span className="text-xs text-gray-300 hover:text-white">
                 {info.name}
               </span>
-              <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-[#00FFFF] transition-colors" />
             </button>
           ))}
         </div>
@@ -295,22 +294,120 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
               {/* Tool Reference Legend */}
               {Object.keys(toolIdMap).length > 0 && (
-                <div className="mb-4 p-3 bg-[#1A1A1A]/30 rounded-lg text-xs">
-                  <span className="text-gray-400 font-semibold">Tool references in this analysis:</span>
-                  <div className="mt-2 flex flex-wrap gap-3">
-                    {Object.entries(toolIdMap).map(([id, info]) => (
-                      <button
-                        key={id}
-                        onClick={() => scrollToTool(info.id)}
-                        className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
-                      >
-                        <span className={`font-mono ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
-                          {id}
-                        </span>
-                        <span className="text-gray-400">=</span>
-                        <span className="text-gray-300">{info.name}</span>
-                      </button>
-                    ))}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Tools used in this analysis</span>
+                    <span className="text-xs text-gray-600">Click to jump to details</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {/* Mental Models */}
+                    {(() => {
+                      const mentalModelIds = Object.entries(toolIdMap)
+                        .filter(([_, info]) => info.type === 'mental_model');
+                      
+                      if (mentalModelIds.length === 0) return null;
+                      
+                      return (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[#00FFFF]">🧠</span>
+                            <span className="text-xs text-gray-400">Mental Models ({mentalModelIds.length})</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {mentalModelIds.map(([id, info]) => {
+                              // Find which threads reference this tool
+                              const referencingThreads = results.narrativeAnalysis?.threads
+                                .filter(thread => 
+                                  thread.tools.includes(info.name) || 
+                                  thread.content.includes(id)
+                                )
+                                .map(thread => thread.type) || [];
+                              
+                              return (
+                                <button
+                                  key={id}
+                                  onClick={() => scrollToTool(info.id)}
+                                  className="flex items-start gap-3 p-3 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/80 rounded-lg text-left transition-all group"
+                                >
+                                  <span className="text-[10px] font-mono text-gray-600 mt-0.5">{id}</span>
+                                  <div className="flex-1">
+                                    <div className="font-medium text-sm text-gray-200 group-hover:text-white">
+                                      {info.name}
+                                    </div>
+                                    {referencingThreads.length > 0 && (
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <span className="text-[10px] text-gray-500">Used in:</span>
+                                        {referencingThreads.map((type, i) => (
+                                          <span key={i} className="text-[10px] px-1.5 py-0.5 bg-[#00FFFF]/10 text-[#00FFFF] rounded">
+                                            {type}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-[#00FFFF] mt-1" />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    
+                    {/* Cognitive Biases */}
+                    {(() => {
+                      const biasIds = Object.entries(toolIdMap)
+                        .filter(([_, info]) => info.type === 'cognitive_bias');
+                      
+                      if (biasIds.length === 0) return null;
+                      
+                      return (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-amber-500">⚠️</span>
+                            <span className="text-xs text-gray-400">Cognitive Biases ({biasIds.length})</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {biasIds.map(([id, info]) => {
+                              // Find which threads reference this tool
+                              const referencingThreads = results.narrativeAnalysis?.threads
+                                .filter(thread => 
+                                  thread.tools.includes(info.name) || 
+                                  thread.content.includes(id)
+                                )
+                                .map(thread => thread.type) || [];
+                              
+                              return (
+                                <button
+                                  key={id}
+                                  onClick={() => scrollToTool(info.id)}
+                                  className="flex items-start gap-3 p-3 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/80 rounded-lg text-left transition-all group"
+                                >
+                                  <span className="text-[10px] font-mono text-gray-600 mt-0.5">{id}</span>
+                                  <div className="flex-1">
+                                    <div className="font-medium text-sm text-gray-200 group-hover:text-white">
+                                      {info.name}
+                                    </div>
+                                    {referencingThreads.length > 0 && (
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <span className="text-[10px] text-gray-500">Used in:</span>
+                                        {referencingThreads.map((type, i) => (
+                                          <span key={i} className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded">
+                                            {type}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-amber-500 mt-1" />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
