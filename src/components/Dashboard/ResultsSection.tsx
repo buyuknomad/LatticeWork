@@ -1,7 +1,7 @@
 // src/components/Dashboard/ResultsSection.tsx - Enhanced Version with Interactive Tool References
 import React, { useState, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink, Crown, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { LatticeInsightResponse, UserTier } from './types';
 import ToolCard from './ToolCard';
@@ -28,6 +28,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
   // Create refs for each tool card for scrolling
   const toolRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Determine if we should show premium features based on analysis quality
+  const analysisQuality = results.metadata?.analysisQuality || (displayTier === 'premium' ? 'premium' : 'basic');
+  const showPremiumFeatures = analysisQuality === 'premium';
+  const isFreeUserWithPremium = displayTier === 'free' && showPremiumFeatures;
 
   // Create a map of IDs to tool info
   const toolIdMap = useMemo(() => {
@@ -192,6 +197,29 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </p>
       </div>
 
+      {/* Premium Quality Badge for Free Users */}
+      {isFreeUserWithPremium && (
+        <motion.div
+          initial={{ opacity: 0, y: -10, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring" }}
+          className="flex justify-center"
+        >
+          <div className="relative">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] rounded-full blur-lg opacity-50 animate-pulse"></div>
+            
+            {/* Badge content */}
+            <div className="relative inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-[#8B5CF6]/20 to-[#00FFFF]/20 backdrop-blur-sm rounded-full border border-[#8B5CF6]/30">
+              <Crown className="w-5 h-5 text-[#8B5CF6]" />
+              <span className="text-sm font-semibold text-white">Premium Quality Analysis</span>
+              <span className="text-xs text-gray-300">• Your 1st trending analysis today</span>
+              <Zap className="w-4 h-4 text-[#00FFFF]" />
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Search Grounding if available */}
       {results.searchGrounding && (
         <motion.div 
@@ -208,8 +236,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Narrative Analysis - Premium Only */}
-      {results.narrativeAnalysis && displayTier === 'premium' && (
+      {/* Narrative Analysis - Show based on quality, not tier */}
+      {results.narrativeAnalysis && showPremiumFeatures && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -219,6 +247,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <h3 className="text-xl font-semibold text-white flex items-center gap-2">
               <span className="text-2xl">📖</span>
               Narrative Analysis
+              {isFreeUserWithPremium && (
+                <span className="ml-2 text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
+                  Premium Feature
+                </span>
+              )}
             </h3>
             <button
               onClick={() => setShowNarrative(!showNarrative)}
@@ -339,8 +372,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </motion.div>
       )}
 
-      {/* Key Lessons - Premium Only */}
-      {results.keyLessons && results.keyLessons.length > 0 && displayTier === 'premium' && (
+      {/* Key Lessons - Show based on quality, not tier */}
+      {results.keyLessons && results.keyLessons.length > 0 && showPremiumFeatures && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -351,6 +384,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <h3 className="text-xl font-semibold flex items-center gap-2">
               <span className="text-2xl">💡</span>
               Key Takeaways
+              {isFreeUserWithPremium && (
+                <span className="ml-2 text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full">
+                  Premium Feature
+                </span>
+              )}
             </h3>
             <button
               onClick={() => setShowLessons(!showLessons)}
@@ -448,8 +486,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         </div>
       )}
 
-      {/* Upgrade Prompt for Free Users */}
-      {displayTier === 'free' && <UpgradePrompt />}
+      {/* Upgrade Prompt - Show only for truly free users (not those seeing premium content) */}
+      {displayTier === 'free' && !showPremiumFeatures && <UpgradePrompt />}
 
       {/* New Analysis Button */}
       <motion.div 
