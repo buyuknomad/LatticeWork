@@ -5,12 +5,17 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Initialize Supabase client with service role key
+// Initialize Supabase clients
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
 const edgeFunctionUrl = 'https://auth.mindlattice.app/functions/v1';
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Client for user authentication
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
+// Admin client for database operations
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Define the examples to generate
 const EXAMPLES = [
@@ -52,8 +57,37 @@ const EXAMPLES = [
   }
 ];
 
+// Function to authenticate as a premium user
+async function authenticateUser() {
+  // You'll need to provide credentials for a premium user account
+  const email = process.env.PREMIUM_USER_EMAIL;
+  const password = process.env.PREMIUM_USER_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error('Please set PREMIUM_USER_EMAIL and PREMIUM_USER_PASSWORD in your .env file');
+  }
+
+  console.log('🔐 Authenticating as premium user...');
+  
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    throw new Error(`Authentication failed: ${error.message}`);
+  }
+
+  if (!data.session) {
+    throw new Error('No session returned from authentication');
+  }
+
+  console.log('✅ Authenticated successfully');
+  return data.session;
+}
+
 // Function to call the edge function and get premium analysis
-async function generatePremiumAnalysis(question: string) {
+async function generatePremiumAnalysis(question: string, session: any) {
   try {
     console.log(`Generating analysis for: "${question}"...`);
     
@@ -61,19 +95,18 @@ async function generatePremiumAnalysis(question: string) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseServiceKey}`,
-        'apikey': supabaseServiceKey
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': supabaseAnonKey
       },
       body: JSON.stringify({ 
         query: question,
-        queryType: 'manual',
-        // Simulate premium tier for generation
-        userTier: 'premium'
+        queryType: 'manual'
       })
     });
 
     if (!response.ok) {
-      throw new Error(`Edge function error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Edge function error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const analysis = await response.json();
@@ -84,10 +117,10 @@ async function generatePremiumAnalysis(question: string) {
   }
 }
 
-// Function to save example to database
+// Function to save example to database using admin client
 async function saveExampleToDatabase(example: typeof EXAMPLES[0], analysis: any) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('example_analyses')
       .upsert({
         slug: example.slug,
@@ -113,7 +146,7 @@ async function saveExampleToDatabase(example: typeof EXAMPLES[0], analysis: any)
 }
 
 // Main function to generate all examples
-async function generateAllExamples() {
+async function generateAllExamples(session: any) {
   console.log('🚀 Starting example generation...');
   console.log(`Total examples to generate: ${EXAMPLES.length}`);
   
@@ -132,7 +165,7 @@ async function generateAllExamples() {
       }
 
       // Generate the analysis
-      const analysis = await generatePremiumAnalysis(example.question);
+      const analysis = await generatePremiumAnalysis(example.question, session);
       
       // Verify the analysis has the expected structure
       if (!analysis.recommendedTools || !analysis.narrativeAnalysis) {
@@ -173,7 +206,7 @@ async function generateAllExamples() {
 async function verifyExamples() {
   console.log('\n🔍 Verifying examples in database...');
   
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('example_analyses')
     .select('slug, title, category, created_at')
     .eq('is_active', true)
@@ -192,23 +225,34 @@ async function verifyExamples() {
 
 // Run the script
 async function main() {
+  let session = null;
+  
   try {
     // Check environment variables
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
       throw new Error('Missing required environment variables. Please check your .env file.');
     }
 
+    // Authenticate as a premium user
+    session = await authenticateUser();
+
     // Generate examples
-    await generateAllExamples();
+    await generateAllExamples(session);
     
     // Verify what's in the database
     await verifyExamples();
     
     console.log('\n✨ Example generation complete!');
-    process.exit(0);
   } catch (error) {
     console.error('Fatal error:', error);
     process.exit(1);
+  } finally {
+    // Sign out if we were signed in
+    if (session) {
+      await supabaseClient.auth.signOut();
+      console.log('🔒 Signed out');
+    }
+    process.exit(0);
   }
 }
 
