@@ -22,7 +22,6 @@ import ScrollToTop from './components/ScrollToTop';
 import MentalModels from './pages/MentalModels';
 import CognitiveBiases from './pages/CognitiveBiases';
 
-
 // Import new pages
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -30,6 +29,10 @@ import Refunds from './pages/Refunds';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import HomePage from './pages/HomePage';
+
+// Import Examples pages
+import Examples from './pages/Examples';
+import ExampleDetail from './pages/ExampleDetail';
 
 // Create a wrapper component that can use useLocation
 const AppContent: React.FC = () => {
@@ -58,7 +61,10 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/mental-models" element={<MentalModels />} />
           <Route path="/cognitive-biases" element={<CognitiveBiases />} />
-
+          
+          {/* Examples routes - NEW */}
+          <Route path="/examples" element={<Examples />} />
+          <Route path="/examples/:slug" element={<ExampleDetail />} />
           
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -77,8 +83,6 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/FAQ" element={<FAQ />} />
-          
-      
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
