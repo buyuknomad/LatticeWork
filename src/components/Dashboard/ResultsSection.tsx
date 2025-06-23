@@ -55,7 +55,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     return map;
   }, [results.recommendedTools]);
 
-  // Helper to get thread type color/style
+  // Helper to get thread type color/style - UPDATED for new labels
   const getThreadStyle = (type: string) => {
     switch (type) {
       case 'opening':
@@ -70,6 +70,18 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         return 'bg-green-500/20 text-green-500';
       default:
         return 'bg-gray-500/20 text-gray-400';
+    }
+  };
+
+  // Helper to get thread type display name - NEW for updated labels
+  const getThreadDisplayName = (type: string) => {
+    switch (type) {
+      case 'pattern':
+        return 'Mental Model';
+      case 'insight':
+        return 'Cognitive Bias';
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1);
     }
   };
 
@@ -145,7 +157,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     ),
   });
 
-  // Component for tool links under each thread
+  // Component for tool links under each thread - UPDATED for better visibility
   const ThreadToolLinks: React.FC<{ content: string; tools: string[] }> = ({ content, tools }) => {
     const referencedIds = extractToolIds(content);
     const referencedTools = referencedIds
@@ -162,14 +174,15 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <button
               key={id}
               onClick={() => scrollToTool(info.id)}
-              className="flex items-center gap-1.5 px-2 py-1 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 rounded transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1A1A1A]/50 hover:bg-[#1A1A1A]/80 border border-[#333333]/50 hover:border-[#00FFFF]/30 rounded-lg transition-all group"
             >
-              <span className={`text-[10px] ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
+              <span className={`text-sm ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
                 {info.type === 'cognitive_bias' ? '⚠️' : '🧠'}
               </span>
-              <span className="text-xs text-gray-300 hover:text-white">
+              <span className="text-sm font-medium text-gray-200 group-hover:text-white">
                 {info.name}
               </span>
+              <ChevronRight className="w-3 h-3 text-gray-500 group-hover:text-[#00FFFF] transition-colors" />
             </button>
           ))}
         </div>
@@ -340,7 +353,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                         <span className="text-[10px] text-gray-500">Used in:</span>
                                         {referencingThreads.map((type, i) => (
                                           <span key={i} className="text-[10px] px-1.5 py-0.5 bg-[#00FFFF]/10 text-[#00FFFF] rounded">
-                                            {type}
+                                            {getThreadDisplayName(type)}
                                           </span>
                                         ))}
                                       </div>
@@ -394,7 +407,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                         <span className="text-[10px] text-gray-500">Used in:</span>
                                         {referencingThreads.map((type, i) => (
                                           <span key={i} className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded">
-                                            {type}
+                                            {getThreadDisplayName(type)}
                                           </span>
                                         ))}
                                       </div>
@@ -426,7 +439,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                       <span className="text-2xl flex-shrink-0">{thread.emoji}</span>
                       <div className="flex-1">
                         <span className={`text-xs px-2 py-0.5 rounded-full inline-block mb-2 font-medium ${getThreadStyle(thread.type)}`}>
-                          {thread.type.charAt(0).toUpperCase() + thread.type.slice(1)}
+                          {getThreadDisplayName(thread.type)}
                         </span>
                         <div className="text-sm text-gray-300 leading-relaxed">
                           <ReactMarkdown components={createMarkdownComponents()}>
