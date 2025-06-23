@@ -1,6 +1,6 @@
 // src/components/Dashboard/ResultsSection.tsx - Enhanced Version with Interactive Tool References
 import React, { useState, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles, ChevronDown, ChevronUp, ExternalLink, Crown, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { LatticeInsightResponse, UserTier } from './types';
@@ -109,10 +109,11 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <button
               key={index}
               onClick={() => scrollToTool(toolInfo.id)}
-              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] rounded text-xs font-mono transition-all duration-200 cursor-pointer mx-0.5"
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 text-[#00FFFF] rounded text-xs font-mono transition-all duration-200 cursor-pointer"
               title={`Click to view ${toolInfo.name}`}
             >
               {part}
+              <span className="text-[10px] opacity-70">({toolInfo.name})</span>
             </button>
           );
         }
@@ -154,40 +155,26 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
     if (referencedTools.length === 0) return null;
 
     return (
-      <motion.div 
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mt-4 p-3 bg-[#252525]/50 rounded-lg border border-[#333333]/50"
-      >
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-            <span>🔗</span>
-            <span>Referenced tools in this section:</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {referencedTools.map(({ id, info }) => (
-              <button
-                key={id}
-                onClick={() => scrollToTool(info.id)}
-                className="group flex items-center gap-2 px-3 py-1.5 bg-[#1A1A1A]/60 hover:bg-[#1A1A1A]/80 rounded-lg transition-all duration-200 border border-[#333333]/50 hover:border-[#444444]"
-              >
-                <span className={`text-sm ${info.type === 'cognitive_bias' ? '' : ''}`}>
-                  {info.type === 'cognitive_bias' ? '⚠️' : '🧠'}
-                </span>
-                <span className={`text-xs font-mono ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
-                  {id}
-                </span>
-                <span className="text-gray-500">=</span>
-                <span className={`text-xs ${info.type === 'cognitive_bias' ? 'text-amber-400/80' : 'text-[#00FFFF]/80'} group-hover:text-white transition-colors`}>
-                  {info.name}
-                </span>
-                <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-[#00FFFF] transition-colors ml-1" />
-              </button>
-            ))}
-          </div>
+      <div className="mt-3 pt-3 border-t border-[#333333]/30">
+        <div className="flex flex-wrap gap-2">
+          <span className="text-xs text-gray-500">Referenced tools:</span>
+          {referencedTools.map(({ id, info }) => (
+            <button
+              key={id}
+              onClick={() => scrollToTool(info.id)}
+              className="group flex items-center gap-1 px-2 py-1 bg-[#1A1A1A]/50 hover:bg-[#00FFFF]/10 rounded-md transition-all duration-200"
+            >
+              <span className={`text-xs ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
+                {info.type === 'cognitive_bias' ? '⚠️' : '🧠'}
+              </span>
+              <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+                {info.name}
+              </span>
+              <ExternalLink className="w-3 h-3 text-gray-500 group-hover:text-[#00FFFF] transition-colors" />
+            </button>
+          ))}
         </div>
-      </motion.div>
+      </div>
     );
   };
 
@@ -305,6 +292,28 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                   {results.narrativeAnalysis.hook}
                 </p>
               </div>
+
+              {/* Tool Reference Legend */}
+              {Object.keys(toolIdMap).length > 0 && (
+                <div className="mb-4 p-3 bg-[#1A1A1A]/30 rounded-lg text-xs">
+                  <span className="text-gray-400 font-semibold">Tool references in this analysis:</span>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {Object.entries(toolIdMap).map(([id, info]) => (
+                      <button
+                        key={id}
+                        onClick={() => scrollToTool(info.id)}
+                        className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <span className={`font-mono ${info.type === 'cognitive_bias' ? 'text-amber-500' : 'text-[#00FFFF]'}`}>
+                          {id}
+                        </span>
+                        <span className="text-gray-400">=</span>
+                        <span className="text-gray-300">{info.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* Threads */}
               <div className="space-y-3">
@@ -327,9 +336,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                             {thread.content}
                           </ReactMarkdown>
                         </div>
-                        {thread.tools && thread.tools.length > 0 && (
-                          <ThreadToolLinks content={thread.content} tools={thread.tools} allTools={results.recommendedTools || []} />
-                        )}
+                        <ThreadToolLinks content={thread.content} tools={thread.tools} />
                       </div>
                     </div>
                   </motion.div>
