@@ -131,3 +131,26 @@ export interface TrendingQuestion {
     url?: string; // Original source URL
   };
 }
+
+export interface LatticeInsightResponse {
+  query_id?: string;
+  recommendedTools: RecommendedTool[];
+  relationshipsSummary?: string; // Deprecated in v14.7, kept for backward compatibility
+  narrativeAnalysis?: NarrativeAnalysis; // New in v14.7, premium only
+  keyLessons?: string[]; // New in v14.7, premium only
+  searchGrounding?: SearchGrounding; // New in v14.7, when search was used
+  error?: string;
+  message?: string;
+  metadata?: {
+    queryType?: string;
+    complexity?: number;
+    themes?: string[];
+    analysisQuality?: 'premium' | 'basic'; // CRITICAL: Determines what features to show
+    // Verbose fields only when DEBUG_MODE=true
+    totalToolsConsidered?: number;
+    enhancedWithSearch?: boolean;
+  };
+  // Pre-generated analysis fields
+  isPreGenerated?: boolean;
+  generatedAt?: string;
+}
