@@ -258,14 +258,14 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             </AnimatePresence>
           </div>
 
-          {/* Enhanced Learn More Section */}
+          {/* Enhanced Learn More Section - REMOVED the visual indicator section */}
           <motion.div 
             className="mt-6 pt-4 border-t border-[#333333]/50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <button className={`group/learn flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 ${
                 isMentalModel 
                   ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
@@ -274,16 +274,6 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
                 <span>Learn More</span>
                 <ExternalLink size={14} className="group-hover/learn:translate-x-0.5 group-hover/learn:-translate-y-0.5 transition-transform" />
               </button>
-              
-              {/* Visual indicator of tool type */}
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${
-                  isMentalModel ? 'bg-[#00FFFF]' : 'bg-amber-500'
-                } animate-pulse`}></div>
-                <span className="text-xs text-gray-500">
-                  {isMentalModel ? 'Pattern Model' : 'Cognitive Trap'}
-                </span>
-              </div>
             </div>
           </motion.div>
         </div>
