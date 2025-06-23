@@ -323,9 +323,9 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                       
                       return (
                         <div>
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-3">
                             <span className="text-[#00FFFF]">🧠</span>
-                            <span className="text-xs text-gray-400">Mental Models ({mentalModelIds.length})</span>
+                            <span className="text-sm font-semibold text-gray-200">Mental Models ({mentalModelIds.length})</span>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {mentalModelIds.map(([id, info]) => {
