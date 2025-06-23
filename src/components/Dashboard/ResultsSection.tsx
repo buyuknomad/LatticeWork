@@ -197,15 +197,15 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
       transition={{ duration: 0.5 }}
       className="space-y-8"
     >
-      {/* Header */}
+      {/* Header - Mobile Optimized */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-3">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-3">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]">
             Pattern Analysis
           </span>
         </h2>
-        <p className="text-gray-400 text-sm">
-          Understanding: <span className="text-white font-medium">"{query}"</span>
+        <p className="text-sm sm:text-base text-gray-400 px-4 sm:px-0">
+          Understanding: <span className="text-white font-medium break-words">"{query}"</span>
         </p>
       </div>
 
@@ -308,8 +308,8 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               {/* REDESIGNED Tool Reference Legend */}
               {Object.keys(toolIdMap).length > 0 && (
                 <div className="mb-8">
-                  {/* Section Header */}
-                  <div className="flex items-center justify-between mb-6">
+                  {/* Section Header - Mobile Optimized */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-gradient-to-br from-[#8B5CF6]/20 to-[#00FFFF]/20 rounded-lg">
                         <svg className="w-5 h-5 text-[#8B5CF6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,12 +318,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-white">Tools Used in Analysis</h4>
-                        <p className="text-xs text-gray-400 mt-0.5">Click any tool to jump to detailed explanation</p>
+                        <p className="text-xs text-gray-400 mt-0.5 hidden sm:block">Click any tool to jump to detailed explanation</p>
+                        <p className="text-xs text-gray-400 mt-0.5 sm:hidden">Tap to view details</p>
                       </div>
                     </div>
                     
-                    {/* Summary Badge */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1A1A1A]/50 rounded-full border border-[#333333]/50">
+                    {/* Summary Badge - Mobile Optimized */}
+                    <div className="flex items-center gap-2 px-3 py-2 bg-[#1A1A1A]/50 rounded-full border border-[#333333]/50 self-start sm:self-center">
                       <span className="text-xs text-gray-400">Total:</span>
                       <span className="text-sm font-semibold text-white">
                         {Object.keys(toolIdMap).length} tools
@@ -351,7 +352,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                           
                           {/* Section Content */}
                           <div className="relative p-6 border border-[#00FFFF]/20 rounded-2xl">
-                            {/* Section Header */}
+                            {/* Section Header - Mobile Optimized */}
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[#00FFFF]/10 rounded-lg">
@@ -359,17 +360,17 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                 </div>
                                 <div>
                                   <h5 className="text-base font-bold text-[#00FFFF]">Mental Models</h5>
-                                  <p className="text-xs text-gray-400">Thinking frameworks that explain the pattern</p>
+                                  <p className="text-xs text-gray-400 hidden sm:block">Thinking frameworks that explain the pattern</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 px-2.5 py-1 bg-[#00FFFF]/10 rounded-full">
+                              <div className="flex items-center gap-2 px-2.5 py-1 bg-[#00FFFF]/10 rounded-full flex-shrink-0">
                                 <span className="text-xs font-medium text-[#00FFFF]">{mentalModelIds.length}</span>
-                                <span className="text-xs text-[#00FFFF]/80">models</span>
+                                <span className="text-xs text-[#00FFFF]/80 hidden sm:inline">models</span>
                               </div>
                             </div>
                             
-                            {/* Tools Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* Tools Grid - Mobile Optimized */}
+                            <div className="grid grid-cols-1 gap-3">
                               {mentalModelIds.map(([id, info], index) => {
                                 // Find which threads reference this tool
                                 const referencingThreads = results.narrativeAnalysis?.threads
@@ -383,45 +384,45 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                   <motion.button
                                     key={id}
                                     onClick={() => scrollToTool(info.id)}
-                                    className="group relative p-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 border border-[#333333]/50 hover:border-[#00FFFF]/40 rounded-xl text-left transition-all duration-300"
+                                    className="group relative p-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 border border-[#333333]/50 hover:border-[#00FFFF]/40 rounded-xl text-left transition-all duration-300 touch-manipulation"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 + index * 0.05 }}
                                   >
-                                    {/* Tool Header */}
+                                    {/* Tool Header - Mobile Optimized */}
                                     <div className="flex items-start justify-between gap-3 mb-3">
-                                      <div className="flex items-start gap-3 flex-1">
-                                        <div className="flex-shrink-0 w-10 h-8 bg-[#00FFFF]/10 rounded-lg flex items-center justify-center">
-                                          <span className="text-[10px] font-mono font-bold text-[#00FFFF]">{id}</span>
+                                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                                        <div className="flex-shrink-0 w-12 h-10 sm:w-10 sm:h-8 bg-[#00FFFF]/10 rounded-lg flex items-center justify-center">
+                                          <span className="text-xs sm:text-[10px] font-mono font-bold text-[#00FFFF]">{id}</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <h6 className="font-semibold text-sm text-gray-200 group-hover:text-white line-clamp-2 transition-colors">
+                                          <h6 className="font-semibold text-base sm:text-sm text-gray-200 group-hover:text-white transition-colors leading-tight">
                                             {info.name}
                                           </h6>
                                         </div>
                                       </div>
                                       
-                                      {/* Jump Icon */}
-                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <svg className="w-4 h-4 text-[#00FFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      {/* Jump Icon - Always visible on mobile */}
+                                      <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                        <svg className="w-5 h-5 sm:w-4 sm:h-4 text-[#00FFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                         </svg>
                                       </div>
                                     </div>
                                     
-                                    {/* Referenced In Threads */}
+                                    {/* Referenced In Threads - Mobile Optimized */}
                                     {referencingThreads.length > 0 && (
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-[9px] text-gray-500 uppercase tracking-wide">Used in:</span>
-                                        {referencingThreads.slice(0, 3).map((type, i) => (
-                                          <span key={i} className="text-[9px] px-1.5 py-0.5 bg-[#00FFFF]/15 text-[#00FFFF] rounded-full font-medium">
+                                        <span className="text-xs sm:text-[10px] text-gray-500 uppercase tracking-wide font-medium">Used in:</span>
+                                        {referencingThreads.slice(0, 2).map((type, i) => (
+                                          <span key={i} className="text-xs sm:text-[10px] px-2 py-1 sm:px-1.5 sm:py-0.5 bg-[#00FFFF]/15 text-[#00FFFF] rounded-full font-medium">
                                             {getThreadDisplayName(type)}
                                           </span>
                                         ))}
-                                        {referencingThreads.length > 3 && (
-                                          <span className="text-[9px] text-gray-500">+{referencingThreads.length - 3}</span>
+                                        {referencingThreads.length > 2 && (
+                                          <span className="text-xs sm:text-[10px] text-gray-500 font-medium">+{referencingThreads.length - 2}</span>
                                         )}
                                       </div>
                                     )}
@@ -456,7 +457,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                           
                           {/* Section Content */}
                           <div className="relative p-6 border border-amber-500/20 rounded-2xl">
-                            {/* Section Header */}
+                            {/* Section Header - Mobile Optimized */}
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-amber-500/10 rounded-lg">
@@ -464,17 +465,17 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                 </div>
                                 <div>
                                   <h5 className="text-base font-bold text-amber-500">Cognitive Biases</h5>
-                                  <p className="text-xs text-gray-400">Mental shortcuts that may distort judgment</p>
+                                  <p className="text-xs text-gray-400 hidden sm:block">Mental shortcuts that may distort judgment</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 rounded-full">
+                              <div className="flex items-center gap-2 px-2.5 py-1 bg-amber-500/10 rounded-full flex-shrink-0">
                                 <span className="text-xs font-medium text-amber-500">{biasIds.length}</span>
-                                <span className="text-xs text-amber-500/80">biases</span>
+                                <span className="text-xs text-amber-500/80 hidden sm:inline">biases</span>
                               </div>
                             </div>
                             
-                            {/* Tools Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* Tools Grid - Mobile Optimized */}
+                            <div className="grid grid-cols-1 gap-3">
                               {biasIds.map(([id, info], index) => {
                                 // Find which threads reference this tool
                                 const referencingThreads = results.narrativeAnalysis?.threads
@@ -488,45 +489,45 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                                   <motion.button
                                     key={id}
                                     onClick={() => scrollToTool(info.id)}
-                                    className="group relative p-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 border border-[#333333]/50 hover:border-amber-500/40 rounded-xl text-left transition-all duration-300"
+                                    className="group relative p-4 bg-[#1A1A1A]/30 hover:bg-[#1A1A1A]/60 border border-[#333333]/50 hover:border-amber-500/40 rounded-xl text-left transition-all duration-300 touch-manipulation"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 + index * 0.05 }}
                                   >
-                                    {/* Tool Header */}
+                                    {/* Tool Header - Mobile Optimized */}
                                     <div className="flex items-start justify-between gap-3 mb-3">
-                                      <div className="flex items-start gap-3 flex-1">
-                                        <div className="flex-shrink-0 w-10 h-8 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                                          <span className="text-[10px] font-mono font-bold text-amber-500">{id}</span>
+                                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                                        <div className="flex-shrink-0 w-12 h-10 sm:w-10 sm:h-8 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                                          <span className="text-xs sm:text-[10px] font-mono font-bold text-amber-500">{id}</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <h6 className="font-semibold text-sm text-gray-200 group-hover:text-white line-clamp-2 transition-colors">
+                                          <h6 className="font-semibold text-base sm:text-sm text-gray-200 group-hover:text-white transition-colors leading-tight">
                                             {info.name}
                                           </h6>
                                         </div>
                                       </div>
                                       
-                                      {/* Jump Icon */}
-                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      {/* Jump Icon - Always visible on mobile */}
+                                      <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                        <svg className="w-5 h-5 sm:w-4 sm:h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                         </svg>
                                       </div>
                                     </div>
                                     
-                                    {/* Referenced In Threads */}
+                                    {/* Referenced In Threads - Mobile Optimized */}
                                     {referencingThreads.length > 0 && (
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-[9px] text-gray-500 uppercase tracking-wide">Used in:</span>
-                                        {referencingThreads.slice(0, 3).map((type, i) => (
-                                          <span key={i} className="text-[9px] px-1.5 py-0.5 bg-amber-500/15 text-amber-500 rounded-full font-medium">
+                                        <span className="text-xs sm:text-[10px] text-gray-500 uppercase tracking-wide font-medium">Used in:</span>
+                                        {referencingThreads.slice(0, 2).map((type, i) => (
+                                          <span key={i} className="text-xs sm:text-[10px] px-2 py-1 sm:px-1.5 sm:py-0.5 bg-amber-500/15 text-amber-500 rounded-full font-medium">
                                             {getThreadDisplayName(type)}
                                           </span>
                                         ))}
-                                        {referencingThreads.length > 3 && (
-                                          <span className="text-[9px] text-gray-500">+{referencingThreads.length - 3}</span>
+                                        {referencingThreads.length > 2 && (
+                                          <span className="text-xs sm:text-[10px] text-gray-500 font-medium">+{referencingThreads.length - 2}</span>
                                         )}
                                       </div>
                                     )}
