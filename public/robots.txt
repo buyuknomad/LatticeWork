@@ -1,5 +1,5 @@
 # Robots.txt for https://mindlattice.app
-# Last updated: 2025-06-04
+# Last updated: 2025-06-23
 
 # Allow all web crawlers
 User-agent: *
