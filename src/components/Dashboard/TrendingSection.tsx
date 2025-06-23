@@ -1,9 +1,9 @@
-// src/components/Dashboard/TrendingSection.tsx v2.1
-// Updated to remove question truncation and show full question text
+// src/components/Dashboard/TrendingSection.tsx v2.2
+// Updated to remove arrow and enhance hover states
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  TrendingUp, ChevronRight, ChevronDown, Globe, Lock, Sparkles, Clock, Crown, Loader,
+  TrendingUp, ChevronDown, Globe, Lock, Sparkles, Clock, Crown, Loader,
   MessageCircle, ArrowUp, Flame, Zap, AlertCircle, Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -386,7 +386,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                   key={question.id}
                   onClick={() => !isLocked && onTrendingClick(question)}
                   disabled={isLocked}
-                  className={`group relative text-left p-4 rounded-xl transition-all duration-200 overflow-hidden flex flex-col ${
+                  className={`group relative text-left p-4 rounded-xl transition-all duration-300 overflow-hidden flex flex-col ${
                     isLocked
                       ? 'bg-[#1A1A1A]/50 border border-[#333333]/50 opacity-60 cursor-not-allowed'
                       : isViral
@@ -411,7 +411,7 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                     {getRecencyBadge(question)}
                   </div>
 
-                  {/* Question Text - REMOVED line-clamp-2 to show full text */}
+                  {/* Question Text */}
                   <p className={`text-sm transition-colors flex-1 mb-3 leading-relaxed ${
                     isLocked 
                       ? 'text-gray-500' 
@@ -459,20 +459,28 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                     </div>
                   </div>
 
-                  {/* Hover Arrow */}
-                  {!isLocked && (
-                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ChevronRight className="w-4 h-4 text-[#00FFFF]" />
-                    </div>
-                  )}
-
-                  {/* Hot/Viral topic glow effect */}
-                  {(isViral || isHot) && !isLocked && (
-                    <div className={`absolute inset-0 pointer-events-none ${
+                  {/* Enhanced hover effect with glow */}
+                  <motion.div
+                    className={`absolute inset-0 rounded-xl transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none ${
                       isViral 
-                        ? 'bg-gradient-to-br from-red-500/10 via-orange-500/5 to-transparent' 
-                        : 'bg-gradient-to-br from-orange-500/5 to-transparent'
-                    }`} />
+                        ? 'bg-gradient-to-br from-orange-500/10 via-transparent to-red-500/10' 
+                        : isHot
+                          ? 'bg-gradient-to-br from-orange-500/5 via-transparent to-transparent'
+                          : 'bg-gradient-to-br from-[#00FFFF]/5 via-transparent to-transparent'
+                    }`}
+                  />
+
+                  {/* Border glow on hover */}
+                  {!isLocked && (
+                    <motion.div
+                      className={`absolute inset-0 rounded-xl pointer-events-none ${
+                        isViral
+                          ? 'shadow-[inset_0_0_20px_rgba(251,146,60,0.3)]'
+                          : isHot
+                            ? 'shadow-[inset_0_0_15px_rgba(251,146,60,0.2)]'
+                            : 'shadow-[inset_0_0_15px_rgba(0,255,255,0.15)]'
+                      } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                    />
                   )}
 
                   {/* Viral pulse animation */}
