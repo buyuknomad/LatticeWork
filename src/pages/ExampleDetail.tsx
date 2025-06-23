@@ -243,7 +243,7 @@ const ExampleDetail: React.FC = () => {
                   onClick={() => navigate('/signup')}
                   className="bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6] text-black font-semibold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity text-lg mb-3"
                 >
-                  Start Free Trial <ArrowRight className="inline h-5 w-5 ml-2" />
+                  Sign Up Now <ArrowRight className="inline h-5 w-5 ml-2" />
                 </button>
                 <p className="text-sm text-gray-400">
                   3 free analyses daily • No credit card required
