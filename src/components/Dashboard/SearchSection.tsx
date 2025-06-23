@@ -118,7 +118,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">
-            What pattern are you trying to understand?
+            What are you trying to understand?
           </h2>
           <p className="text-gray-400 text-sm md:text-base">
             Describe a situation, behavior, or decision you want to analyze
