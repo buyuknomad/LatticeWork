@@ -19,7 +19,6 @@ interface QuerySectionProps {
   onSubmit: (e: React.FormEvent) => void;
   onInputFocus: () => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onExampleClick: (example: string) => void;
   onTrendingClick: (question: TrendingQuestion) => void;
   shouldFocusAnalysis: boolean;
   userId?: string;
@@ -39,7 +38,6 @@ const QuerySection: React.FC<QuerySectionProps> = ({
   onSubmit,
   onInputFocus,
   onInputChange,
-  onExampleClick,
   onTrendingClick,
   shouldFocusAnalysis,
   limits, // Use this instead of calculating
@@ -138,9 +136,7 @@ const QuerySection: React.FC<QuerySectionProps> = ({
       />
 
       {/* Examples Section */}
-      <ExamplesSection
-        onExampleClick={onExampleClick}
-      />
+      <ExamplesSection />
     </div>
   );
 };
