@@ -77,16 +77,7 @@ const Dashboard: React.FC = () => {
     }
   }, [user]);
 
-  // Check if we have a pre-filled question from the examples page
-  useEffect(() => {
-    const state = location.state as { prefilledQuestion?: string };
-    if (state?.prefilledQuestion && !query) {
-      setQuery(state.prefilledQuestion);
-      setIsTypingAnimation(false); // Skip the animation
-      // Clear the state to prevent re-filling on navigation
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
+  // Removed pre-filled question logic - query bar should remain empty
 
   // Fetch trending questions
   useEffect(() => {
