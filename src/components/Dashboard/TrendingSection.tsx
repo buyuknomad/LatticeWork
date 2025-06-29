@@ -530,23 +530,76 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
             )}
           </p>
           
-          {/* Archive Link for All Users */}
-          <div className="mt-3 pt-3 border-t border-[#333333]/30">
+          {/* Archive Link for All Users - Made More Prominent */}
+          <div className="mt-6 pt-4 border-t border-[#333333]/30">
             <Link 
               to="/archive"
-              className="inline-flex items-center gap-2 text-xs hover:text-[#8B5CF6]/80 transition-colors group"
+              className="block group"
             >
-              <Archive className="w-3 h-3" />
-              <span className={displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-gray-400 group-hover:text-[#8B5CF6]'}>
-                {displayTier === 'premium' 
-                  ? 'Browse archived trending questions with full analysis'
-                  : 'Unlock premium archive with full analysis'
-                }
-              </span>
-              {displayTier === 'free' && (
-                <Crown className="w-3 h-3 text-[#8B5CF6] opacity-75" />
-              )}
-              <ChevronRight className="w-3 h-3" />
+              <motion.div
+                className={`p-4 rounded-xl border transition-all duration-300 ${
+                  displayTier === 'premium'
+                    ? 'bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5 border-[#8B5CF6]/30 hover:border-[#8B5CF6]/50'
+                    : 'bg-gradient-to-r from-[#8B5CF6]/5 to-[#00FFFF]/5 border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40 hover:from-[#8B5CF6]/10 hover:to-[#00FFFF]/10'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      displayTier === 'premium' 
+                        ? 'bg-[#8B5CF6]/20' 
+                        : 'bg-gradient-to-r from-[#8B5CF6]/20 to-[#00FFFF]/20'
+                    }`}>
+                      <Archive className="w-5 h-5 text-[#8B5CF6]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${
+                          displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-white group-hover:text-[#8B5CF6]'
+                        } transition-colors`}>
+                          {displayTier === 'premium' 
+                            ? 'Browse Premium Archive'
+                            : 'Unlock Premium Archive'
+                          }
+                        </span>
+                        {displayTier === 'free' && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 bg-[#8B5CF6]/20 rounded-full border border-[#8B5CF6]/30">
+                            <Crown className="w-3 h-3 text-[#8B5CF6]" />
+                            <span className="text-xs text-[#8B5CF6] font-medium">Premium</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                        {displayTier === 'premium' 
+                          ? 'Full analysis with 3-4 mental models & cognitive biases'
+                          : 'Access archived questions with complete premium analysis'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <ChevronRight className={`w-5 h-5 transition-all group-hover:translate-x-1 ${
+                    displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-gray-400 group-hover:text-[#8B5CF6]'
+                  }`} />
+                </div>
+                
+                {/* Glow effect for free users */}
+                {displayTier === 'free' && (
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-[#00FFFF]/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                    animate={{
+                      opacity: [0, 0.3, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                )}
+              </motion.div>
             </Link>
           </div>
         </div>
