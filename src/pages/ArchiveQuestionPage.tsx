@@ -120,19 +120,28 @@ const ArchiveQuestionPage: React.FC = () => {
     }
   };
 
-  // Track archive view by updating click_count
+  // Track archive view by updating click_count (every time, no restrictions)
   const trackArchiveView = async (questionData: ArchiveQuestion) => {
     if (!session?.access_token) return;
 
     try {
-      // Update click count using Supabase client
+      // Always increment view count (no duplicate checking)
+      const newCount = (questionData.click_count || 0) + 1;
+      
       const { error } = await supabase
         .from('trending_questions')
         .update({ 
-          click_count: (questionData.click_count || 0) + 1,
+          click_count: newCount,
           metadata: {
             ...questionData.metadata,
-            lastViewedAt: new Date().toISOString()
+            lastViewedAt: new Date().toISOString(),
+            viewHistory: [
+              ...(questionData.metadata?.viewHistory || []),
+              {
+                viewedAt: new Date().toISOString(),
+                userId: user?.id
+              }
+            ].slice(-10) // Keep last 10 views
           }
         })
         .eq('id', questionData.id);
@@ -140,11 +149,11 @@ const ArchiveQuestionPage: React.FC = () => {
       if (error) {
         console.error('Error tracking archive view:', error);
       } else {
-        console.log('Archive view tracked successfully');
+        console.log('Archive view tracked successfully, new count:', newCount);
         // Update local state to reflect new count immediately
         setQuestion(prev => prev ? {
           ...prev,
-          click_count: (prev.click_count || 0) + 1
+          click_count: newCount
         } : null);
       }
     } catch (error) {
