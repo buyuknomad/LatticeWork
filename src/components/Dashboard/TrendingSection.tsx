@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, ChevronDown, Globe, Lock, Sparkles, Clock, Crown, Loader,
-  MessageCircle, ArrowUp, Flame, Zap, AlertCircle, Users
+  MessageCircle, ArrowUp, Flame, Zap, AlertCircle, Users, Archive, ChevronRight
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { TrendingQuestion, UserTier, QueryLimits } from './types';
 import { useAuth } from '../../context/AuthContext';
 import { products } from '../../stripe-config';
@@ -529,6 +529,20 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
               </span>
             )}
           </p>
+          
+          {/* Archive Link for Premium Users */}
+          {displayTier === 'premium' && (
+            <div className="mt-3 pt-3 border-t border-[#333333]/30">
+              <Link 
+                to="/archive"
+                className="inline-flex items-center gap-2 text-xs text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
+              >
+                <Archive className="w-3 h-3" />
+                Explore thousands of archived trending questions
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </motion.section>
