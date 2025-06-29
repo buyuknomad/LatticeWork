@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ResultsSection from '../components/Dashboard/ResultsSection';
 import { LatticeInsightResponse, UserTier } from '../components/Dashboard/types';
@@ -71,7 +72,7 @@ const ArchiveQuestionPage: React.FC = () => {
     }
   }, [user]);
 
-  // Load question
+  // Load question and track view
   useEffect(() => {
     if (id && session?.access_token) {
       fetchQuestion();
@@ -108,11 +109,46 @@ const ArchiveQuestionPage: React.FC = () => {
       }
 
       setQuestion(data.data);
+
+      // Track archive view (increment click_count)
+      trackArchiveView(data.data);
     } catch (err: any) {
       console.error('Fetch question error:', err);
       setError(err.message || 'Failed to load question');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Track archive view by updating click_count
+  const trackArchiveView = async (questionData: ArchiveQuestion) => {
+    if (!session?.access_token) return;
+
+    try {
+      // Update click count using Supabase client
+      const { error } = await supabase
+        .from('trending_questions')
+        .update({ 
+          click_count: (questionData.click_count || 0) + 1,
+          metadata: {
+            ...questionData.metadata,
+            lastViewedAt: new Date().toISOString()
+          }
+        })
+        .eq('id', questionData.id);
+
+      if (error) {
+        console.error('Error tracking archive view:', error);
+      } else {
+        console.log('Archive view tracked successfully');
+        // Update local state to reflect new count immediately
+        setQuestion(prev => prev ? {
+          ...prev,
+          click_count: (prev.click_count || 0) + 1
+        } : null);
+      }
+    } catch (error) {
+      console.error('Error tracking archive view:', error);
     }
   };
 
