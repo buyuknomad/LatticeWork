@@ -1,7 +1,7 @@
 // src/components/Dashboard/DashboardHeader.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Clock, Crown, Sparkles } from 'lucide-react';
+import { Settings, Clock, Crown, Sparkles, Archive } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { UserTier } from './types';
@@ -46,6 +46,22 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Archive Link - Premium Only */}
+            {displayTier === 'premium' && (
+              <Link to="/archive">
+                <motion.button
+                  className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-gradient-to-r from-[#8B5CF6]/20 to-[#8B5CF6]/10 backdrop-blur-sm border border-[#8B5CF6]/30 rounded-lg hover:border-[#8B5CF6]/50 hover:from-[#8B5CF6]/30 hover:to-[#8B5CF6]/20 transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Archive className="h-5 w-5 text-[#8B5CF6] transition-colors" />
+                  <span className="hidden sm:inline text-sm font-medium text-[#8B5CF6] transition-colors">
+                    Archive
+                  </span>
+                </motion.button>
+              </Link>
+            )}
+
             <Link to="/history">
               <motion.button
                 className="group flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-[#252525]/50 backdrop-blur-sm border border-[#333333] rounded-lg hover:border-[#00FFFF]/30 hover:bg-[#252525]/80 transition-all"
