@@ -57,6 +57,7 @@ const ArchivePage: React.FC = () => {
   const [stats, setStats] = useState<ArchiveStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewRefreshKey, setViewRefreshKey] = useState(0); // Force refresh when views change
   
   // UI state
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,7 +91,33 @@ const ArchivePage: React.FC = () => {
     if (userTier === 'premium' && session?.access_token) {
       fetchQuestions();
     }
-  }, [currentPage, selectedCategory, sortBy, userTier, session?.access_token]);
+  }, [currentPage, selectedCategory, sortBy, userTier, session?.access_token, viewRefreshKey]);
+
+  // Refresh questions when returning from question page (to show updated view counts)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (userTier === 'premium' && session?.access_token && !loading) {
+        console.log('Page focused, refreshing questions to show updated view counts');
+        setViewRefreshKey(prev => prev + 1); // Force refresh
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && userTier === 'premium' && session?.access_token && !loading) {
+        console.log('Page became visible, refreshing questions');
+        setViewRefreshKey(prev => prev + 1); // Force refresh
+      }
+    };
+
+    // Listen for page focus and visibility changes
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [userTier, session?.access_token, loading]);
 
   // Load stats once for premium users
   useEffect(() => {
@@ -418,9 +445,10 @@ const ArchivePage: React.FC = () => {
                 </div>
                 
                 <button
-                  onClick={fetchQuestions}
+                  onClick={() => setViewRefreshKey(prev => prev + 1)}
                   disabled={loading}
                   className="p-2 bg-[#252525]/50 hover:bg-[#252525]/80 border border-[#333333] rounded-lg transition-colors disabled:opacity-50"
+                  title="Refresh to update view counts"
                 >
                   <RefreshCw className={`w-4 h-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
