@@ -530,19 +530,25 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
             )}
           </p>
           
-          {/* Archive Link for Premium Users */}
-          {displayTier === 'premium' && (
-            <div className="mt-3 pt-3 border-t border-[#333333]/30">
-              <Link 
-                to="/archive"
-                className="inline-flex items-center gap-2 text-xs text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
-              >
-                <Archive className="w-3 h-3" />
-                Explore thousands of archived trending questions
-                <ChevronRight className="w-3 h-3" />
-              </Link>
-            </div>
-          )}
+          {/* Archive Link for All Users */}
+          <div className="mt-3 pt-3 border-t border-[#333333]/30">
+            <Link 
+              to="/archive"
+              className="inline-flex items-center gap-2 text-xs hover:text-[#8B5CF6]/80 transition-colors group"
+            >
+              <Archive className="w-3 h-3" />
+              <span className={displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-gray-400 group-hover:text-[#8B5CF6]'}>
+                {displayTier === 'premium' 
+                  ? 'Explore thousands of archived trending questions'
+                  : 'Unlock archive of trending questions'
+                }
+              </span>
+              {displayTier === 'free' && (
+                <Crown className="w-3 h-3 text-[#8B5CF6] opacity-75" />
+              )}
+              <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
       </div>
     </motion.section>
