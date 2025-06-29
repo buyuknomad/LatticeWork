@@ -597,7 +597,7 @@ const ArchivePage: React.FC = () => {
                   Next
                   <ChevronRight className="w-4 h-4" />
                 </button>
-              </div>
+              </motion.div>
             )}
 
             {/* Empty State */}
