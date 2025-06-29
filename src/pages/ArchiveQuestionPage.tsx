@@ -72,12 +72,25 @@ const ArchiveQuestionPage: React.FC = () => {
     }
   }, [user]);
 
-  // Load question and track view
+  // Load question and track view EVERY TIME
   useEffect(() => {
     if (id && session?.access_token) {
       fetchQuestion();
     }
   }, [id, session?.access_token]);
+
+  // Track view separately every time component mounts/page loads
+  useEffect(() => {
+    if (question && session?.access_token && user?.id) {
+      // Small delay to ensure everything is loaded
+      const timer = setTimeout(() => {
+        console.log('Tracking archive view for question:', question.id, 'Current count:', question.click_count);
+        trackArchiveView(question);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [question?.id, session?.access_token, user?.id]); // Track when question is loaded
 
   const fetchQuestion = async () => {
     if (!id || !session?.access_token) return;
@@ -110,8 +123,7 @@ const ArchiveQuestionPage: React.FC = () => {
 
       setQuestion(data.data);
 
-      // Track archive view (increment click_count)
-      trackArchiveView(data.data);
+      // Don't track here - tracking moved to separate useEffect
     } catch (err: any) {
       console.error('Fetch question error:', err);
       setError(err.message || 'Failed to load question');
@@ -120,13 +132,14 @@ const ArchiveQuestionPage: React.FC = () => {
     }
   };
 
-  // Track archive view by updating click_count (every time, no restrictions)
   const trackArchiveView = async (questionData: ArchiveQuestion) => {
-    if (!session?.access_token) return;
+    if (!session?.access_token || !user?.id) return;
 
     try {
       // Always increment view count (no duplicate checking)
       const newCount = (questionData.click_count || 0) + 1;
+      
+      console.log(`Updating view count from ${questionData.click_count || 0} to ${newCount} for question ${questionData.id}`);
       
       const { error } = await supabase
         .from('trending_questions')
@@ -139,7 +152,7 @@ const ArchiveQuestionPage: React.FC = () => {
               ...(questionData.metadata?.viewHistory || []),
               {
                 viewedAt: new Date().toISOString(),
-                userId: user?.id
+                userId: user.id
               }
             ].slice(-10) // Keep last 10 views
           }
