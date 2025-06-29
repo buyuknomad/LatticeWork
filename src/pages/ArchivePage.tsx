@@ -551,7 +551,7 @@ const ArchivePage: React.FC = () => {
                           ? "bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg p-6 border border-[#333333]/50 hover:border-[#00FFFF]/30"
                           : "bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg p-4 border border-[#333333]/50 hover:border-[#00FFFF]/30 flex items-center gap-4"
                       } transition-all duration-200`}
-                      onClick={() => handleQuestionClick(question)}
+                      onClick={() => navigate(`/archive/${question.id}`)}
                     >
                       {/* Category Badge */}
                       <div className={`flex items-center ${viewMode === 'list' ? 'flex-shrink-0' : 'justify-between'} gap-2 mb-3`}>
@@ -671,4 +671,4 @@ const ArchivePage: React.FC = () => {
   );
 };
 
-export default ArchivePage; 
+export default ArchivePage;
