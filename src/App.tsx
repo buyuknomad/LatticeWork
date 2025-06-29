@@ -34,6 +34,10 @@ import HomePage from './pages/HomePage';
 import Examples from './pages/Examples';
 import ExampleDetail from './pages/ExampleDetail';
 
+// Import Archive pages
+import ArchivePage from './pages/ArchivePage';
+import ArchiveQuestionPage from './pages/ArchiveQuestionPage';
+
 // Create a wrapper component that can use useLocation
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -41,15 +45,18 @@ const AppContent: React.FC = () => {
   // Define routes where footer should be hidden
   const hideFooterRoutes = [
     '/dashboard', 
+    '/dashboard/results',
     '/settings', 
     '/history', 
+    '/archive',
     '/login', 
     '/signup', 
     '/signup-success',
     '/forgot-password',
     '/reset-password'
   ];
-  const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
+  const shouldHideFooter = hideFooterRoutes.includes(location.pathname) || 
+                          location.pathname.startsWith('/archive/');
 
   return (
     <div className="relative min-h-screen bg-[#1A1A1A] text-white overflow-hidden">
@@ -62,7 +69,7 @@ const AppContent: React.FC = () => {
           <Route path="/mental-models" element={<MentalModels />} />
           <Route path="/cognitive-biases" element={<CognitiveBiases />} />
           
-          {/* Examples routes - NEW */}
+          {/* Examples routes */}
           <Route path="/examples" element={<Examples />} />
           <Route path="/examples/:slug" element={<ExampleDetail />} />
           
@@ -87,10 +94,13 @@ const AppContent: React.FC = () => {
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/results" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/history" element={<History />} />
-            <Route path="/dashboard/results" element={<Dashboard />} />
-            {/* Add other protected routes here */}
+            
+            {/* Archive routes - Premium feature */}
+            <Route path="/archive" element={<ArchivePage />} />
+            <Route path="/archive/:id" element={<ArchiveQuestionPage />} />
           </Route>
         </Routes>
         
