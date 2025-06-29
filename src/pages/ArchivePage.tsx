@@ -276,19 +276,19 @@ const ArchivePage: React.FC = () => {
                   </div>
                   
                   <h2 className="text-2xl font-bold text-white mb-3">
-                    Unlock the Archive Vault
+                    Unlock Premium Archive Access
                   </h2>
                   <p className="text-gray-300 mb-6 max-w-md mx-auto">
-                    Explore <span className="text-[#8B5CF6] font-semibold">thousands</span> of analyzed trending questions with full premium insights. 
-                    Discover patterns, mental models, and cognitive biases from past discussions.
+                    Access our growing collection of analyzed trending questions with full premium insights. 
+                    Every question archived includes <span className="text-[#8B5CF6] font-semibold">3-4 mental models and 2-3 cognitive biases</span>.
                   </p>
                   
                   {/* Preview Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="p-4 bg-[#1A1A1A]/50 rounded-lg border border-[#333333]/50">
                       <TrendingUp className="w-6 h-6 text-[#00FFFF] mb-2 mx-auto" />
-                      <div className="text-lg font-bold text-white">2,847</div>
-                      <p className="text-xs text-gray-400">Questions Archived</p>
+                      <div className="text-lg font-bold text-white">Growing</div>
+                      <p className="text-xs text-gray-400">Archive Collection</p>
                     </div>
                     <div className="p-4 bg-[#1A1A1A]/50 rounded-lg border border-[#333333]/50">
                       <Crown className="w-6 h-6 text-[#8B5CF6] mb-2 mx-auto" />
@@ -304,12 +304,24 @@ const ArchivePage: React.FC = () => {
 
                   {/* Sample Questions Preview */}
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-white mb-4">Sample Archived Questions</h3>
+                    <h3 className="text-lg font-semibold text-white mb-4">Recent Archived Questions</h3>
                     <div className="space-y-3">
                       {[
-                        { category: 'business', question: 'Why do successful companies often fail when expanding to new markets?' },
-                        { category: 'personal', question: 'What psychological patterns drive people to procrastinate on important decisions?' },
-                        { category: 'technology', question: 'How do network effects create winner-take-all markets in tech?' }
+                        { 
+                          category: 'technology', 
+                          question: 'Why do AI companies keep making the same mistakes with model releases?',
+                          source: 'r/MachineLearning'
+                        },
+                        { 
+                          category: 'business', 
+                          question: 'What drives people to defend obviously failing business strategies?',
+                          source: 'Hacker News'
+                        },
+                        { 
+                          category: 'personal', 
+                          question: 'Why do we procrastinate on decisions we know are important?',
+                          source: 'r/productivity'
+                        }
                       ].map((sample, index) => (
                         <div key={index} className="p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30 text-left">
                           <div className="flex items-center gap-2 mb-1">
@@ -320,6 +332,7 @@ const ArchivePage: React.FC = () => {
                               <Crown className="w-3 h-3 text-[#8B5CF6]" />
                               <span className="text-xs text-[#8B5CF6]">Premium</span>
                             </div>
+                            <span className="text-xs text-gray-500">{sample.source}</span>
                           </div>
                           <p className="text-sm text-gray-300">{sample.question}</p>
                         </div>
@@ -336,7 +349,7 @@ const ArchivePage: React.FC = () => {
                   </button>
                   
                   <p className="text-xs text-gray-500 mt-4">
-                    Join 500+ premium members exploring the archive
+                    Archive grows with every trending cycle
                   </p>
                 </div>
               </motion.div>
