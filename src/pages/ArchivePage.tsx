@@ -276,26 +276,56 @@ const ArchivePage: React.FC = () => {
                   </div>
                   
                   <h2 className="text-2xl font-bold text-white mb-3">
-                    Premium Archive Access Required
+                    Unlock the Archive Vault
                   </h2>
                   <p className="text-gray-300 mb-6 max-w-md mx-auto">
-                    Explore thousands of analyzed trending questions with full premium insights. 
+                    Explore <span className="text-[#8B5CF6] font-semibold">thousands</span> of analyzed trending questions with full premium insights. 
                     Discover patterns, mental models, and cognitive biases from past discussions.
                   </p>
                   
+                  {/* Preview Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="p-4 bg-[#1A1A1A]/50 rounded-lg border border-[#333333]/50">
                       <TrendingUp className="w-6 h-6 text-[#00FFFF] mb-2 mx-auto" />
-                      <p className="text-sm text-gray-300">Historical Trends</p>
+                      <div className="text-lg font-bold text-white">2,847</div>
+                      <p className="text-xs text-gray-400">Questions Archived</p>
                     </div>
                     <div className="p-4 bg-[#1A1A1A]/50 rounded-lg border border-[#333333]/50">
                       <Crown className="w-6 h-6 text-[#8B5CF6] mb-2 mx-auto" />
-                      <p className="text-sm text-gray-300">Premium Analysis</p>
+                      <div className="text-lg font-bold text-white">3-4</div>
+                      <p className="text-xs text-gray-400">Mental Models Each</p>
                     </div>
                     <div className="p-4 bg-[#1A1A1A]/50 rounded-lg border border-[#333333]/50">
                       <Search className="w-6 h-6 text-amber-500 mb-2 mx-auto" />
-                      <p className="text-sm text-gray-300">Advanced Search</p>
+                      <div className="text-lg font-bold text-white">Full</div>
+                      <p className="text-xs text-gray-400">Search & Filter</p>
                     </div>
+                  </div>
+
+                  {/* Sample Questions Preview */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-white mb-4">Sample Archived Questions</h3>
+                    <div className="space-y-3">
+                      {[
+                        { category: 'business', question: 'Why do successful companies often fail when expanding to new markets?' },
+                        { category: 'personal', question: 'What psychological patterns drive people to procrastinate on important decisions?' },
+                        { category: 'technology', question: 'How do network effects create winner-take-all markets in tech?' }
+                      ].map((sample, index) => (
+                        <div key={index} className="p-3 bg-[#1A1A1A]/30 rounded-lg border border-[#333333]/30 text-left">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs px-2 py-0.5 bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-full capitalize">
+                              {sample.category}
+                            </span>
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-[#333333]/50 rounded-full">
+                              <Crown className="w-3 h-3 text-[#8B5CF6]" />
+                              <span className="text-xs text-[#8B5CF6]">Premium</span>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-300">{sample.question}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3">Each with 3-4 mental models, 2-3 cognitive biases, and full analysis</p>
                   </div>
                   
                   <button 
@@ -304,6 +334,10 @@ const ArchivePage: React.FC = () => {
                   >
                     Upgrade to Premium
                   </button>
+                  
+                  <p className="text-xs text-gray-500 mt-4">
+                    Join 500+ premium members exploring the archive
+                  </p>
                 </div>
               </motion.div>
             </div>
