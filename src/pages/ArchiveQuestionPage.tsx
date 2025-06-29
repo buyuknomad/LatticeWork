@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, Calendar, Clock, TrendingUp, Star, Crown,
+  ArrowLeft, Calendar, Clock, Star, Crown,
   AlertCircle, Loader, ExternalLink, Share2, Bookmark,
-  ChevronLeft, ChevronRight, Archive
+  ChevronLeft, ChevronRight, Archive, ArrowRight
 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ResultsSection from '../components/Dashboard/ResultsSection';
 import { LatticeInsightResponse, UserTier } from '../components/Dashboard/types';
@@ -72,25 +71,12 @@ const ArchiveQuestionPage: React.FC = () => {
     }
   }, [user]);
 
-  // Load question and track view EVERY TIME
+  // Load question
   useEffect(() => {
     if (id && session?.access_token) {
       fetchQuestion();
     }
   }, [id, session?.access_token]);
-
-  // Track view separately every time component mounts/page loads
-  useEffect(() => {
-    if (question && session?.access_token && user?.id) {
-      // Small delay to ensure everything is loaded
-      const timer = setTimeout(() => {
-        console.log('Tracking archive view for question:', question.id, 'Current count:', question.click_count);
-        trackArchiveView(question);
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [question?.id, session?.access_token, user?.id]); // Track when question is loaded
 
   const fetchQuestion = async () => {
     if (!id || !session?.access_token) return;
@@ -122,55 +108,11 @@ const ArchiveQuestionPage: React.FC = () => {
       }
 
       setQuestion(data.data);
-
-      // Don't track here - tracking moved to separate useEffect
     } catch (err: any) {
       console.error('Fetch question error:', err);
       setError(err.message || 'Failed to load question');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const trackArchiveView = async (questionData: ArchiveQuestion) => {
-    if (!session?.access_token || !user?.id) return;
-
-    try {
-      // Always increment view count (no duplicate checking)
-      const newCount = (questionData.click_count || 0) + 1;
-      
-      console.log(`Updating view count from ${questionData.click_count || 0} to ${newCount} for question ${questionData.id}`);
-      
-      const { error } = await supabase
-        .from('trending_questions')
-        .update({ 
-          click_count: newCount,
-          metadata: {
-            ...questionData.metadata,
-            lastViewedAt: new Date().toISOString(),
-            viewHistory: [
-              ...(questionData.metadata?.viewHistory || []),
-              {
-                viewedAt: new Date().toISOString(),
-                userId: user.id
-              }
-            ].slice(-10) // Keep last 10 views
-          }
-        })
-        .eq('id', questionData.id);
-
-      if (error) {
-        console.error('Error tracking archive view:', error);
-      } else {
-        console.log('Archive view tracked successfully, new count:', newCount);
-        // Update local state to reflect new count immediately
-        setQuestion(prev => prev ? {
-          ...prev,
-          click_count: newCount
-        } : null);
-      }
-    } catch (error) {
-      console.error('Error tracking archive view:', error);
     }
   };
 
@@ -400,41 +342,6 @@ const ArchiveQuestionPage: React.FC = () => {
                     {question.question}
                   </h1>
 
-                  {/* Metadata Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-[#00FFFF]">
-                        {formatNumber(question.click_count)}
-                      </div>
-                      <div className="text-xs text-gray-400">Views</div>
-                    </div>
-                    
-                    {question.metadata?.engagement && (
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-[#8B5CF6]">
-                          {formatNumber(question.metadata.engagement)}
-                        </div>
-                        <div className="text-xs text-gray-400">Engagement</div>
-                      </div>
-                    )}
-                    
-                    {question.metadata?.score && (
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-amber-500">
-                          {formatNumber(question.metadata.score)}
-                        </div>
-                        <div className="text-xs text-gray-400">Score</div>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-500">
-                        {(question.quality_score * 100).toFixed(0)}%
-                      </div>
-                      <div className="text-xs text-gray-400">Quality</div>
-                    </div>
-                  </div>
-
                   {/* Source and Dates */}
                   <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400 border-t border-[#333333]/50 pt-6">
                     <div className="flex items-center gap-2">
@@ -475,7 +382,7 @@ const ArchiveQuestionPage: React.FC = () => {
                   >
                     <div className="mb-6">
                       <h2 className="text-xl font-semibold text-white mb-2 flex items-center gap-3">
-                        <TrendingUp className="w-6 h-6 text-[#00FFFF]" />
+                        <Archive className="w-6 h-6 text-[#00FFFF]" />
                         Archived Analysis
                         <div className="flex items-center gap-1 px-2 py-0.5 bg-[#333333]/50 rounded-full">
                           <span className="text-xs text-gray-400">
@@ -514,7 +421,7 @@ const ArchiveQuestionPage: React.FC = () => {
                       to={`/dashboard?q=${encodeURIComponent(question.question)}`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-[#00FFFF]/10 hover:bg-[#00FFFF]/20 border border-[#00FFFF]/30 rounded-lg text-[#00FFFF] transition-colors"
                     >
-                      <TrendingUp className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4" />
                       Analyze This Question
                     </Link>
                   </motion.div>
