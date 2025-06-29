@@ -539,8 +539,8 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
               <Archive className="w-3 h-3" />
               <span className={displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-gray-400 group-hover:text-[#8B5CF6]'}>
                 {displayTier === 'premium' 
-                  ? 'Explore thousands of archived trending questions'
-                  : 'Unlock archive of trending questions'
+                  ? 'Browse archived trending questions with full analysis'
+                  : 'Unlock premium archive with full analysis'
                 }
               </span>
               {displayTier === 'free' && (
