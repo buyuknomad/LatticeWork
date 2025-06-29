@@ -9,6 +9,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserTier } from '../components/Dashboard/types';
+import { supabase } from '../lib/supabase';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 
 interface ArchiveQuestion {
@@ -550,7 +551,7 @@ const ArchivePage: React.FC = () => {
                           ? "bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg p-6 border border-[#333333]/50 hover:border-[#00FFFF]/30"
                           : "bg-[#252525]/50 hover:bg-[#252525]/80 rounded-lg p-4 border border-[#333333]/50 hover:border-[#00FFFF]/30 flex items-center gap-4"
                       } transition-all duration-200`}
-                      onClick={() => navigate(`/archive/${question.id}`)}
+                      onClick={() => handleQuestionClick(question)}
                     >
                       {/* Category Badge */}
                       <div className={`flex items-center ${viewMode === 'list' ? 'flex-shrink-0' : 'justify-between'} gap-2 mb-3`}>
