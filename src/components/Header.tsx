@@ -11,6 +11,9 @@ const Header = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Check if we're on the homepage
+  const isHomePage = location.pathname === '/';
+
   const handleAuthClick = async () => {
     if (user) {
       try {
@@ -71,17 +74,23 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {/* Examples Link - Always visible */}
-            <Link 
-              to="/examples" 
-              className="text-white hover:text-[#00FFFF] transition-colors"
-            >
-              Examples
-            </Link>
-            
-            {/* Show Features only for non-authenticated users */}
-            {!user && (
-              <a href="#features" className="text-white hover:text-[#00FFFF] transition-colors">Features</a>
+            {/* Show Examples and Features only on homepage */}
+            {isHomePage && (
+              <>
+                <Link 
+                  to="/examples" 
+                  className="text-white hover:text-[#00FFFF] transition-colors"
+                >
+                  Examples
+                </Link>
+                
+                {/* Features link - only for non-authenticated users on homepage */}
+                {!user && (
+                  <a href="#features" className="text-white hover:text-[#00FFFF] transition-colors">
+                    Features
+                  </a>
+                )}
+              </>
             )}
             
             {/* Dashboard Link - Only visible when user is logged in */}
@@ -139,24 +148,28 @@ const Header = () => {
             transition={{ duration: 0.2 }}
           >
             <div className="flex flex-col space-y-3">
-              {/* Examples Link - Always visible */}
-              <Link 
-                to="/examples" 
-                className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Examples
-              </Link>
-              
-              {/* Show Features only for non-authenticated users */}
-              {!user && (
-                <a 
-                  href="#features" 
-                  className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Features
-                </a>
+              {/* Show Examples and Features only on homepage */}
+              {isHomePage && (
+                <>
+                  <Link 
+                    to="/examples" 
+                    className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Examples
+                  </Link>
+                  
+                  {/* Features link - only for non-authenticated users on homepage */}
+                  {!user && (
+                    <a 
+                      href="#features" 
+                      className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Features
+                    </a>
+                  )}
+                </>
               )}
               
               {/* Dashboard Link - Only visible when user is logged in */}
