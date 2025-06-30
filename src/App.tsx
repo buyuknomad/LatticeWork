@@ -20,6 +20,7 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
 import MentalModels from './pages/MentalModels';
+import MentalModelDetail from './pages/MentalModels/MentalModelDetail';
 import CognitiveBiases from './pages/CognitiveBiases';
 
 // Import new pages
@@ -67,6 +68,7 @@ const AppContent: React.FC = () => {
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/mental-models" element={<MentalModels />} />
+          <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
           <Route path="/cognitive-biases" element={<CognitiveBiases />} />
           
           {/* Examples routes */}
@@ -125,4 +127,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;
