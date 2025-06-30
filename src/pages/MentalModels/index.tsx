@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Book, Brain, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 
 const MentalModels: React.FC = () => {
+  const navigate = useNavigate();
   const [models, setModels] = useState<MentalModelSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<MentalModelFilters>({
@@ -276,4 +278,4 @@ const MentalModels: React.FC = () => {
   );
 };
 
-export default MentalModels;
+export default MentalModels; 
