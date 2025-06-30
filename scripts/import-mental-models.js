@@ -1,24 +1,102 @@
-const fs = require('fs');
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+#!/usr/bin/env node
 
-// Initialize Supabase client with service key for admin operations
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+/**
+ * Mental Models Database Seeder
+ * 
+ * This script reads mental models from Batch1.json and inserts them into the 
+ * mental_models_library table in Supabase.
+ * 
+ * Prerequisites:
+ * 1. npm install @supabase/supabase-js dotenv
+ * 2. Ensure your .env file has SUPABASE_SERVICE_KEY and VITE_SUPABASE_URL
+ * 3. Place Batch1.json in the same directory as this script
+ * 
+ * Usage: node insert-mental-models.js
+ */
+
+import { createClient } from '@supabase/supabase-js'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
+
+// Load environment variables
+dotenv.config()
+
+// ES modules equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Supabase configuration
+const supabaseUrl = process.env.VITE_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Missing required environment variables:')
+  console.error('   - VITE_SUPABASE_URL:', supabaseUrl ? '✓' : '❌')
+  console.error('   - SUPABASE_SERVICE_KEY:', supabaseServiceKey ? '✓' : '❌')
+  process.exit(1)
+}
+
+// Create Supabase client with service key (admin privileges)
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
   }
-);
+})
 
-// Insert mental model function
+/**
+ * Generate a URL-friendly slug from a model name
+ */
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/['']/g, '') // Remove apostrophes
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+}
+
+/**
+ * Validate mental model data structure
+ */
+function validateMentalModel(model, index) {
+  const required = ['name', 'slug', 'category', 'core_concept', 'detailed_explanation']
+  const missing = required.filter(field => !model[field])
+  
+  if (missing.length > 0) {
+    throw new Error(`Model ${index + 1} missing required fields: ${missing.join(', ')}`)
+  }
+  
+  // Validate array fields
+  const arrayFields = ['expanded_examples', 'use_cases', 'common_pitfalls', 'reflection_questions', 'related_model_slugs']
+  arrayFields.forEach(field => {
+    if (model[field] && !Array.isArray(model[field])) {
+      throw new Error(`Model ${index + 1}: ${field} must be an array`)
+    }
+  })
+  
+  // Validate expanded_examples structure
+  if (model.expanded_examples) {
+    model.expanded_examples.forEach((example, i) => {
+      if (!example.title || !example.content) {
+        throw new Error(`Model ${index + 1}: expanded_examples[${i}] missing title or content`)
+      }
+    })
+  }
+  
+  return true
+}
+
+/**
+ * Insert a mental model into the database
+ */
 async function insertMentalModel(model) {
   const { data, error } = await supabase
     .from('mental_models_library')
-    .upsert({
+    .insert([{
       name: model.name,
       slug: model.slug,
       category: model.category,
@@ -31,175 +109,143 @@ async function insertMentalModel(model) {
       related_model_slugs: model.related_model_slugs || [],
       order_index: model.order_index,
       batch_number: model.batch_number
-    }, {
-      onConflict: 'slug',
-      returning: 'minimal'
-    });
-
+    }])
+    .select()
+  
   if (error) {
-    throw new Error(`Error inserting ${model.name}: ${error.message}`);
+    throw error
   }
-
-  return data;
+  
+  return data[0]
 }
 
-// Main seeding function
-async function seedMentalModels(jsonFilePath) {
+/**
+ * Check if a mental model already exists
+ */
+async function checkExistingModel(slug) {
+  const { data, error } = await supabase
+    .from('mental_models_library')
+    .select('id, name')
+    .eq('slug', slug)
+    .single()
+  
+  if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+    throw error
+  }
+  
+  return data
+}
+
+/**
+ * Main function to process the batch file
+ */
+async function processBatch() {
+  console.log('🧠 Mental Models Database Seeder')
+  console.log('================================')
+  
+  // Read the JSON file
+  const filePath = path.join(__dirname, 'Batch1.json')
+  
+  if (!fs.existsSync(filePath)) {
+    console.error(`❌ File not found: ${filePath}`)
+    console.log('💡 Make sure Batch1.json is in the same directory as this script')
+    process.exit(1)
+  }
+  
+  let mentalModels
   try {
-    // Verify Supabase connection
-    console.log('Testing Supabase connection...');
-    const { data: testData, error: testError } = await supabase
+    const fileContent = fs.readFileSync(filePath, 'utf8')
+    mentalModels = JSON.parse(fileContent)
+  } catch (error) {
+    console.error('❌ Error reading or parsing Batch1.json:', error.message)
+    process.exit(1)
+  }
+  
+  if (!Array.isArray(mentalModels)) {
+    console.error('❌ Batch1.json should contain an array of mental models')
+    process.exit(1)
+  }
+  
+  console.log(`📁 Found ${mentalModels.length} mental models in Batch1.json`)
+  
+  // Validate all models first
+  console.log('🔍 Validating data structure...')
+  try {
+    mentalModels.forEach((model, index) => {
+      validateMentalModel(model, index)
+    })
+    console.log('✅ All mental models are valid')
+  } catch (error) {
+    console.error('❌ Validation failed:', error.message)
+    process.exit(1)
+  }
+  
+  // Test database connection
+  console.log('🔌 Testing database connection...')
+  try {
+    const { data, error } = await supabase
       .from('mental_models_library')
       .select('count')
-      .limit(1);
+      .limit(1)
     
-    if (testError) {
-      throw new Error(`Supabase connection failed: ${testError.message}`);
-    }
+    if (error) throw error
+    console.log('✅ Database connection successful')
+  } catch (error) {
+    console.error('❌ Database connection failed:', error.message)
+    process.exit(1)
+  }
+  
+  // Process each mental model
+  console.log('\n🚀 Starting import process...')
+  const results = {
+    inserted: 0,
+    skipped: 0,
+    errors: 0
+  }
+  
+  for (let i = 0; i < mentalModels.length; i++) {
+    const model = mentalModels[i]
+    const progress = `[${i + 1}/${mentalModels.length}]`
     
-    // Read JSON file
-    console.log(`Reading data from ${jsonFilePath}...`);
-    const jsonData = fs.readFileSync(jsonFilePath, 'utf8');
-    const mentalModels = JSON.parse(jsonData);
-    
-    // Validate that it's an array
-    if (!Array.isArray(mentalModels)) {
-      throw new Error('JSON file should contain an array of mental models');
-    }
-    
-    console.log(`Found ${mentalModels.length} mental models to insert...`);
-    
-    // Insert each mental model
-    let processedCount = 0;
-    const errors = [];
-    
-    for (const model of mentalModels) {
-      // Validate required fields
-      if (!model.name || !model.slug || !model.core_concept || !model.detailed_explanation) {
-        console.warn(`Skipping model with missing required fields:`, model.name || 'Unknown');
-        continue;
+    try {
+      // Check if model already exists
+      const existing = await checkExistingModel(model.slug)
+      
+      if (existing) {
+        console.log(`⏭️  ${progress} Skipped "${model.name}" (already exists)`)
+        results.skipped++
+        continue
       }
       
-      try {
-        await insertMentalModel(model);
-        console.log(`✓ Processed: ${model.name} (${model.slug})`);
-        processedCount++;
-      } catch (error) {
-        console.error(`✗ Error processing ${model.name}: ${error.message}`);
-        errors.push({ model: model.name, error: error.message });
-      }
+      // Insert the model
+      const inserted = await insertMentalModel(model)
+      console.log(`✅ ${progress} Inserted "${model.name}" (ID: ${inserted.id})`)
+      results.inserted++
+      
+    } catch (error) {
+      console.error(`❌ ${progress} Failed to insert "${model.name}":`, error.message)
+      results.errors++
     }
-    
-    console.log('\n🎉 Seeding completed!');
-    console.log(`📊 Summary:`);
-    console.log(`   - Attempted: ${mentalModels.length} models`);
-    console.log(`   - Successfully processed: ${processedCount} models`);
-    console.log(`   - Errors: ${errors.length}`);
-    
-    if (errors.length > 0) {
-      console.log('\n❌ Errors encountered:');
-      errors.forEach(err => console.log(`   - ${err.model}: ${err.error}`));
-    }
-    
-    // Get final count
-    const { data: countData } = await supabase
-      .from('mental_models_library')
-      .select('*', { count: 'exact', head: true });
-    
-    console.log(`   - Total in database: ${countData?.length || 'Unknown'}`);
-    
-  } catch (error) {
-    console.error('❌ Error during seeding:', error.message);
-    throw error;
+  }
+  
+  // Summary
+  console.log('\n📊 Import Summary')
+  console.log('=================')
+  console.log(`✅ Inserted: ${results.inserted}`)
+  console.log(`⏭️  Skipped: ${results.skipped}`)
+  console.log(`❌ Errors: ${results.errors}`)
+  console.log(`📱 Total: ${mentalModels.length}`)
+  
+  if (results.errors > 0) {
+    console.log('\n⚠️  Some models failed to import. Check the errors above.')
+    process.exit(1)
+  } else {
+    console.log('\n🎉 Import completed successfully!')
   }
 }
-
-// Utility function to validate JSON structure
-function validateMentalModel(model, index) {
-  const required = ['name', 'slug', 'core_concept', 'detailed_explanation'];
-  const missing = required.filter(field => !model[field]);
-  
-  if (missing.length > 0) {
-    throw new Error(`Model at index ${index} is missing required fields: ${missing.join(', ')}`);
-  }
-  
-  // Validate slug format
-  if (!/^[a-z0-9-]+$/.test(model.slug)) {
-    throw new Error(`Model "${model.name}" has invalid slug format: ${model.slug}`);
-  }
-  
-  return true;
-}
-
-// Utility function to test connection and show table info
-async function showTableInfo() {
-  try {
-    const { data, error, count } = await supabase
-      .from('mental_models_library')
-      .select('*', { count: 'exact' })
-      .limit(5);
-    
-    if (error) {
-      console.error('Error accessing table:', error.message);
-      return;
-    }
-    
-    console.log(`\n📋 Table Info:`);
-    console.log(`   - Total records: ${count}`);
-    
-    if (data && data.length > 0) {
-      console.log(`   - Sample record: ${data[0].name} (${data[0].slug})`);
-    }
-    
-  } catch (error) {
-    console.error('Error getting table info:', error.message);
-  }
-}
-
-// Main execution
-async function main() {
-  // Check environment variables
-  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-    console.error('❌ Missing required environment variables:');
-    console.log('Required: VITE_SUPABASE_URL, SUPABASE_SERVICE_KEY');
-    process.exit(1);
-  }
-  
-  const command = process.argv[2];
-  
-  if (command === 'info') {
-    await showTableInfo();
-    return;
-  }
-  
-  const jsonFilePath = command || './Batch1.json';
-  
-  if (!fs.existsSync(jsonFilePath)) {
-    console.error(`❌ JSON file not found: ${jsonFilePath}`);
-    console.log('Usage:');
-    console.log('  node supabase-seed.js [path-to-json-file]  # Seed data');
-    console.log('  node supabase-seed.js info                 # Show table info');
-    process.exit(1);
-  }
-  
-  try {
-    await seedMentalModels(jsonFilePath);
-    console.log('\n✅ All done! Your mental models are now in Supabase.');
-  } catch (error) {
-    console.error('\n❌ Seeding failed:', error.message);
-    process.exit(1);
-  }
-}
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
 
 // Run the script
-if (require.main === module) {
-  main();
-}
-
-module.exports = { seedMentalModels, validateMentalModel };
+processBatch().catch(error => {
+  console.error('💥 Unexpected error:', error)
+  process.exit(1)
+})
