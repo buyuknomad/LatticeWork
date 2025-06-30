@@ -337,7 +337,7 @@ const MentalModels: React.FC = () => {
             </motion.div>
 
             {/* No Results */}
-            {filteredModels.length === 0 && ( 
+            {filteredModels.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
