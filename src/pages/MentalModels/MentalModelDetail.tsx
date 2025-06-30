@@ -407,4 +407,4 @@ const MentalModelDetail: React.FC = () => {
   );
 };
 
-export default MentalModelDetail;
+export default MentalModelDetail; 
