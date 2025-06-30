@@ -19,7 +19,7 @@ import FAQ from './pages/FAQ';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
-import MentalModels from './pages/MentalModels';
+import MentalModels from './pages/MentalModels/index';
 import MentalModelDetail from './pages/MentalModels/MentalModelDetail';
 import CognitiveBiases from './pages/CognitiveBiases';
 
