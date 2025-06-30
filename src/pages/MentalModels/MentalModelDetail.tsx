@@ -403,8 +403,9 @@ const MentalModelDetail: React.FC = () => {
           </button>
         </div>
       </div>
+    </div>
     </>
   );
 };
 
-export default MentalModelDetail; 
+export default MentalModelDetail;
