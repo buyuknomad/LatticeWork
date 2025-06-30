@@ -113,7 +113,7 @@ const MentalModelDetail: React.FC = () => {
           url={`/mental-models/${slug}`}
         />
         <div className="min-h-screen bg-[#1A1A1A] text-white">
-          <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto px-4 pt-24 pb-8">
             <div className="animate-pulse">
               <div className="h-8 bg-gray-600 rounded mb-4 w-1/3"></div>
               <div className="h-12 bg-gray-600 rounded mb-6"></div>
@@ -139,7 +139,7 @@ const MentalModelDetail: React.FC = () => {
           description="The mental model you're looking for doesn't exist."
           url={`/mental-models/${slug}`}
         />
-        <div className="min-h-screen bg-[#1A1A1A] text-white flex items-center justify-center">
+        <div className="min-h-screen bg-[#1A1A1A] text-white flex items-center justify-center pt-20">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">
               {error || 'Mental Model Not Found'}
@@ -223,7 +223,7 @@ const MentalModelDetail: React.FC = () => {
       
       <div className="min-h-screen bg-[#1A1A1A] text-white">
       {/* Header */}
-      <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] py-8 px-4">
+      <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] pt-20 pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
           <Link 
