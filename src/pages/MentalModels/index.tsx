@@ -292,8 +292,10 @@ const MentalModels: React.FC = () => {
                     </svg>
                   </div>
                 </motion.div>
+              ))}
+            </motion.div>
 
-            {/* Pagination */}
+            {/* Pagination -- MOVED HERE */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-8 space-x-2">
                 <button
@@ -333,10 +335,8 @@ const MentalModels: React.FC = () => {
                 </button>
               </div>
             )}
-              ))}
-            </motion.div>
 
-            {/* No Results */}
+            {/* No Results -- MOVED HERE */}
             {filteredModels.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
@@ -354,4 +354,4 @@ const MentalModels: React.FC = () => {
   );
 };
 
-export default MentalModels; 
+export default MentalModels;
