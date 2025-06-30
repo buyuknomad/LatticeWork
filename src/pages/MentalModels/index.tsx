@@ -4,48 +4,54 @@ import { Search, Filter, Book, Brain, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
+import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
 
 const MentalModels: React.FC = () => {
   const [models, setModels] = useState<MentalModelSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState<MentalModelFilters>({
     searchQuery: '',
     selectedCategory: null,
     page: 1
   });
 
-  // Mock data for now - will replace with real data in Step 2
-  const mockModels: MentalModelSummary[] = [
-    {
-      name: "First Principles Thinking",
-      slug: "first-principles-thinking",
-      category: "fundamental-concepts",
-      core_concept: "Break down complex problems into their most basic, foundational elements to build understanding from the ground up.",
-      order_index: 1
-    },
-    {
-      name: "Second-Order Thinking",
-      slug: "second-order-thinking", 
-      category: "fundamental-concepts",
-      core_concept: "Consider not just the immediate effects of a decision, but the consequences of those consequences.",
-      order_index: 2
-    },
-    {
-      name: "Inversion",
-      slug: "inversion",
-      category: "fundamental-concepts", 
-      core_concept: "Approach problems backwards by considering what you want to avoid rather than what you want to achieve.",
-      order_index: 3
-    }
-  ];
-
+  // Fetch data when filters change
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setModels(mockModels);
-      setLoading(false);
-    }, 500);
+    fetchModels();
+  }, [filters]);
+
+  // Fetch total count on mount
+  useEffect(() => {
+    fetchTotalCount();
   }, []);
+
+  const fetchModels = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await getMentalModels(filters, 20);
+      setModels(response.data);
+      setTotalPages(response.totalPages);
+    } catch (err) {
+      console.error('Error fetching mental models:', err);
+      setError('Failed to load mental models. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTotalCount = async () => {
+    try {
+      const count = await getMentalModelsCount();
+      setTotalCount(count);
+    } catch (err) {
+      console.error('Error fetching total count:', err);
+    }
+  };
 
   const handleSearchChange = (query: string) => {
     setFilters(prev => ({ ...prev, searchQuery: query, page: 1 }));
@@ -55,22 +61,21 @@ const MentalModels: React.FC = () => {
     setFilters(prev => ({ ...prev, selectedCategory: category, page: 1 }));
   };
 
-  const filteredModels = models.filter(model => {
-    const matchesSearch = !filters.searchQuery || 
-      model.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-      model.core_concept.toLowerCase().includes(filters.searchQuery.toLowerCase());
-    
-    const matchesCategory = !filters.selectedCategory || 
-      model.category === filters.selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({ ...prev, page }));
+  };
+
+  const clearFilters = () => {
+    setFilters({ searchQuery: '', selectedCategory: null, page: 1 });
+  };
+
+  const filteredModels = models; // Models are already filtered by the database query
 
   return (
     <>
       <SEO
-        title="300+ Mental Models Library - Complete Collection | Mind Lattice"
-        description="Explore 298+ mental models for better thinking and decision making. Each model includes real-world examples, practical applications, and actionable insights."
+        title={`${totalCount}+ Mental Models Library - Complete Collection | Mind Lattice`}
+        description={`Explore ${totalCount}+ mental models for better thinking and decision making. Each model includes real-world examples, practical applications, and actionable insights.`}
         keywords="mental models, thinking frameworks, decision making, cognitive tools, first principles, systems thinking, Charlie Munger"
         url="/mental-models"
         schema={{
@@ -78,7 +83,7 @@ const MentalModels: React.FC = () => {
           "@type": "CollectionPage",
           "name": "Mental Models Library",
           "description": "Complete collection of mental models for better thinking and decision making",
-          "numberOfItems": 298,
+          "numberOfItems": totalCount,
           "publisher": {
             "@type": "Organization",
             "name": "Mind Lattice"
@@ -106,14 +111,14 @@ const MentalModels: React.FC = () => {
             </div>
             
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Explore 298+ mental models that help you think better, make smarter decisions, and understand complex situations. 
+              Explore {totalCount > 0 ? `${totalCount}+` : '298+'} mental models that help you think better, make smarter decisions, and understand complex situations. 
               Each model includes real-world examples, practical applications, and actionable insights.
             </p>
 
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-400">
               <div className="flex items-center">
                 <Book className="w-5 h-5 mr-2 text-[#00FFFF]" />
-                <span>298+ Models</span>
+                <span>{totalCount > 0 ? `${totalCount}+` : '298+'} Models</span>
               </div>
               <div className="flex items-center">
                 <Lightbulb className="w-5 h-5 mr-2 text-[#FFB84D]" />
@@ -195,7 +200,21 @@ const MentalModels: React.FC = () => {
 
       {/* Content Section */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {loading ? (
+        {error ? (
+          <div className="text-center py-12">
+            <div className="text-red-400 mb-4">
+              <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-xl mb-2">Error Loading Mental Models</p>
+              <p className="text-sm">{error}</p>
+              <button 
+                onClick={fetchModels}
+                className="mt-4 px-4 py-2 bg-[#00FFFF] text-black rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        ) : loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="bg-[#252525] rounded-lg p-6 animate-pulse">
@@ -212,7 +231,23 @@ const MentalModels: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-400">
                 {filteredModels.length} model{filteredModels.length !== 1 ? 's' : ''} found
+                {filters.searchQuery || filters.selectedCategory ? (
+                  <span className="ml-2">
+                    • <button 
+                        onClick={clearFilters}
+                        className="text-[#00FFFF] hover:underline text-sm"
+                      >
+                        Clear filters
+                      </button>
+                  </span>
+                ) : ''}
               </p>
+              
+              {totalPages > 1 && (
+                <div className="text-sm text-gray-400">
+                  Page {filters.page} of {totalPages}
+                </div>
+              )}
             </div>
 
             {/* Models Grid */}
@@ -256,6 +291,47 @@ const MentalModels: React.FC = () => {
                     </svg>
                   </div>
                 </motion.div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <button
+                  onClick={() => handlePageChange(filters.page - 1)}
+                  disabled={filters.page === 1}
+                  className="px-3 py-2 text-sm bg-[#252525] text-white rounded-lg border border-[#333333] hover:bg-[#333333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                {/* Page numbers */}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = Math.max(1, Math.min(totalPages - 4, filters.page - 2)) + i;
+                  if (pageNum > totalPages) return null;
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                        pageNum === filters.page
+                          ? 'bg-[#00FFFF] text-black border-[#00FFFF]'
+                          : 'bg-[#252525] text-white border-[#333333] hover:bg-[#333333]'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                
+                <button
+                  onClick={() => handlePageChange(filters.page + 1)}
+                  disabled={filters.page === totalPages}
+                  className="px-3 py-2 text-sm bg-[#252525] text-white rounded-lg border border-[#333333] hover:bg-[#333333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
               ))}
             </motion.div>
 
