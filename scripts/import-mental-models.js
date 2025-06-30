@@ -1,225 +1,205 @@
-// scripts/import-mental-models.js
-// Run this script to import your markdown batches into the database
+const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
-import path from 'path';
-
-// Initialize Supabase client
+// Initialize Supabase client with service key for admin operations
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_SERVICE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
-// Utility function to create URL-friendly slugs
-function createSlug(name) {
-  return name
-    .toLowerCase()
-    .replace(/['']/g, '') // Remove apostrophes
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special chars except spaces and hyphens
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+// Insert mental model function
+async function insertMentalModel(model) {
+  const { data, error } = await supabase
+    .from('mental_models_library')
+    .upsert({
+      name: model.name,
+      slug: model.slug,
+      category: model.category,
+      core_concept: model.core_concept,
+      detailed_explanation: model.detailed_explanation,
+      expanded_examples: model.expanded_examples || [],
+      use_cases: model.use_cases || [],
+      common_pitfalls: model.common_pitfalls || [],
+      reflection_questions: model.reflection_questions || [],
+      related_model_slugs: model.related_model_slugs || [],
+      order_index: model.order_index,
+      batch_number: model.batch_number
+    }, {
+      onConflict: 'slug',
+      returning: 'minimal'
+    });
+
+  if (error) {
+    throw new Error(`Error inserting ${model.name}: ${error.message}`);
+  }
+
+  return data;
 }
 
-// Parse markdown content into structured data
-function parseMarkdownBatch(content, batchNumber) {
-  const models = [];
-  
-  // Split content by model headers (## 1. Model Name, ## 2. Model Name, etc.)
-  const modelSections = content.split(/(?=^## \d+\. )/gm).filter(section => section.trim());
-  
-  modelSections.forEach((section, index) => {
-    try {
-      const lines = section.split('\n');
-      
-      // Extract model name from header (## 1. The Map Is Not the Territory)
-      const headerMatch = lines[0].match(/^## \d+\. (.+)$/);
-      if (!headerMatch) return;
-      
-      const name = headerMatch[1].trim();
-      const slug = createSlug(name);
-      
-      // Find core concept
-      const coreConceptMatch = section.match(/\*\*Core Concept\*\*: (.+?)(?=\n\n|\n####)/s);
-      const coreConceptRaw = coreConceptMatch ? coreConceptMatch[1].trim() : '';
-      const coreConcept = coreConceptRaw.replace(/\n/g, ' '); // Join lines
-      
-      // Extract detailed explanation
-      const explanationMatch = section.match(/#### Detailed Explanation\s*\n(.*?)(?=\n#### |$)/s);
-      const detailedExplanation = explanationMatch ? explanationMatch[1].trim() : '';
-      
-      // Extract expanded examples
-      const examplesMatch = section.match(/#### Expanded Examples\s*\n(.*?)(?=\n#### |$)/s);
-      const expandedExamples = [];
-      if (examplesMatch) {
-        const examplesText = examplesMatch[1];
-        // Find example sections starting with **Title**:
-        const exampleMatches = examplesText.match(/\*\*([^*]+)\*\*: ([^*]+?)(?=\*\*[^*]+\*\*:|$)/gs);
-        if (exampleMatches) {
-          exampleMatches.forEach(match => {
-            const titleMatch = match.match(/\*\*([^*]+)\*\*: (.+)/s);
-            if (titleMatch) {
-              expandedExamples.push({
-                title: titleMatch[1].trim(),
-                content: titleMatch[2].trim()
-              });
-            }
-          });
-        }
-      }
-      
-      // Extract use cases
-      const useCasesMatch = section.match(/#### Use Cases\s*\n(.*?)(?=\n#### |$)/s);
-      const useCases = [];
-      if (useCasesMatch) {
-        const useCasesText = useCasesMatch[1];
-        const bulletPoints = useCasesText.match(/^\*\*([^*]+)\*\*: (.+?)(?=\n\*\*|$)/gm);
-        if (bulletPoints) {
-          bulletPoints.forEach(point => {
-            const match = point.match(/^\*\*([^*]+)\*\*: (.+)/s);
-            if (match) {
-              useCases.push(`${match[1]}: ${match[2].trim().replace(/\n/g, ' ')}`);
-            }
-          });
-        }
-      }
-      
-      // Extract common pitfalls
-      const pitfallsMatch = section.match(/#### Common Pitfalls\s*\n(.*?)(?=\n#### |$)/s);
-      const commonPitfalls = [];
-      if (pitfallsMatch) {
-        const pitfallsText = pitfallsMatch[1];
-        const bulletPoints = pitfallsText.match(/^\*\*([^*]+)\*\*: (.+?)(?=\n\*\*|$)/gm);
-        if (bulletPoints) {
-          bulletPoints.forEach(point => {
-            const match = point.match(/^\*\*([^*]+)\*\*: (.+)/s);
-            if (match) {
-              commonPitfalls.push(`${match[1]}: ${match[2].trim().replace(/\n/g, ' ')}`);
-            }
-          });
-        }
-      }
-      
-      // Extract reflection questions
-      const questionsMatch = section.match(/#### Questions to Ask Yourself\s*\n(.*?)(?=\n\*\*Related|$)/s);
-      const reflectionQuestions = [];
-      if (questionsMatch) {
-        const questionsText = questionsMatch[1];
-        const questions = questionsText.match(/^- (.+?)(?=\n-|$)/gm);
-        if (questions) {
-          questions.forEach(q => {
-            const cleaned = q.replace(/^- /, '').trim().replace(/\n/g, ' ');
-            if (cleaned) reflectionQuestions.push(cleaned);
-          });
-        }
-      }
-      
-      // Extract related models
-      const relatedMatch = section.match(/\*\*Related Models\*\*: (.+?)(?=\n\n|$)/s);
-      const relatedModelSlugs = [];
-      if (relatedMatch) {
-        const relatedText = relatedMatch[1].trim();
-        const modelNames = relatedText.split(',').map(name => name.trim());
-        modelNames.forEach(name => {
-          if (name) {
-            relatedModelSlugs.push(createSlug(name));
-          }
-        });
-      }
-      
-      // Determine category (you can enhance this logic)
-      let category = 'General';
-      const modelIndex = (batchNumber - 1) * 10 + index + 1;
-      if (modelIndex <= 50) category = 'Fundamental Concepts';
-      else if (modelIndex <= 100) category = 'Economics & Systems';
-      else if (modelIndex <= 150) category = 'Decision Making & Analysis';
-      else if (modelIndex <= 200) category = 'Technology & Problem Solving';
-      else if (modelIndex <= 250) category = 'Strategy & Influence';
-      else category = 'Organization & Psychology';
-      
-      models.push({
-        name,
-        slug,
-        category,
-        core_concept: coreConcept,
-        detailed_explanation: detailedExplanation,
-        expanded_examples: expandedExamples,
-        use_cases: useCases,
-        common_pitfalls: commonPitfalls,
-        reflection_questions: reflectionQuestions,
-        related_model_slugs: relatedModelSlugs,
-        order_index: modelIndex,
-        batch_number: batchNumber
-      });
-      
-      console.log(`Parsed model ${modelIndex}: ${name} -> ${slug}`);
-      
-    } catch (error) {
-      console.error(`Error parsing model in section ${index}:`, error);
-    }
-  });
-  
-  return models;
-}
-
-// Main import function
-async function importBatch(batchNumber, filePath) {
+// Main seeding function
+async function seedMentalModels(jsonFilePath) {
   try {
-    console.log(`\nImporting Batch ${batchNumber} from ${filePath}...`);
+    // Verify Supabase connection
+    console.log('Testing Supabase connection...');
+    const { data: testData, error: testError } = await supabase
+      .from('mental_models_library')
+      .select('count')
+      .limit(1);
     
-    // Read the markdown file
-    const content = fs.readFileSync(filePath, 'utf8');
+    if (testError) {
+      throw new Error(`Supabase connection failed: ${testError.message}`);
+    }
     
-    // Parse the content
-    const models = parseMarkdownBatch(content, batchNumber);
+    // Read JSON file
+    console.log(`Reading data from ${jsonFilePath}...`);
+    const jsonData = fs.readFileSync(jsonFilePath, 'utf8');
+    const mentalModels = JSON.parse(jsonData);
     
-    console.log(`Parsed ${models.length} models from batch ${batchNumber}`);
+    // Validate that it's an array
+    if (!Array.isArray(mentalModels)) {
+      throw new Error('JSON file should contain an array of mental models');
+    }
     
-    // Insert into database
-    for (const model of models) {
-      console.log(`Inserting: ${model.name}`);
+    console.log(`Found ${mentalModels.length} mental models to insert...`);
+    
+    // Insert each mental model
+    let processedCount = 0;
+    const errors = [];
+    
+    for (const model of mentalModels) {
+      // Validate required fields
+      if (!model.name || !model.slug || !model.core_concept || !model.detailed_explanation) {
+        console.warn(`Skipping model with missing required fields:`, model.name || 'Unknown');
+        continue;
+      }
       
-      const { error } = await supabase
-        .from('mental_models_library')
-        .insert(model);
-      
-      if (error) {
-        console.error(`Error inserting ${model.name}:`, error);
-        console.error('Model data:', JSON.stringify(model, null, 2));
-      } else {
-        console.log(`✓ Inserted: ${model.name} (${model.slug})`);
+      try {
+        await insertMentalModel(model);
+        console.log(`✓ Processed: ${model.name} (${model.slug})`);
+        processedCount++;
+      } catch (error) {
+        console.error(`✗ Error processing ${model.name}: ${error.message}`);
+        errors.push({ model: model.name, error: error.message });
       }
     }
     
-    console.log(`✅ Batch ${batchNumber} import completed`);
+    console.log('\n🎉 Seeding completed!');
+    console.log(`📊 Summary:`);
+    console.log(`   - Attempted: ${mentalModels.length} models`);
+    console.log(`   - Successfully processed: ${processedCount} models`);
+    console.log(`   - Errors: ${errors.length}`);
+    
+    if (errors.length > 0) {
+      console.log('\n❌ Errors encountered:');
+      errors.forEach(err => console.log(`   - ${err.model}: ${err.error}`));
+    }
+    
+    // Get final count
+    const { data: countData } = await supabase
+      .from('mental_models_library')
+      .select('*', { count: 'exact', head: true });
+    
+    console.log(`   - Total in database: ${countData?.length || 'Unknown'}`);
     
   } catch (error) {
-    console.error(`Error importing batch ${batchNumber}:`, error);
+    console.error('❌ Error during seeding:', error.message);
+    throw error;
   }
 }
 
-// Script usage
-async function main() {
-  const args = process.argv.slice(2);
+// Utility function to validate JSON structure
+function validateMentalModel(model, index) {
+  const required = ['name', 'slug', 'core_concept', 'detailed_explanation'];
+  const missing = required.filter(field => !model[field]);
   
-  if (args.length < 2) {
-    console.log('Usage: node import-mental-models.js <batch-number> <file-path>');
-    console.log('Example: node import-mental-models.js 1 ./batches/batch-1.md');
-    process.exit(1);
+  if (missing.length > 0) {
+    throw new Error(`Model at index ${index} is missing required fields: ${missing.join(', ')}`);
   }
   
-  const batchNumber = parseInt(args[0]);
-  const filePath = args[1];
-  
-  if (!fs.existsSync(filePath)) {
-    console.error(`File not found: ${filePath}`);
-    process.exit(1);
+  // Validate slug format
+  if (!/^[a-z0-9-]+$/.test(model.slug)) {
+    throw new Error(`Model "${model.name}" has invalid slug format: ${model.slug}`);
   }
   
-  await importBatch(batchNumber, filePath);
-  process.exit(0);
+  return true;
 }
+
+// Utility function to test connection and show table info
+async function showTableInfo() {
+  try {
+    const { data, error, count } = await supabase
+      .from('mental_models_library')
+      .select('*', { count: 'exact' })
+      .limit(5);
+    
+    if (error) {
+      console.error('Error accessing table:', error.message);
+      return;
+    }
+    
+    console.log(`\n📋 Table Info:`);
+    console.log(`   - Total records: ${count}`);
+    
+    if (data && data.length > 0) {
+      console.log(`   - Sample record: ${data[0].name} (${data[0].slug})`);
+    }
+    
+  } catch (error) {
+    console.error('Error getting table info:', error.message);
+  }
+}
+
+// Main execution
+async function main() {
+  // Check environment variables
+  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+    console.error('❌ Missing required environment variables:');
+    console.log('Required: VITE_SUPABASE_URL, SUPABASE_SERVICE_KEY');
+    process.exit(1);
+  }
+  
+  const command = process.argv[2];
+  
+  if (command === 'info') {
+    await showTableInfo();
+    return;
+  }
+  
+  const jsonFilePath = command || './Batch1.json';
+  
+  if (!fs.existsSync(jsonFilePath)) {
+    console.error(`❌ JSON file not found: ${jsonFilePath}`);
+    console.log('Usage:');
+    console.log('  node supabase-seed.js [path-to-json-file]  # Seed data');
+    console.log('  node supabase-seed.js info                 # Show table info');
+    process.exit(1);
+  }
+  
+  try {
+    await seedMentalModels(jsonFilePath);
+    console.log('\n✅ All done! Your mental models are now in Supabase.');
+  } catch (error) {
+    console.error('\n❌ Seeding failed:', error.message);
+    process.exit(1);
+  }
+}
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
 
 // Run the script
-main().catch(console.error);
+if (require.main === module) {
+  main();
+}
+
+module.exports = { seedMentalModels, validateMentalModel };
