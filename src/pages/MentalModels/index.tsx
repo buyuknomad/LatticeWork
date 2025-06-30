@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, Book, Brain, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
+import SEO from '../../components/SEO';
 
 const MentalModels: React.FC = () => {
   const [models, setModels] = useState<MentalModelSummary[]>([]);
@@ -66,7 +67,26 @@ const MentalModels: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white">
+    <>
+      <SEO
+        title="300+ Mental Models Library - Complete Collection | Mind Lattice"
+        description="Explore 298+ mental models for better thinking and decision making. Each model includes real-world examples, practical applications, and actionable insights."
+        keywords="mental models, thinking frameworks, decision making, cognitive tools, first principles, systems thinking, Charlie Munger"
+        url="/mental-models"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Mental Models Library",
+          "description": "Complete collection of mental models for better thinking and decision making",
+          "numberOfItems": 298,
+          "publisher": {
+            "@type": "Organization",
+            "name": "Mind Lattice"
+          }
+        }}
+      />
+      
+      <div className="min-h-screen bg-[#1A1A1A] text-white">
       {/* Header Section */}
       <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] py-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -252,7 +272,7 @@ const MentalModels: React.FC = () => {
           </>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
