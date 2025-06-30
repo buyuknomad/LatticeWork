@@ -16,82 +16,52 @@ import {
 } from 'lucide-react';
 import { MentalModel, RelatedModel } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
+import { getMentalModelBySlug, getNavigationModels } from '../../lib/mentalModelsService';
+import { formatCategoryName } from '../../lib/mentalModelsUtils';
 
 const MentalModelDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [model, setModel] = useState<MentalModel | null>(null);
   const [relatedModels, setRelatedModels] = useState<RelatedModel[]>([]);
+  const [navigation, setNavigation] = useState<{ previous: any; next: any }>({ previous: null, next: null });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['explanation']));
 
-  // Mock data for now - will replace with real data in Step 2
-  const mockModel: MentalModel = {
-    id: '1',
-    name: 'First Principles Thinking',
-    slug: 'first-principles-thinking',
-    category: 'fundamental-concepts',
-    core_concept: 'Break down complex problems into their most basic, foundational elements to build understanding from the ground up.',
-    detailed_explanation: 'First principles thinking is the practice of actively questioning every assumption you think you know about a given problem or scenario and then creating new knowledge and solutions from scratch. Rather than reasoning by analogy or building on top of existing solutions, first principles thinking requires you to break down complex problems into their most basic, foundational elements and rebuild from there.\n\nThis approach was famously used by Aristotle, who called it reasoning from "first principles" - the basic building blocks that cannot be deduced any further. In modern times, entrepreneurs like Elon Musk have popularized this approach for breakthrough innovation. The process involves identifying and examining the basic elements of a situation, questioning conventional wisdom, and reconstructing solutions from the ground up.',
-    expanded_examples: [
-      {
-        title: 'SpaceX Rocket Cost Reduction',
-        content: 'When Elon Musk wanted to reduce space travel costs, instead of accepting the conventional wisdom that rockets must cost hundreds of millions of dollars, he broke down the problem to first principles. He examined the raw materials needed to build a rocket: aluminum alloys, titanium, carbon fiber, and fuel. The material costs totaled only about 2% of a typical rocket\'s price. This analysis revealed that the high costs came from traditional aerospace manufacturing and supply chain practices, not fundamental physics or material constraints. By rebuilding the manufacturing process from scratch with first principles thinking, SpaceX reduced launch costs by over 90%.'
-      },
-      {
-        title: 'Tesla Battery Innovation',
-        content: 'When Tesla needed cheaper batteries for electric vehicles, instead of accepting existing battery prices, Musk applied first principles thinking. He asked: "What are the material constituents of batteries? What is the spot market value of those constituents?" Breaking down lithium-ion batteries to their fundamental materials - cobalt, nickel, aluminum, lithium, and separator materials - revealed the raw materials cost only about $80 per kWh. This was far below the $600 per kWh price Tesla was paying suppliers. This insight led Tesla to develop their own battery production capabilities and innovative battery chemistry, dramatically reducing costs.'
-      }
-    ],
-    use_cases: [
-      'Innovation and Product Development: When creating something new, strip away industry assumptions and rebuild from fundamental principles.',
-      'Problem Solving: When stuck on a complex problem, deconstruct it into its most basic components. What are the irreducible facts, and what are assumptions that can be challenged?',
-      'Learning and Education: Rather than memorizing facts or following procedures, understand the underlying principles that govern a domain. This enables transfer to new situations.',
-      'Business Strategy: Question industry best practices and conventional wisdom. What fundamental economic or human psychology principles really drive success?',
-      'Personal Decision Making: When facing major life decisions, identify your core values and goals rather than following social expectations or conventional paths.'
-    ],
-    common_pitfalls: [
-      'Surface-Level Analysis: Stopping too early in the deconstruction process and accepting assumptions that could be further broken down.',
-      'Ignoring Practical Constraints: Getting so focused on theoretical first principles that you ignore real-world implementation challenges or resource limitations.',
-      'Paralysis by Analysis: Becoming so committed to questioning everything that you never move forward with solutions.',
-      'Arrogance: Assuming that conventional wisdom is always wrong or that previous thinkers were incompetent. Sometimes existing approaches reflect wisdom gained through experience.'
-    ],
-    reflection_questions: [
-      'What assumptions am I making that I haven\'t actually verified?',
-      'If I were designing this solution from scratch with no constraints, what would it look like?',
-      'What are the fundamental physics, economics, or human psychology governing this situation?',
-      'What would someone with no experience in this domain see that I might miss?',
-      'What evidence do I have that the conventional approach is actually the best approach?'
-    ],
-    related_model_slugs: ['second-order-thinking', 'inversion', 'scientific-method'],
-    order_index: 1,
-    batch_number: 1,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  };
-
-  const mockRelatedModels: RelatedModel[] = [
-    {
-      name: 'Second-Order Thinking',
-      slug: 'second-order-thinking',
-      category: 'fundamental-concepts',
-      core_concept: 'Consider not just the immediate effects of a decision, but the consequences of those consequences.'
-    },
-    {
-      name: 'Inversion',
-      slug: 'inversion', 
-      category: 'fundamental-concepts',
-      core_concept: 'Approach problems backwards by considering what you want to avoid rather than what you want to achieve.'
-    }
-  ];
-
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setModel(mockModel);
-      setRelatedModels(mockRelatedModels);
-      setLoading(false);
-    }, 500);
+    if (slug) {
+      fetchModelData();
+    }
   }, [slug]);
+
+  const fetchModelData = async () => {
+    if (!slug) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { model: fetchedModel, relatedModels: fetchedRelated } = await getMentalModelBySlug(slug);
+      
+      if (!fetchedModel) {
+        setError('Mental model not found');
+        return;
+      }
+      
+      setModel(fetchedModel);
+      setRelatedModels(fetchedRelated);
+      
+      // Fetch navigation models
+      const navModels = await getNavigationModels(fetchedModel.order_index);
+      setNavigation(navModels);
+      
+    } catch (err) {
+      console.error('Error fetching mental model:', err);
+      setError('Failed to load mental model. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => {
@@ -105,41 +75,98 @@ const MentalModelDetail: React.FC = () => {
     });
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = `${model?.name} - Mental Model | Mind Lattice`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: model?.core_concept,
+          url
+        });
+      } catch (err) {
+        // Fallback to clipboard
+        copyToClipboard(url);
+      }
+    } else {
+      copyToClipboard(url);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // You could add a toast notification here
+      console.log('URL copied to clipboard');
+    }).catch(() => {
+      console.log('Failed to copy URL');
+    });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1A1A1A] text-white">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-600 rounded mb-4 w-1/3"></div>
-            <div className="h-12 bg-gray-600 rounded mb-6"></div>
-            <div className="h-4 bg-gray-700 rounded mb-2"></div>
-            <div className="h-4 bg-gray-700 rounded mb-6 w-3/4"></div>
-            <div className="space-y-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-600 rounded"></div>
-              ))}
+      <>
+        <SEO
+          title="Loading Mental Model | Mind Lattice"
+          description="Loading mental model details..."
+          url={`/mental-models/${slug}`}
+        />
+        <div className="min-h-screen bg-[#1A1A1A] text-white">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-600 rounded mb-4 w-1/3"></div>
+              <div className="h-12 bg-gray-600 rounded mb-6"></div>
+              <div className="h-4 bg-gray-700 rounded mb-2"></div>
+              <div className="h-4 bg-gray-700 rounded mb-6 w-3/4"></div>
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-32 bg-gray-600 rounded"></div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
-  if (!model) {
+  if (error || !model) {
     return (
-      <div className="min-h-screen bg-[#1A1A1A] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Mental Model Not Found</h1>
-          <p className="text-gray-400 mb-6">The mental model you're looking for doesn't exist.</p>
-          <Link 
-            to="/mental-models"
-            className="inline-flex items-center px-4 py-2 bg-[#00FFFF] text-black rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Mental Models
-          </Link>
+      <>
+        <SEO
+          title="Mental Model Not Found | Mind Lattice"
+          description="The mental model you're looking for doesn't exist."
+          url={`/mental-models/${slug}`}
+        />
+        <div className="min-h-screen bg-[#1A1A1A] text-white flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">
+              {error || 'Mental Model Not Found'}
+            </h1>
+            <p className="text-gray-400 mb-6">
+              {error ? 'Please try again later.' : "The mental model you're looking for doesn't exist."}
+            </p>
+            <div className="space-x-4">
+              <Link 
+                to="/mental-models"
+                className="inline-flex items-center px-4 py-2 bg-[#00FFFF] text-black rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Mental Models
+              </Link>
+              {error && (
+                <button
+                  onClick={fetchModelData}
+                  className="inline-flex items-center px-4 py-2 bg-[#252525] text-white rounded-lg hover:bg-[#333333] transition-colors border border-[#333333]"
+                >
+                  Try Again
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -215,9 +242,12 @@ const MentalModelDetail: React.FC = () => {
           >
             <div className="flex flex-wrap items-center gap-4 mb-4">
               <span className="inline-block px-3 py-1 text-sm rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                {model.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {formatCategoryName(model.category)}
               </span>
-              <button className="flex items-center px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors">
+              <button 
+                onClick={handleShare}
+                className="flex items-center px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+              >
                 <Share2 className="w-4 h-4 mr-1" />
                 Share
               </button>
@@ -391,16 +421,37 @@ const MentalModelDetail: React.FC = () => {
 
         {/* Navigation */}
         <div className="flex justify-between items-center pt-8 border-t border-[#333333]">
-          <button className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Previous Model
-          </button>
-          <button className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors">
-            Next Model
-            <svg className="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+          {navigation.previous ? (
+            <Link
+              to={`/mental-models/${navigation.previous.slug}`}
+              className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              <div className="text-left">
+                <div className="text-xs text-gray-500">Previous</div>
+                <div className="text-sm">{navigation.previous.name}</div>
+              </div>
+            </Link>
+          ) : (
+            <div></div>
+          )}
+          
+          {navigation.next ? (
+            <Link
+              to={`/mental-models/${navigation.next.slug}`}
+              className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group text-right"
+            >
+              <div className="text-right">
+                <div className="text-xs text-gray-500">Next</div>
+                <div className="text-sm">{navigation.next.name}</div>
+              </div>
+              <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
     </div>
