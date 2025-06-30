@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
+import { formatCategoryName } from '../../lib/mentalModelsUtils';
 
 const MentalModels: React.FC = () => {
   const [models, setModels] = useState<MentalModelSummary[]>([]);
@@ -161,7 +162,7 @@ const MentalModels: React.FC = () => {
                 <option value="">All Categories</option>
                 {MENTAL_MODEL_CATEGORIES.map(category => (
                   <option key={category} value={category}>
-                    {category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    {formatCategoryName(category)}
                   </option>
                 ))}
               </select>
@@ -184,7 +185,7 @@ const MentalModels: React.FC = () => {
               )}
               {filters.selectedCategory && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                  Category: {filters.selectedCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  Category: {formatCategoryName(filters.selectedCategory)}
                   <button 
                     onClick={() => handleCategoryChange(null)}
                     className="ml-2 hover:text-white"
@@ -269,7 +270,7 @@ const MentalModels: React.FC = () => {
                   {/* Category Badge */}
                   <div className="mb-4">
                     <span className="inline-block px-3 py-1 text-xs rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                      {model.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      {formatCategoryName(model.category)}
                     </span>
                   </div>
 
@@ -285,7 +286,7 @@ const MentalModels: React.FC = () => {
 
                   {/* Read More */}
                   <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
-                    
+                    Read More
                     <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
