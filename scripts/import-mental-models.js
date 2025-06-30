@@ -1,9 +1,9 @@
 // scripts/import-mental-models.js
 // Run this script to import your markdown batches into the database
 
-const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
 
 // Initialize Supabase client
 const supabase = createClient(
