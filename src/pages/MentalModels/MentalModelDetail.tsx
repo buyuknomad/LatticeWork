@@ -15,6 +15,7 @@ import {
   Tag
 } from 'lucide-react';
 import { MentalModel, RelatedModel } from '../../types/mentalModels';
+import SEO from '../../components/SEO';
 
 const MentalModelDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -169,7 +170,31 @@ const MentalModelDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white">
+    <>
+      <SEO
+        title={`${model.name} - Mental Model Explained | Mind Lattice`}
+        description={`Learn about ${model.name}: ${model.core_concept} Includes real-world examples, use cases, and practical applications.`}
+        keywords={`${model.name}, mental model, ${model.category}, thinking framework, decision making`}
+        url={`/mental-models/${model.slug}`}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": model.name,
+          "description": model.core_concept,
+          "author": {
+            "@type": "Organization",
+            "name": "Mind Lattice"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Mind Lattice"
+          },
+          "datePublished": model.created_at,
+          "dateModified": model.updated_at
+        }}
+      />
+      
+      <div className="min-h-screen bg-[#1A1A1A] text-white">
       {/* Header */}
       <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] py-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -378,7 +403,7 @@ const MentalModelDetail: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
