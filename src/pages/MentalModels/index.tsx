@@ -94,7 +94,7 @@ const MentalModels: React.FC = () => {
       
       <div className="min-h-screen bg-[#1A1A1A] text-white">
       {/* Header Section */}
-      <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] py-16 px-4">
+      <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] pt-24 pb-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -292,10 +292,8 @@ const MentalModels: React.FC = () => {
                     </svg>
                   </div>
                 </motion.div>
-              ))}
-            </motion.div>
 
-            {/* Pagination -- MOVED HERE */}
+            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-8 space-x-2">
                 <button
@@ -335,8 +333,10 @@ const MentalModels: React.FC = () => {
                 </button>
               </div>
             )}
+              ))}
+            </motion.div>
 
-            {/* No Results -- MOVED HERE */}
+            {/* No Results */}
             {filteredModels.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
