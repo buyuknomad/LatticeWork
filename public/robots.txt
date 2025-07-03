@@ -1,9 +1,17 @@
 # Robots.txt for https://mindlattice.app
-# Last updated: 2025-06-30
+# Mental Models Library - SEO Optimized
+# Last updated: 2025-07-03
 
 # Allow all web crawlers
 User-agent: *
 Allow: /
+Allow: /mental-models
+Allow: /mental-models/*
+Allow: /cognitive-biases
+Allow: /examples
+Allow: /examples/*
+
+# Disallow private/dynamic areas
 Disallow: /dashboard
 Disallow: /settings
 Disallow: /history
@@ -12,18 +20,30 @@ Disallow: /auth/
 Disallow: /reset-password
 Disallow: /confirm-email
 
-# Specific bot rules
+# Prevent indexing of search/filter parameter combinations
+Disallow: /mental-models?*search=*
+Disallow: /mental-models?*category=*&search=*
+Disallow: /mental-models?*tag=*
+Disallow: /examples?*search=*
+
+# AI Training Data Policy
 User-agent: GPTBot
-Allow: /
+Allow: /mental-models
+Allow: /mental-models/*
+Allow: /cognitive-biases
+Allow: /examples
+Allow: /examples/*
 
 User-agent: ChatGPT-User
-Allow: /
+Allow: /mental-models
+Allow: /mental-models/*
 
 User-agent: CCBot
-Allow: /
+Allow: /mental-models
+Allow: /mental-models/*
 
 # Sitemap location
 Sitemap: https://mindlattice.app/sitemap.xml
 
-# Crawl-delay (Google ignores this, but Bing uses it)
+# Crawl-delay for respectful crawling
 Crawl-delay: 1
