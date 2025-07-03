@@ -14,6 +14,7 @@ const MentalModels: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  const [filteredCount, setFilteredCount] = useState(0); // Total count for current filters
   const [totalPages, setTotalPages] = useState(0);
   const [searchInput, setSearchInput] = useState(''); // For immediate UI updates
   const [filters, setFilters] = useState<MentalModelFilters>({
@@ -52,6 +53,7 @@ const MentalModels: React.FC = () => {
     try {
       const response = await getMentalModels(filters, 20);
       setModels(response.data);
+      setFilteredCount(response.count); // Set the total filtered count
       setTotalPages(response.totalPages);
     } catch (err) {
       console.error('Error fetching mental models:', err);
@@ -93,7 +95,7 @@ const MentalModels: React.FC = () => {
     navigate(`/mental-models/${slug}`);
   };
 
-  const filteredModels = models; // Models are already filtered by the database query
+  const filteredModels = models; // Current page of models (already filtered by database)
 
   return (
     <>
@@ -263,7 +265,12 @@ const MentalModels: React.FC = () => {
               {/* Results Count */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-400">
-                  {filteredModels.length} model{filteredModels.length !== 1 ? 's' : ''} found
+                  {filteredCount} model{filteredCount !== 1 ? 's' : ''} found
+                  {totalPages > 1 && (
+                    <span className="ml-2 text-gray-500">
+                      • Showing {models.length} on this page
+                    </span>
+                  )}
                   {filters.searchQuery || filters.selectedCategory ? (
                     <span className="ml-2">
                       • <button 
@@ -284,13 +291,14 @@ const MentalModels: React.FC = () => {
               </div>
 
               {/* Models Grid */}
-              <motion.div 
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              >
-                {filteredModels.map((model, index) => (
+              {models.length > 0 && (
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {filteredModels.map((model, index) => (
                   <motion.div
                     key={model.slug}
                     initial={{ opacity: 0, y: 20 }}
@@ -326,6 +334,7 @@ const MentalModels: React.FC = () => {
                   </motion.div>
                 ))}
               </motion.div>
+              )}
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -369,7 +378,7 @@ const MentalModels: React.FC = () => {
               )}
 
               {/* No Results */}
-              {filteredModels.length === 0 && (
+              {filteredCount === 0 && !loading && (
                 <div className="text-center py-12">
                   <div className="text-gray-400 mb-4">
                     <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
