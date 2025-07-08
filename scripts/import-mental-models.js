@@ -144,7 +144,7 @@ async function processBatch() {
   console.log('================================')
   
   // Read the JSON file
-  const filePath = path.join(__dirname, 'Batch6.json')
+  const filePath = path.join(__dirname, 'Batch7.json')
   
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File not found: ${filePath}`)
