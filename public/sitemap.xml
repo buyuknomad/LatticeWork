@@ -2,62 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mindlattice.app/</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/cognitive-biases</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/examples</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/login</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/signup</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/about</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/faq</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/contact</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/terms</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/privacy</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/refunds</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
@@ -561,58 +561,283 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://mindlattice.app/mental-models/devils-advocate</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/thinking-fast-and-slow</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/proximate-cause-vs-root-cause</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/postmortem</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/5-whys</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/unintended-consequences</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/tyranny-of-small-decisions</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/free-rider-problem</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/public-goods</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/herd-immunity</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/coase-theorem</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/cap-and-trade</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/moral-hazard</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/principal-agent-problem</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/asymmetric-information</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/adverse-selection</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/market-failure</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/government-failure</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/goodharts-law</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/cobra-effect</loc>
+    <lastmod>2025-07-27</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/streisand-effect</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/hydra-effect</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/observer-effect</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/chilling-effect</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/collateral-damage</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/blowback</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/value-based-care</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/boiling-frog</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/short-termism</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/technical-debt</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/path-dependence</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/preserving-optionality</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/precautionary-principle</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/analysis-paralysis</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/reversible-vs-irreversible-decisions</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/hicks-law</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/parkinsons-law-of-triviality</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/timeboxing</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/opportunity-cost</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/batna</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://mindlattice.app/mental-models/category/fundamental-concepts</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/mathematical-concepts</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/statistical-thinking</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/systems-thinking</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/cognitive-social-models</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/optimization</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/economic-concepts</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/economics-systems</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/creative-communication-models</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/category/decision-making-analysis</loc>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/scientific-method-systems</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mindlattice.app/mental-models/category/decision-making-strategic</loc>
-    <lastmod>2025-07-11</lastmod>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/category/decision-making-optimization</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/category/economics-governance</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/category/unintended-consequences</loc>
+    <lastmod>2025-07-28</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mindlattice.app/mental-models/category/decision-making</loc>
+    <lastmod>2025-07-28</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
