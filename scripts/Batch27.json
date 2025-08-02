@@ -1,10 +1,10 @@
 [
   {
-    "id": "MM261",
     "name": "Fixed Mindset vs. Growth Mindset",
-    "category": "Psychology & Individual Development",
+    "slug": "fixed-mindset-vs-growth-mindset",
+    "category": "psychology-individual-development",
     "core_concept": "A psychological theory by Carol Dweck distinguishing between two core beliefs about one's abilities: a 'fixed mindset' assumes abilities are static traits, while a 'growth mindset' believes abilities can be developed through dedication and hard work.",
-    "detailed_explanation": "The Fixed Mindset vs. Growth Mindset framework, developed by psychologist Carol Dweck, reveals how fundamental beliefs about the nature of ability and intelligence profoundly influence motivation, resilience, and ultimate achievement across all domains of human performance. Individuals with fixed mindsets view qualities like intelligence, talent, and character as static traits that cannot be significantly developed, leading them to avoid challenges that might expose limitations, give up more easily when facing setbacks, and interpret effort as a sign of inadequacy rather than a path to mastery.\n\nIn contrast, individuals with growth mindsets believe that abilities and intelligence can be developed through dedication, hard work, and learning from failure. This belief system encourages them to embrace challenges as opportunities for growth, persist through difficulties with greater resilience, and view effort as the pathway to expertise and improvement. The research demonstrates that mindset influences not only individual performance but also how people respond to feedback, setbacks, and new learning opportunities.\n\nImportantly, mindsets are not fixed personality traits but learned belief systems that can be changed through awareness, practice, and environmental design. Organizations, educational systems, and individuals can cultivate growth mindsets through language choices, reward systems, and cultural practices that emphasize learning and development over innate talent or immediate performance outcomes.",
+    "detailed_explanation": "The Fixed Mindset vs. Growth Mindset framework, developed by psychologist Carol Dweck, reveals how fundamental beliefs about the nature of ability and intelligence profoundly influence motivation, resilience, and ultimate achievement across all domains of human performance. Individuals with fixed mindsets view qualities like intelligence, talent, and character as static traits that cannot be significantly developed, leading them to avoid challenges that might expose limitations, give up more easily when facing setbacks, and interpret effort as a sign of inadequacy rather than a path to mastery. In contrast, individuals with growth mindsets believe that abilities and intelligence can be developed through dedication, hard work, and learning from failure. This belief system encourages them to embrace challenges as opportunities for growth, persist through difficulties with greater resilience, and view effort as the pathway to expertise and improvement. The research demonstrates that mindset influences not only individual performance but also how people respond to feedback, setbacks, and new learning opportunities. Importantly, mindsets are not fixed personality traits but learned belief systems that can be changed through awareness, practice, and environmental design. Organizations, educational systems, and individuals can cultivate growth mindsets through language choices, reward systems, and cultural practices that emphasize learning and development over innate talent or immediate performance outcomes.",
     "expanded_examples": [
       {
         "title": "Educational Achievement and Student Development",
@@ -31,28 +31,23 @@
       "Unrealistic Expectations: Using growth mindset principles to justify unrealistic goals or to ignore legitimate constraints and individual differences that affect performance.",
       "Blame and Judgment: Criticizing others for having fixed mindsets without recognizing how environmental factors and past experiences shape mindset development."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "In what areas of my life do I tend toward fixed mindset thinking, avoiding challenges or interpreting struggle as evidence of limited ability?",
       "How do I respond to feedback and setbacks—do I see them as opportunities for growth or as threats to my self-image?",
       "What language and practices can I use to encourage growth mindset development in myself and others I influence?",
       "How can I create environments that support learning and risk-taking rather than just rewarding existing capabilities?",
       "What systemic changes might be needed to support growth mindset principles beyond individual attitude adjustments?"
     ],
-    "related_models": [
-      "Deliberate Practice",
-      "Pygmalion Effect",
-      "Learned Helplessness",
-      "Feedback Loops",
-      "Self-Preservation",
-      "Nature versus Nurture"
-    ]
+    "related_model_slugs": ["deliberate-practice", "pygmalion-effect", "learned-helplessness", "feedback-loops", "self-preservation", "nature-versus-nurture"],
+    "order_index": 261,
+    "batch_number": 27
   },
   {
-    "id": "MM262",
     "name": "Pygmalion Effect",
-    "category": "Psychology & Individual Development",
+    "slug": "pygmalion-effect",
+    "category": "psychology-individual-development",
     "core_concept": "The phenomenon where higher expectations lead to an increase in performance, as people tend to live up to the expectations set for them. It's a form of self-fulfilling prophecy, named after the Greek myth of Pygmalion, a sculptor whose statue came to life after he fell in love with it.",
-    "detailed_explanation": "The Pygmalion Effect demonstrates how expectations profoundly influence performance through subtle but powerful psychological and behavioral mechanisms that operate in educational, professional, and interpersonal contexts. Named after George Bernard Shaw's play \"Pygmalion\" (which inspired \"My Fair Lady\"), this phenomenon occurs when higher expectations lead to improved performance, while lower expectations can limit achievement through what's known as the Golem Effect.\n\nThe mechanism works through multiple pathways: people with higher expectations tend to provide more support, encouragement, and opportunities to those they believe will succeed; they interpret ambiguous performance more favorably; they communicate confidence through verbal and nonverbal cues; and they persist longer in helping others overcome obstacles. Simultaneously, individuals who perceive that others have high expectations for them often internalize these beliefs, leading to increased motivation, confidence, and effort that creates the expected improvement.\n\nResearch demonstrates that the Pygmalion Effect is particularly powerful when expectations are communicated by authority figures, when the people involved have limited prior experience in the domain, and when the expectations are challenging but achievable. However, the effect requires authentic belief in potential rather than superficial expressions of confidence, and it must be accompanied by appropriate support and resources to enable success.",
+    "detailed_explanation": "The Pygmalion Effect demonstrates how expectations profoundly influence performance through subtle but powerful psychological and behavioral mechanisms that operate in educational, professional, and interpersonal contexts. Named after George Bernard Shaw's play \"Pygmalion\" (which inspired \"My Fair Lady\"), this phenomenon occurs when higher expectations lead to improved performance, while lower expectations can limit achievement through what's known as the Golem Effect. The mechanism works through multiple pathways: people with higher expectations tend to provide more support, encouragement, and opportunities to those they believe will succeed; they interpret ambiguous performance more favorably; they communicate confidence through verbal and nonverbal cues; and they persist longer in helping others overcome obstacles. Simultaneously, individuals who perceive that others have high expectations for them often internalize these beliefs, leading to increased motivation, confidence, and effort that creates the expected improvement. Research demonstrates that the Pygmalion Effect is particularly powerful when expectations are communicated by authority figures, when the people involved have limited prior experience in the domain, and when the expectations are challenging but achievable. However, the effect requires authentic belief in potential rather than superficial expressions of confidence, and it must be accompanied by appropriate support and resources to enable success.",
     "expanded_examples": [
       {
         "title": "Educational Leadership and Student Achievement",
@@ -79,28 +74,23 @@
       "Expectation Bias: Concentrating high expectations on certain individuals while inadvertently communicating lower expectations to others based on demographic characteristics or past performance.",
       "Support Mismatch: Having high expectations without providing the resources, training, or opportunities needed for people to develop the capabilities required for success."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What expectations do I communicate to others through my words, actions, and attention, and how might these be influencing their performance?",
       "How can I genuinely assess and express confidence in others' potential while providing appropriate support for their development?",
       "What biases might be affecting my expectations for different people, and how can I ensure that I'm providing high expectations and support more equitably?",
       "How can I balance high expectations with realistic goal-setting and adequate resources for achievement?",
       "What systems and practices can I implement to systematically communicate confidence in others' abilities while helping them develop necessary skills?"
     ],
-    "related_models": [
-      "Fixed Mindset vs. Growth Mindset",
-      "Self-Preservation",
-      "Authority (Influence Model)",
-      "Social Proof",
-      "Feedback Loops",
-      "Managing to the Person"
-    ]
+    "related_model_slugs": ["fixed-mindset-vs-growth-mindset", "self-preservation", "authority-influence-model", "social-proof", "feedback-loops", "managing-to-the-person"],
+    "order_index": 262,
+    "batch_number": 27
   },
   {
-    "id": "MM263",
     "name": "Maslow's Hierarchy of Needs",
-    "category": "Psychology & Individual Development",
+    "slug": "maslows-hierarchy-of-needs",
+    "category": "psychology-individual-development",
     "core_concept": "A psychological theory proposing that human needs are arranged in a hierarchy, with basic physiological needs at the bottom, followed by safety, love/belonging, esteem, and self-actualization at the top. Lower-level needs must generally be satisfied before higher-level needs become motivating factors.",
-    "detailed_explanation": "Maslow's Hierarchy of Needs provides a framework for understanding human motivation that recognizes the progressive nature of human needs and their influence on behavior, decision-making, and life satisfaction. Abraham Maslow originally proposed five levels: physiological needs (food, water, shelter, sleep), safety needs (security, stability, freedom from fear), love and belonging needs (relationships, acceptance, affection), esteem needs (recognition, respect, achievement), and self-actualization (personal growth, fulfilling one's potential, creativity).\n\nThe hierarchy suggests that lower-level needs are generally more powerful motivators when unmet, and that people typically focus on higher-level needs only after lower levels are reasonably satisfied. However, modern research indicates that the hierarchy is more flexible than originally proposed—people may pursue multiple levels simultaneously, and cultural differences significantly influence the relative importance of different needs.\n\nThe model's enduring value lies in its recognition that human motivation is complex and context-dependent, that basic security and belonging needs significantly influence performance and well-being, and that understanding where individuals are in the hierarchy can inform more effective approaches to motivation, leadership, and organizational design.",
+    "detailed_explanation": "Maslow's Hierarchy of Needs provides a framework for understanding human motivation that recognizes the progressive nature of human needs and their influence on behavior, decision-making, and life satisfaction. Abraham Maslow originally proposed five levels: physiological needs (food, water, shelter, sleep), safety needs (security, stability, freedom from fear), love and belonging needs (relationships, acceptance, affection), esteem needs (recognition, respect, achievement), and self-actualization (personal growth, fulfilling one's potential, creativity). The hierarchy suggests that lower-level needs are generally more powerful motivators when unmet, and that people typically focus on higher-level needs only after lower levels are reasonably satisfied. However, modern research indicates that the hierarchy is more flexible than originally proposed—people may pursue multiple levels simultaneously, and cultural differences significantly influence the relative importance of different needs. The model's enduring value lies in its recognition that human motivation is complex and context-dependent, that basic security and belonging needs significantly influence performance and well-being, and that understanding where individuals are in the hierarchy can inform more effective approaches to motivation, leadership, and organizational design.",
     "expanded_examples": [
       {
         "title": "Organizational Management and Employee Motivation",
@@ -127,28 +117,23 @@
       "Cultural Insensitivity: Applying Western individualistic interpretations of the hierarchy without considering cultural differences in the relative importance of different needs.",
       "Neglecting Complexity: Oversimplifying human motivation by focusing on only one level of needs rather than recognizing that people often pursue multiple levels simultaneously."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "Where am I currently in the hierarchy, and what level of needs is most important for my motivation and well-being right now?",
       "How can I better understand and address the different levels of needs among people I lead, teach, or care for?",
       "What organizational or systemic changes could better support people across multiple levels of the hierarchy?",
       "How do my cultural background and life experiences influence which needs I prioritize and how I interpret others' motivations?",
       "What basic needs might be unmet that are preventing me or others from focusing on growth and development opportunities?"
     ],
-    "related_models": [
-      "Incentives",
-      "Hierarchical Organization",
-      "Managing to the Person",
-      "Social Norms vs. Market Norms",
-      "Self-Preservation",
-      "Cooperation"
-    ]
+    "related_model_slugs": ["incentives", "hierarchical-organization", "managing-to-the-person", "social-norms-vs-market-norms", "self-preservation", "cooperation"],
+    "order_index": 263,
+    "batch_number": 27
   },
   {
-    "id": "MM264",
     "name": "High-Context vs. Low-Context Communication",
-    "category": "Psychology & Individual Development",
+    "slug": "high-context-vs-low-context-communication",
+    "category": "psychology-individual-development",
     "core_concept": "A communication framework distinguishing between cultures and individuals who rely heavily on context, nonverbal cues, and shared understanding (high-context) versus those who emphasize explicit, direct verbal communication (low-context).",
-    "detailed_explanation": "High-Context vs. Low-Context Communication, developed by anthropologist Edward T. Hall, describes fundamental differences in how people communicate and interpret information across cultures, organizations, and individual relationships. High-context communication relies heavily on situational context, nonverbal cues, shared history, and implicit understanding between communicators, with much meaning conveyed through what is not said rather than explicit verbal content. Low-context communication emphasizes direct, explicit verbal communication where meaning is primarily contained in the words themselves rather than in surrounding context.\n\nThese communication styles reflect deeper cultural values about relationships, directness, harmony, and information sharing. High-context cultures typically value relationship preservation, group harmony, and subtle communication that maintains face and avoids direct confrontation. Low-context cultures often prioritize efficiency, clarity, and direct communication that minimizes misunderstanding even if it risks interpersonal discomfort.\n\nUnderstanding these differences is crucial for effective cross-cultural communication, international business, team management, and conflict resolution, as mismatches between communication styles can lead to misunderstandings, frustration, and relationship breakdown even when both parties have good intentions.",
+    "detailed_explanation": "High-Context vs. Low-Context Communication, developed by anthropologist Edward T. Hall, describes fundamental differences in how people communicate and interpret information across cultures, organizations, and individual relationships. High-context communication relies heavily on situational context, nonverbal cues, shared history, and implicit understanding between communicators, with much meaning conveyed through what is not said rather than explicit verbal content. Low-context communication emphasizes direct, explicit verbal communication where meaning is primarily contained in the words themselves rather than in surrounding context. These communication styles reflect deeper cultural values about relationships, directness, harmony, and information sharing. High-context cultures typically value relationship preservation, group harmony, and subtle communication that maintains face and avoids direct confrontation. Low-context cultures often prioritize efficiency, clarity, and direct communication that minimizes misunderstanding even if it risks interpersonal discomfort. Understanding these differences is crucial for effective cross-cultural communication, international business, team management, and conflict resolution, as mismatches between communication styles can lead to misunderstandings, frustration, and relationship breakdown even when both parties have good intentions.",
     "expanded_examples": [
       {
         "title": "International Business and Cross-Cultural Management",
@@ -175,28 +160,23 @@
       "Context Misreading: Misinterpreting indirect communication as evasiveness or direct communication as rudeness without understanding cultural communication norms.",
       "Adaptation Failure: Failing to adjust communication style when working across cultural or stylistic differences, reducing effectiveness and potentially causing offense."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What is my natural communication style, and how does it affect my interactions with people who prefer different approaches to sharing information?",
       "How can I better recognize and adapt to the communication preferences of people I work with, lead, or serve?",
       "What cultural or contextual factors might be influencing communication challenges I'm experiencing with specific individuals or groups?",
       "How can I create environments that accommodate both high-context and low-context communication preferences while ensuring clear information sharing?",
       "What assumptions am I making about communication based on my own cultural background that might not apply to others?"
     ],
-    "related_models": [
-      "Frame of Reference",
-      "Managing to the Person",
-      "Social Norms vs. Market Norms",
-      "Relativity",
-      "Most Respectful Interpretation (MRI)",
-      "Cultural Differences"
-    ]
+    "related_model_slugs": ["frame-of-reference", "managing-to-the-person", "social-norms-vs-market-norms", "relativity", "most-respectful-interpretation", "cultural-differences"],
+    "order_index": 264,
+    "batch_number": 27
   },
   {
-    "id": "MM265",
     "name": "Winning Hearts and Minds",
-    "category": "Psychology & Individual Development",
+    "slug": "winning-hearts-and-minds",
+    "category": "psychology-individual-development",
     "core_concept": "A strategy that focuses on gaining genuine support and commitment from people by addressing their emotional needs, values, and rational interests, rather than relying solely on authority, coercion, or logical arguments.",
-    "detailed_explanation": "Winning Hearts and Minds represents a comprehensive approach to influence and change management that recognizes the dual nature of human decision-making and commitment. The \"hearts\" component addresses emotional needs, personal values, identity, and relationships—the affective factors that drive genuine enthusiasm and long-term commitment. The \"minds\" component focuses on rational benefits, logical arguments, and intellectual understanding that provide the reasoning foundation for support.\n\nThis approach acknowledges that sustainable change and genuine commitment require both emotional engagement and intellectual conviction. People may intellectually understand the logic of a decision or change but resist implementation without emotional buy-in, or they may feel emotionally connected to a cause but struggle to maintain commitment without clear rational benefits and logical frameworks.\n\nThe strategy originated in military and political contexts but has broad applications in organizational change, leadership, marketing, education, and any situation where securing genuine commitment rather than mere compliance is essential for long-term success.",
+    "detailed_explanation": "Winning Hearts and Minds represents a comprehensive approach to influence and change management that recognizes the dual nature of human decision-making and commitment. The \"hearts\" component addresses emotional needs, personal values, identity, and relationships—the affective factors that drive genuine enthusiasm and long-term commitment. The \"minds\" component focuses on rational benefits, logical arguments, and intellectual understanding that provide the reasoning foundation for support. This approach acknowledges that sustainable change and genuine commitment require both emotional engagement and intellectual conviction. People may intellectually understand the logic of a decision or change but resist implementation without emotional buy-in, or they may feel emotionally connected to a cause but struggle to maintain commitment without clear rational benefits and logical frameworks. The strategy originated in military and political contexts but has broad applications in organizational change, leadership, marketing, education, and any situation where securing genuine commitment rather than mere compliance is essential for long-term success.",
     "expanded_examples": [
       {
         "title": "Organizational Change Management and Employee Engagement",
@@ -223,28 +203,23 @@
       "Inauthentic Manipulation: Using emotional or rational appeals manipulatively rather than authentically, which can backfire when people discover the disconnect between stated and actual intentions.",
       "Oversimplification: Treating hearts and minds as separate rather than recognizing their interconnection and the need for integrated approaches that address both simultaneously."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What emotional needs, values, and concerns do the people I'm trying to influence care about most deeply?",
       "What rational benefits and logical arguments support my position, and how can I communicate them clearly and credibly?",
       "How can I combine emotional engagement with intellectual conviction in authentic ways that build genuine commitment rather than temporary compliance?",
       "What resistance might stem from unaddressed emotional concerns versus unresolved rational objections?",
       "How can I demonstrate authentic commitment to both the values and the practical benefits I'm advocating for?"
     ],
-    "related_models": [
-      "Commitment (Influence Model)",
-      "Liking (Influence Model)",
-      "Authority (Influence Model)",
-      "Social Proof",
-      "Framing",
-      "Most Respectful Interpretation (MRI)"
-    ]
+    "related_model_slugs": ["commitment-influence-model", "liking-influence-model", "authority-influence-model", "social-proof", "framing", "most-respectful-interpretation"],
+    "order_index": 265,
+    "batch_number": 27
   },
   {
-    "id": "MM266",
     "name": "Loyalists versus Mercenaries",
-    "category": "Psychology & Individual Development",
+    "slug": "loyalists-versus-mercenaries",
+    "category": "psychology-individual-development",
     "core_concept": "A distinction between individuals who are motivated primarily by intrinsic factors like mission, values, and long-term vision (loyalists) versus those motivated primarily by external rewards like compensation, benefits, and short-term gains (mercenaries).",
-    "detailed_explanation": "The Loyalists versus Mercenaries framework, popularized by venture capitalist Fred Wilson, distinguishes between fundamentally different motivational orientations that significantly influence employee performance, organizational culture, and long-term success. Loyalists are primarily motivated by intrinsic factors including belief in organizational mission, alignment with personal values, opportunities for meaningful contribution, and long-term vision for impact and growth. Mercenaries are primarily motivated by extrinsic factors including compensation, benefits, job security, and external recognition or advancement opportunities.\n\nThis distinction is not a moral judgment but rather a recognition that different people are motivated by different factors, and that organizational success often depends on attracting and retaining the right balance of motivational types for specific roles, contexts, and strategic objectives. Loyalists often provide stability, cultural continuity, and commitment during difficult periods, while mercenaries can bring valuable skills, fresh perspectives, and performance-driven energy.\n\nUnderstanding these motivational differences enables better hiring decisions, more effective management approaches, and stronger organizational cultures that leverage the strengths of both types while mitigating potential weaknesses. However, the framework requires nuanced application that recognizes individual complexity and the importance of fair compensation and treatment for all employees regardless of their primary motivational orientation.",
+    "detailed_explanation": "The Loyalists versus Mercenaries framework, popularized by venture capitalist Fred Wilson, distinguishes between fundamentally different motivational orientations that significantly influence employee performance, organizational culture, and long-term success. Loyalists are primarily motivated by intrinsic factors including belief in organizational mission, alignment with personal values, opportunities for meaningful contribution, and long-term vision for impact and growth. Mercenaries are primarily motivated by extrinsic factors including compensation, benefits, job security, and external recognition or advancement opportunities. This distinction is not a moral judgment but rather a recognition that different people are motivated by different factors, and that organizational success often depends on attracting and retaining the right balance of motivational types for specific roles, contexts, and strategic objectives. Loyalists often provide stability, cultural continuity, and commitment during difficult periods, while mercenaries can bring valuable skills, fresh perspectives, and performance-driven energy. Understanding these motivational differences enables better hiring decisions, more effective management approaches, and stronger organizational cultures that leverage the strengths of both types while mitigating potential weaknesses. However, the framework requires nuanced application that recognizes individual complexity and the importance of fair compensation and treatment for all employees regardless of their primary motivational orientation.",
     "expanded_examples": [
       {
         "title": "Startup Culture and Team Building",
@@ -271,28 +246,23 @@
       "Cultural Imbalance: Creating organizational cultures that heavily favor one motivational type while alienating or undervaluing the other, reducing diversity of perspectives and capabilities.",
       "Static Classification: Treating loyalist and mercenary orientations as fixed personality traits rather than recognizing that motivations can change based on life circumstances, career stage, and organizational experiences."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What primarily motivates me in my work—intrinsic factors like mission and values, or extrinsic factors like compensation and advancement?",
       "How can I better understand and appreciate the different motivational orientations of people I work with or lead?",
       "What organizational systems and practices can I influence to create environments that fairly value and support both loyalists and mercenaries?",
       "How can I ensure that my own motivational preferences don't bias my judgment about others' contributions and value to the organization?",
       "What balance of loyalist and mercenary orientation is optimal for my team or organization given our current challenges and objectives?"
     ],
-    "related_models": [
-      "Incentives",
-      "Social Norms vs. Market Norms",
-      "Managing to the Person",
-      "Intrinsic vs. Extrinsic Motivation",
-      "Commitment (Influence Model)",
-      "Maslow's Hierarchy of Needs"
-    ]
+    "related_model_slugs": ["incentives", "social-norms-vs-market-norms", "managing-to-the-person", "intrinsic-vs-extrinsic-motivation", "commitment-influence-model", "maslows-hierarchy-of-needs"],
+    "order_index": 266,
+    "batch_number": 27
   },
   {
-    "id": "MM267",
     "name": "Manager's Schedule versus Maker's Schedule",
-    "category": "Psychology & Individual Development",
+    "slug": "managers-schedule-versus-makers-schedule",
+    "category": "psychology-individual-development",
     "core_concept": "A distinction by Paul Graham between two ways of using time: the manager's schedule, divided into hourly intervals for meetings and varied tasks, and the maker's schedule, requiring long, uninterrupted blocks (half-day minimum) for creative and focused work like programming or writing.",
-    "detailed_explanation": "The Manager's Schedule versus Maker's Schedule framework, articulated by entrepreneur Paul Graham, identifies fundamental differences in how people need to structure their time based on the nature of their work and cognitive requirements. The Manager's Schedule operates on hourly intervals with days divided into discrete time blocks for meetings, phone calls, quick decisions, and task switching between different projects and responsibilities. This schedule works well for people whose primary role involves coordination, communication, decision-making, and oversight activities that can be accomplished in relatively short time periods.\n\nThe Maker's Schedule requires extended periods of uninterrupted time—typically at least half a day—for deep work that involves creativity, complex problem-solving, writing, programming, design, or other activities requiring sustained concentration and flow states. For makers, even a single meeting in the middle of the day can destroy productivity by fragmenting cognitive resources and preventing the deep focus necessary for creative work.\n\nThe conflict between these schedules creates significant productivity challenges in modern organizations where managers and makers must collaborate but have fundamentally different time requirements. Understanding this distinction enables better meeting planning, team coordination, and organizational design that respects different work styles while maintaining necessary collaboration and communication.",
+    "detailed_explanation": "The Manager's Schedule versus Maker's Schedule framework, articulated by entrepreneur Paul Graham, identifies fundamental differences in how people need to structure their time based on the nature of their work and cognitive requirements. The Manager's Schedule operates on hourly intervals with days divided into discrete time blocks for meetings, phone calls, quick decisions, and task switching between different projects and responsibilities. This schedule works well for people whose primary role involves coordination, communication, decision-making, and oversight activities that can be accomplished in relatively short time periods. The Maker's Schedule requires extended periods of uninterrupted time—typically at least half a day—for deep work that involves creativity, complex problem-solving, writing, programming, design, or other activities requiring sustained concentration and flow states. For makers, even a single meeting in the middle of the day can destroy productivity by fragmenting cognitive resources and preventing the deep focus necessary for creative work. The conflict between these schedules creates significant productivity challenges in modern organizations where managers and makers must collaborate but have fundamentally different time requirements. Understanding this distinction enables better meeting planning, team coordination, and organizational design that respects different work styles while maintaining necessary collaboration and communication.",
     "expanded_examples": [
       {
         "title": "Software Development and Engineering Management",
@@ -319,28 +289,23 @@
       "Interruption Culture: Creating organizational cultures that normalize constant interruption and rapid response without recognizing the productivity costs for work requiring sustained concentration.",
       "Role Confusion: Expecting people to switch effectively between manager and maker modes without providing adequate time and support for the different cognitive requirements."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "Does my work primarily require manager schedule coordination or maker schedule deep work, and how can I structure my time accordingly?",
       "How can I minimize disruptive interruptions for team members who need sustained concentration while maintaining necessary communication and coordination?",
       "What meeting and communication practices can I implement that respect different schedule needs while ensuring effective collaboration?",
       "How can I better batch similar activities to create larger blocks of time for focused work or efficient coordination?",
       "What organizational or cultural changes could better support both manager and maker schedule needs in my workplace?"
     ],
-    "related_models": [
-      "Multitasking",
-      "Deep Work",
-      "Attention Management",
-      "Context Switching",
-      "Productivity Optimization",
-      "Eisenhower Decision Matrix"
-    ]
+    "related_model_slugs": ["multitasking", "deep-work", "attention-management", "context-switching", "productivity-optimization", "eisenhower-decision-matrix"],
+    "order_index": 267,
+    "batch_number": 27
   },
   {
-    "id": "MM268",
     "name": "Mythical Man-Month",
-    "category": "Psychology & Individual Development",
+    "slug": "mythical-man-month",
+    "category": "psychology-individual-development",
     "core_concept": "A concept from Fred Brooks stating that adding more people (man-months) to a late software project often makes it later, due to the increased communication overhead and ramp-up time for new members.",
-    "detailed_explanation": "The Mythical Man-Month, coined by software engineer Fred Brooks in his influential book of the same name, challenges the intuitive assumption that work capacity is directly proportional to the number of people assigned to a project. Brooks argues that person-months are not interchangeable units of work, particularly for complex, interdependent tasks that require coordination, knowledge sharing, and collaboration among team members.\n\nThe principle explains why adding people to late projects often causes further delays rather than acceleration. New team members require time to understand project requirements, learn existing code or systems, and integrate with team processes. Meanwhile, existing team members must spend time training newcomers and coordinating with larger groups, reducing their productivity on actual project work. As team size increases, communication overhead grows exponentially—more relationships, more meetings, more coordination requirements.\n\nThe famous analogy illustrates the principle: \"Nine women cannot make a baby in one month.\" Some tasks have inherent time requirements that cannot be reduced through parallel work, and adding more people to such tasks creates inefficiency rather than acceleration. This insight applies beyond software development to any complex project requiring coordination and knowledge work.",
+    "detailed_explanation": "The Mythical Man-Month, coined by software engineer Fred Brooks in his influential book of the same name, challenges the intuitive assumption that work capacity is directly proportional to the number of people assigned to a project. Brooks argues that person-months are not interchangeable units of work, particularly for complex, interdependent tasks that require coordination, knowledge sharing, and collaboration among team members. The principle explains why adding people to late projects often causes further delays rather than acceleration. New team members require time to understand project requirements, learn existing code or systems, and integrate with team processes. Meanwhile, existing team members must spend time training newcomers and coordinating with larger groups, reducing their productivity on actual project work. As team size increases, communication overhead grows exponentially—more relationships, more meetings, more coordination requirements. The famous analogy illustrates the principle: \"Nine women cannot make a baby in one month.\" Some tasks have inherent time requirements that cannot be reduced through parallel work, and adding more people to such tasks creates inefficiency rather than acceleration. This insight applies beyond software development to any complex project requiring coordination and knowledge work.",
     "expanded_examples": [
       {
         "title": "Software Development Project Management",
@@ -367,28 +332,23 @@
       "Communication Underestimation: Failing to account for exponential increases in communication overhead as team sizes grow beyond optimal levels.",
       "Task Parallelization Errors: Attempting to parallelize work that has inherent sequential dependencies or requires deep collaboration and knowledge sharing."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "Can this work be effectively parallelized among multiple people, or does it require coordination and knowledge sharing that limits parallel execution?",
       "What is the optimal team size for this project given the coordination requirements and communication complexity?",
       "How much time and productivity will be lost to train new team members and integrate them into existing work processes?",
       "What obstacles and inefficiencies can I remove for existing team members rather than adding more people to work around problems?",
       "At what phases of this project would additional team members be most valuable and least disruptive to ongoing work?"
     ],
-    "related_models": [
-      "Bottlenecks",
-      "Coordination Problems",
-      "Team Dynamics",
-      "Project Management",
-      "Communication Overhead",
-      "Brooks' Law"
-    ]
+    "related_model_slugs": ["bottlenecks", "coordination-problems", "team-dynamics", "project-management", "communication-overhead", "brooks-law"],
+    "order_index": 268,
+    "batch_number": 27
   },
   {
-    "id": "MM269",
     "name": "Boots on the Ground",
-    "category": "Psychology & Individual Development",
+    "slug": "boots-on-the-ground",
+    "category": "psychology-individual-development",
     "core_concept": "The principle that effective decision-making and problem-solving often requires direct, firsthand experience and local knowledge rather than relying solely on remote analysis, reports, or theoretical understanding.",
-    "detailed_explanation": "Boots on the Ground emphasizes the irreplaceable value of direct experience, local presence, and firsthand observation in understanding complex situations and making effective decisions. Originally a military term referring to soldiers physically present in an area of operations, the concept has broader applications in business, management, research, and problem-solving contexts where remote analysis or secondhand information may miss critical details or nuances.\n\nThe principle recognizes that complex situations often involve subtleties, relationships, and contextual factors that cannot be fully captured in reports, data, or remote communication. Direct presence enables observation of nonverbal cues, informal dynamics, operational realities, and environmental factors that significantly influence outcomes but may not be documented or communicated through formal channels.\n\nHowever, boots on the ground must be balanced with broader perspective and analytical capabilities. Local knowledge provides essential context and detail, but it may lack strategic perspective or comparative insight that comes from external analysis. The most effective approaches combine direct experience with broader analytical frameworks and multiple sources of information.",
+    "detailed_explanation": "Boots on the Ground emphasizes the irreplaceable value of direct experience, local presence, and firsthand observation in understanding complex situations and making effective decisions. Originally a military term referring to soldiers physically present in an area of operations, the concept has broader applications in business, management, research, and problem-solving contexts where remote analysis or secondhand information may miss critical details or nuances. The principle recognizes that complex situations often involve subtleties, relationships, and contextual factors that cannot be fully captured in reports, data, or remote communication. Direct presence enables observation of nonverbal cues, informal dynamics, operational realities, and environmental factors that significantly influence outcomes but may not be documented or communicated through formal channels. However, boots on the ground must be balanced with broader perspective and analytical capabilities. Local knowledge provides essential context and detail, but it may lack strategic perspective or comparative insight that comes from external analysis. The most effective approaches combine direct experience with broader analytical frameworks and multiple sources of information.",
     "expanded_examples": [
       {
         "title": "International Business Development and Market Entry",
@@ -415,28 +375,23 @@
       "Resource Inefficiency: Overinvesting in local presence when remote analysis could provide adequate information for decision-making needs.",
       "Perspective Limitation: Focusing too narrowly on local details without maintaining strategic perspective about broader objectives and constraints."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What critical information or insights might I be missing by making decisions based only on reports and remote analysis?",
       "How can I gain direct experience and local knowledge while maintaining broader analytical perspective and strategic focus?",
       "What aspects of this situation require firsthand observation and local relationships to understand and address effectively?",
       "How can I balance the time and resource investment in direct presence with other information-gathering and analysis approaches?",
       "What local knowledge and perspectives am I not accessing that could significantly improve my understanding and decision-making?"
     ],
-    "related_models": [
-      "Frame of Reference",
-      "Local Knowledge",
-      "Direct Experience",
-      "Field Research",
-      "Situational Awareness",
-      "Context Understanding"
-    ]
+    "related_model_slugs": ["frame-of-reference", "local-knowledge", "direct-experience", "field-research", "situational-awareness", "context-understanding"],
+    "order_index": 269,
+    "batch_number": 27
   },
   {
-    "id": "MM270",
     "name": "Arbitrage",
-    "category": "Psychology & Individual Development",
+    "slug": "arbitrage",
+    "category": "psychology-individual-development",
     "core_concept": "The practice of taking advantage of price differences for the same asset, commodity, or opportunity in different markets or contexts to generate profit with minimal risk.",
-    "detailed_explanation": "Arbitrage represents the exploitation of price, value, or opportunity differences that exist temporarily or persistently across different markets, contexts, or time periods. In its purest form, arbitrage involves simultaneously buying and selling identical assets in different markets to profit from price discrepancies with virtually no risk, as the transactions occur simultaneously and the price difference provides guaranteed profit.\n\nThe concept extends beyond financial markets to include information arbitrage (exploiting knowledge differences), temporal arbitrage (taking advantage of timing differences), regulatory arbitrage (exploiting regulatory differences between jurisdictions), and skill arbitrage (leveraging capability differences between markets or contexts).\n\nArbitrage opportunities typically emerge from market inefficiencies, information asymmetries, regulatory differences, or temporary supply and demand imbalances. These opportunities often disappear quickly as markets adjust, but new arbitrage possibilities continuously emerge as markets, technologies, and regulations evolve. Understanding arbitrage principles helps identify value creation opportunities and competitive advantages in business, investing, and career development.",
+    "detailed_explanation": "Arbitrage represents the exploitation of price, value, or opportunity differences that exist temporarily or persistently across different markets, contexts, or time periods. In its purest form, arbitrage involves simultaneously buying and selling identical assets in different markets to profit from price discrepancies with virtually no risk, as the transactions occur simultaneously and the price difference provides guaranteed profit. The concept extends beyond financial markets to include information arbitrage (exploiting knowledge differences), temporal arbitrage (taking advantage of timing differences), regulatory arbitrage (exploiting regulatory differences between jurisdictions), and skill arbitrage (leveraging capability differences between markets or contexts). Arbitrage opportunities typically emerge from market inefficiencies, information asymmetries, regulatory differences, or temporary supply and demand imbalances. These opportunities often disappear quickly as markets adjust, but new arbitrage possibilities continuously emerge as markets, technologies, and regulations evolve. Understanding arbitrage principles helps identify value creation opportunities and competitive advantages in business, investing, and career development.",
     "expanded_examples": [
       {
         "title": "Global Technology Talent and Remote Work Arbitrage",
@@ -463,20 +418,15 @@
       "Ethical Concerns: Pursuing arbitrage opportunities that may be legally permissible but ethically questionable or harmful to stakeholders.",
       "Complexity Overload: Underestimating the operational complexity, regulatory requirements, or management challenges associated with exploiting arbitrage opportunities."
     ],
-    "questions_to_ask": [
+    "reflection_questions": [
       "What price differences, market inefficiencies, or structural advantages exist in my industry or area of expertise that could create arbitrage opportunities?",
       "How can I leverage geographic, temporal, regulatory, or skill differences to create value while managing associated risks and complexities?",
       "What arbitrage opportunities might be available in my career development, investment strategy, or business operations that I haven't considered?",
       "How quickly might current arbitrage advantages disappear, and what sustainable competitive advantages can I build beyond temporary market inefficiencies?",
       "What ethical and legal considerations should I evaluate before pursuing specific arbitrage strategies?"
     ],
-    "related_models": [
-      "Market Efficiency",
-      "Information Asymmetry",
-      "Competitive Advantage",
-      "Geographic Arbitrage",
-      "Regulatory Differences",
-      "Opportunity Cost"
-    ]
+    "related_model_slugs": ["market-efficiency", "information-asymmetry", "competitive-advantage", "geographic-arbitrage", "regulatory-differences", "opportunity-cost"],
+    "order_index": 270,
+    "batch_number": 27
   }
 ]
