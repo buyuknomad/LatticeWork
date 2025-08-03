@@ -62,7 +62,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'creative-communication-models',
   'decision-frameworks',
   'decision-making',
-  'communication',
+  'decision-making-analysis',
   'leadership',
   'creativity',
   'negotiation',
