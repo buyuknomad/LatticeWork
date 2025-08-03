@@ -82,7 +82,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'thinking-methods',
   'unintended-consequences',
   'psychology-individual-development',
-  'risk-assessment,
+  'risk-assessment',
   'scientific-method-systems',
   'optimization',
   'organizational-excellence', 
