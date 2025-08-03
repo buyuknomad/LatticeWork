@@ -87,7 +87,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'scientific-research',
   'statistical-thinking', 
   'strategic-conflict',
-  'thinking-methods',
+  'strategic-interactions,
   'unintended-consequences',
   
 
