@@ -87,8 +87,15 @@ export const MENTAL_MODEL_CATEGORIES = [
   'scientific-research',
   'statistical-thinking', 
   'strategic-conflict',
-  'strategic-interactions,
-  'unintended-consequences',
+  'strategic-interactions',
+  'strategic-leadership-competitive-dynamics',
+  'strategic-operations',
+  'strategic-planning',
+  'system-dynamics',
+  'strategic-leadership-competitive-dynamics',
+  'strategic-operations',
+  
+  
   
 
   
