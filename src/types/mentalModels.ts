@@ -84,7 +84,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'psychology-individual-development',
   'risk-assessment',
   'scientific-method-systems',
-  'optimization',
+  'scientific-research',
   'organizational-excellence', 
   'technology-problem-solving',
   'thinking-methods',
