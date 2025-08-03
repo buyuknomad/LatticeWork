@@ -80,7 +80,16 @@ export const MENTAL_MODEL_CATEGORIES = [
   'organizational-excellence', 
   'technology-problem-solving',
   'thinking-methods',
-  'unintended-consequences'
+  'unintended-consequences',
+  'psychology-individual-development',
+  'mathematical-concepts',
+  'modeling-analysis',
+  'optimization',
+  'organizational-excellence', 
+  'technology-problem-solving',
+  'thinking-methods',
+  'unintended-consequences',
+  
 
   
   
