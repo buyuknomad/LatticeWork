@@ -93,7 +93,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'strategic-planning',
   'system-dynamics',
   'systems-analysis',
-  'systems-thinking',
+  'systems-thinking'
   
   
   
