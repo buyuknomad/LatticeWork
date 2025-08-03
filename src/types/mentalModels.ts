@@ -71,7 +71,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'energy-focus-systems',
   'fundamental-concepts', 
   'group-dynamics',
-  'cognitive-frameworks',
+  'influence-social-psychology',
   'cognitive-social-models'
   
 ] as const;
