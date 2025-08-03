@@ -63,7 +63,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'decision-frameworks',
   'decision-making',
   'decision-making-analysis',
-  'leadership',
+  'decision-making-optimization',
   'creativity',
   'negotiation',
   'learning',
