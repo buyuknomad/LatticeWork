@@ -79,7 +79,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'optimization',
   'organizational-excellence', 
   'technology-problem-solving',
-  'influence-social-psychology',
+  'thinking-methods',
   'information-aggregation',
 
   
