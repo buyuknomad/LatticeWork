@@ -70,7 +70,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'economics-systems',
   'energy-focus-systems',
   'fundamental-concepts', 
-  'business-strategy',
+  'group-dynamics',
   'cognitive-frameworks',
   'cognitive-social-models'
   
