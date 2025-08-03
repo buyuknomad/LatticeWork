@@ -58,7 +58,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'cognitive-frameworks',
   'cognitive-social-models',
   'collective-intelligence',
-  'economics',
+  'competitive-dynamics',
   'mathematics',
   'physics',
   'biology',
