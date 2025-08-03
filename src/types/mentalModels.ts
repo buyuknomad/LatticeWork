@@ -52,10 +52,10 @@ export interface PaginationState {
 
 // Mental Model Categories (based on project knowledge)
 export const MENTAL_MODEL_CATEGORIES = [
-  'fundamental-concepts',
-  'cognitive-biases', 
-  'systems-thinking',
-  'decision-making',
+  'advanced-decision-tools',
+  'analysis-decision-tools', 
+  'business-strategy',
+  'cognitive-frameworks',
   'business-strategy',
   'psychology',
   'economics',
