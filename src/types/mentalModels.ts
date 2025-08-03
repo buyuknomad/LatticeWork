@@ -72,7 +72,17 @@ export const MENTAL_MODEL_CATEGORIES = [
   'fundamental-concepts', 
   'group-dynamics',
   'influence-social-psychology',
-  'cognitive-social-models'
+  'information-aggregation',
+  'market-dynamics',
+  'economics-governance',
+  'economics-systems',
+  'energy-focus-systems',
+  'fundamental-concepts', 
+  'group-dynamics',
+  'influence-social-psychology',
+  'information-aggregation',
+
+  
   
 ] as const;
 
