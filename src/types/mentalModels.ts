@@ -75,7 +75,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'information-aggregation',
   'market-dynamics',
   'mathematical-concepts',
-  'modeling-analysis,
+  'modeling-analysis',
   'optimization',
   'organizational-excellence', 
   'group-dynamics',
