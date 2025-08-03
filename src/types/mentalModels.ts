@@ -56,7 +56,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'analysis-decision-tools', 
   'business-strategy',
   'cognitive-frameworks',
-  'business-strategy',
+  'cognitive-social-models',
   'psychology',
   'economics',
   'mathematics',
