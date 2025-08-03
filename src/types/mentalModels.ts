@@ -74,7 +74,7 @@ export const MENTAL_MODEL_CATEGORIES = [
   'influence-social-psychology',
   'information-aggregation',
   'market-dynamics',
-  'economics-governance',
+  'mathematical-concepts',
   'economics-systems',
   'energy-focus-systems',
   'fundamental-concepts', 
