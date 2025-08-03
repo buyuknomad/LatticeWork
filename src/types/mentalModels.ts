@@ -64,10 +64,16 @@ export const MENTAL_MODEL_CATEGORIES = [
   'decision-making',
   'decision-making-analysis',
   'decision-making-optimization',
-  'creativity',
-  'negotiation',
-  'learning',
-  'productivity'
+  'decision-making-strategic',
+  'economic-concepts',
+  'economics-governance',
+  'economics-systems',
+  'energy-focus-systems',
+  'analysis-decision-tools', 
+  'business-strategy',
+  'cognitive-frameworks',
+  'cognitive-social-models'
+  
 ] as const;
 
 export type MentalModelCategory = typeof MENTAL_MODEL_CATEGORIES[number];
