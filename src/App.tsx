@@ -21,6 +21,7 @@ import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
 import MentalModels from './pages/MentalModels/index';
 import MentalModelDetail from './pages/MentalModels/MentalModelDetail';
+import MentalModelsGuidePage from './pages/MentalModelsGuidePage'; // New import
 import CognitiveBiases from './pages/CognitiveBiases';
 
 // Import new pages
@@ -37,84 +38,72 @@ import ExampleDetail from './pages/ExampleDetail';
 
 // Import Archive pages
 import ArchivePage from './pages/ArchivePage';
-import ArchiveQuestionPage from './pages/ArchiveQuestionPage';
 
-// Create a wrapper component that can use useLocation
-const AppContent: React.FC = () => {
+function AppContent() {
   const location = useLocation();
   
-  // Define routes where footer should be hidden
-  const hideFooterRoutes = [
-    '/dashboard', 
-    '/dashboard/results',
-    '/settings', 
-    '/history', 
-    '/archive',
-    '/login', 
-    '/signup', 
-    '/signup-success',
-    '/forgot-password',
-    '/reset-password'
-  ];
-  const shouldHideFooter = hideFooterRoutes.includes(location.pathname) || 
-                          location.pathname.startsWith('/archive/');
+  // Hide header and footer on specific pages
+  const hideHeaderFooter = ['/login', '/signup', '/signup-success', '/forgot-password', '/reset-password', '/confirm-email'].includes(location.pathname);
 
   return (
-    <div className="relative min-h-screen bg-[#1A1A1A] text-white overflow-hidden">
+    <div className="min-h-screen bg-[#1A1A1A] text-white flex flex-col">
       <BackgroundAnimation />
-      <div className="relative z-10 max-w-[1600px] mx-auto">
-        <Header />
+      {!hideHeaderFooter && <Header />}
+      <main className="flex-grow relative z-10">
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/mental-models" element={<MentalModels />} />
-          <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
-          <Route path="/cognitive-biases" element={<CognitiveBiases />} />
-          
-          {/* Examples routes */}
-          <Route path="/examples" element={<Examples />} />
-          <Route path="/examples/:slug" element={<ExampleDetail />} />
-          
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup-success" element={<SignupSuccessPage />} />
-          <Route path="/checkout/success" element={<CheckoutSuccess />} />
-          <Route path="/auth/confirm" element={<ConfirmEmail />} />
-          
-          {/* Password Reset Routes */}
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/confirm-email" element={<ConfirmEmail />} />
           
-          {/* Legal/Policy pages */}
+          {/* Mental Models Routes */}
+          <Route path="/mental-models-guide" element={<MentalModelsGuidePage />} />
+          <Route path="/mental-models" element={<MentalModels />} />
+          <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
+          
+          <Route path="/cognitive-biases" element={<CognitiveBiases />} />
+          <Route path="/examples" element={<Examples />} />
+          <Route path="/examples/:slug" element={<ExampleDetail />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refunds" element={<Refunds />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route path="/FAQ" element={<FAQ />} />
+          <Route path="/archive" element={<ArchivePage />} />
           
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/results" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/history" element={<History />} />
-            
-            {/* Archive routes - Premium feature */}
-            <Route path="/archive" element={<ArchivePage />} />
-            <Route path="/archive/:id" element={<ArchiveQuestionPage />} />
-          </Route>
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkout-success" element={
+            <ProtectedRoute>
+              <CheckoutSuccess />
+            </ProtectedRoute>
+          } />
         </Routes>
-        
-        {/* Conditionally render Footer */}
-        {!shouldHideFooter && <Footer />}
-      </div>
+      </main>
+      {!hideHeaderFooter && <Footer />}
     </div>
   );
-};
+}
 
-// Main App component with Router
-const App: React.FC = () => {
+function App() {
   return (
     <HelmetProvider>
       <Router>
@@ -125,6 +114,6 @@ const App: React.FC = () => {
       </Router>
     </HelmetProvider>
   );
-};
+}
 
 export default App;
