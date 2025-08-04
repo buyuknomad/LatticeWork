@@ -1,8 +1,8 @@
 // src/pages/MentalModels/index.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, Book, Brain, Lightbulb } from 'lucide-react';
+import { Search, Filter, Book, Brain, Lightbulb, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
@@ -126,6 +126,17 @@ const MentalModels: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
+              {/* New: Link to Guide */}
+              <div className="mb-6">
+                <Link 
+                  to="/mental-models-guide"
+                  className="inline-flex items-center px-4 py-2 bg-[#252525] border border-[#333333] rounded-lg text-gray-300 hover:text-[#00FFFF] hover:border-[#00FFFF]/30 transition-all duration-300 text-sm"
+                >
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  New to mental models? Start with our guide
+                </Link>
+              </div>
+
               <div className="flex items-center justify-center mb-6">
                 <Brain className="w-12 h-12 text-[#00FFFF] mr-4" />
                 <h1 className="text-4xl md:text-6xl font-bold font-heading">
