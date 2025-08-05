@@ -1,8 +1,13 @@
+// src/components/ProtectedRoute.tsx
 import React, { useEffect } from 'react';
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute: React.FC = () => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -23,7 +28,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   // Render the protected content if user is authenticated
-  return user ? <Outlet /> : null;
+  return user ? <>{children}</> : null;
 };
 
 export default ProtectedRoute;
