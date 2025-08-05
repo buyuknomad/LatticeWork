@@ -1,56 +1,6 @@
 // src/types/mentalModels.ts
-export interface MentalModel {
-  id: string;
-  name: string;
-  slug: string;
-  category: string;
-  core_concept: string;
-  detailed_explanation: string;
-  expanded_examples: ExpandedExample[];
-  use_cases: string[];
-  common_pitfalls: string[];
-  reflection_questions: string[];
-  related_model_slugs: string[];
-  order_index: number;
-  batch_number: number;
-  created_at: string;
-  updated_at: string;
-}
 
-export interface ExpandedExample {
-  title: string;
-  content: string;
-}
-
-export interface MentalModelSummary {
-  name: string;
-  slug: string;
-  category: string;
-  core_concept: string;
-  order_index: number;
-}
-
-export interface RelatedModel {
-  name: string;
-  slug: string;
-  category: string;
-  core_concept: string;
-}
-
-export interface MentalModelFilters {
-  searchQuery: string;
-  selectedCategory: string | null;
-  page: number;
-}
-
-export interface PaginationState {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-}
-
-// Mental Model Categories - NEW 15-CATEGORY STRUCTURE
+// Mental Model Categories - 15 optimized categories
 export const MENTAL_MODEL_CATEGORIES = [
   'general-thinking',
   'creative-communication',
@@ -71,162 +21,190 @@ export const MENTAL_MODEL_CATEGORIES = [
 
 export type MentalModelCategory = typeof MENTAL_MODEL_CATEGORIES[number];
 
-// Category metadata for UI display
+// Category metadata interface
 export interface CategoryMetadata {
-  slug: MentalModelCategory;
-  displayName: string;
+  name: string;
   icon: string;
   color: string;
   description: string;
-  displayOrder: number;
+  slug: string;
 }
 
+// Category metadata with icons, colors, and descriptions
 export const CATEGORY_METADATA: Record<MentalModelCategory, CategoryMetadata> = {
   'general-thinking': {
-    slug: 'general-thinking',
-    displayName: 'General Thinking Concepts',
+    name: 'General Thinking Concepts',
     icon: '🧠',
     color: '#00FFFF',
-    description: 'Core reasoning and fundamental thinking tools',
-    displayOrder: 1
+    description: 'Core reasoning and fundamental thinking tools that apply across all domains',
+    slug: 'general-thinking'
   },
   'creative-communication': {
-    slug: 'creative-communication',
-    displayName: 'Creative & Communication',
+    name: 'Creative & Communication',
     icon: '🎨',
     color: '#FF6B6B',
-    description: 'Artistic, narrative, and communication models',
-    displayOrder: 2
+    description: 'Tools for creative thinking, effective communication, and expression',
+    slug: 'creative-communication'
   },
   'physics-chemistry': {
-    slug: 'physics-chemistry',
-    displayName: 'Physics & Chemistry',
+    name: 'Physics & Chemistry',
     icon: '⚛️',
     color: '#FFB84D',
-    description: 'Physical laws and chemical principles',
-    displayOrder: 3
+    description: 'Principles from physical sciences that explain how the world works',
+    slug: 'physics-chemistry'
   },
   'biology-evolution': {
-    slug: 'biology-evolution',
-    displayName: 'Biology & Evolution',
+    name: 'Biology & Evolution',
     icon: '🧬',
     color: '#10B981',
-    description: 'Biological systems and evolutionary concepts',
-    displayOrder: 4
+    description: 'Insights from life sciences about adaptation, growth, and survival',
+    slug: 'biology-evolution'
   },
   'systems-mathematics': {
-    slug: 'systems-mathematics',
-    displayName: 'Systems & Mathematics',
+    name: 'Systems & Mathematics',
     icon: '📊',
     color: '#8B5CF6',
-    description: 'Systems thinking and mathematical models',
-    displayOrder: 5
+    description: 'Mathematical concepts and systems thinking for understanding complexity',
+    slug: 'systems-mathematics'
   },
   'economics-markets': {
-    slug: 'economics-markets',
-    displayName: 'Economics & Markets',
+    name: 'Economics & Markets',
     icon: '💰',
     color: '#F59E0B',
-    description: 'Economic principles and market dynamics',
-    displayOrder: 6
+    description: 'Economic principles and market dynamics that drive human behavior',
+    slug: 'economics-markets'
   },
   'innovation-technology': {
-    slug: 'innovation-technology',
-    displayName: 'Innovation & Technology',
+    name: 'Innovation & Technology',
     icon: '💡',
     color: '#EC4899',
-    description: 'Innovation, product development, and technology adoption',
-    displayOrder: 7
+    description: 'Frameworks for innovation, technological change, and creative disruption',
+    slug: 'innovation-technology'
   },
   'decision-making': {
-    slug: 'decision-making',
-    displayName: 'Decision Making',
+    name: 'Decision Making',
     icon: '🎯',
     color: '#EF4444',
-    description: 'Decision frameworks and judgment tools',
-    displayOrder: 8
+    description: 'Tools and frameworks for making better choices and judgments',
+    slug: 'decision-making'
   },
   'statistics-analysis': {
-    slug: 'statistics-analysis',
-    displayName: 'Statistics & Analysis',
+    name: 'Statistics & Analysis',
     icon: '📈',
     color: '#3B82F6',
-    description: 'Statistical thinking and data analysis',
-    displayOrder: 9
+    description: 'Statistical thinking and analytical tools for interpreting data',
+    slug: 'statistics-analysis'
   },
   'problem-solving': {
-    slug: 'problem-solving',
-    displayName: 'Problem Solving',
+    name: 'Problem Solving',
     icon: '🧩',
     color: '#14B8A6',
-    description: 'Problem-solving approaches and techniques',
-    displayOrder: 10
+    description: 'Strategies and techniques for effectively solving complex problems',
+    slug: 'problem-solving'
   },
   'strategy-conflict': {
-    slug: 'strategy-conflict',
-    displayName: 'Strategy & Conflict',
+    name: 'Strategy & Conflict',
     icon: '⚔️',
     color: '#6366F1',
-    description: 'Strategic thinking, game theory, and conflict resolution',
-    displayOrder: 11
+    description: 'Strategic thinking and understanding competitive dynamics',
+    slug: 'strategy-conflict'
   },
   'psychology-behavior': {
-    slug: 'psychology-behavior',
-    displayName: 'Psychology & Behavior',
+    name: 'Psychology & Behavior',
     icon: '👥',
     color: '#10B981',
-    description: 'Human psychology and cognitive biases',
-    displayOrder: 12
+    description: 'Understanding human psychology and behavioral patterns',
+    slug: 'psychology-behavior'
   },
   'organizations-leadership': {
-    slug: 'organizations-leadership',
-    displayName: 'Organizations & Leadership',
+    name: 'Organizations & Leadership',
     icon: '🏢',
     color: '#6B7280',
-    description: 'Organizational dynamics and management',
-    displayOrder: 13
+    description: 'Principles for building and leading effective organizations',
+    slug: 'organizations-leadership'
   },
   'risk-uncertainty': {
-    slug: 'risk-uncertainty',
-    displayName: 'Risk & Uncertainty',
+    name: 'Risk & Uncertainty',
     icon: '⚠️',
     color: '#F59E0B',
-    description: 'Risk assessment and uncertainty management',
-    displayOrder: 14
+    description: 'Tools for navigating uncertainty and managing risk',
+    slug: 'risk-uncertainty'
   },
   'time-change': {
-    slug: 'time-change',
-    displayName: 'Time & Change',
+    name: 'Time & Change',
     icon: '⏰',
     color: '#9333EA',
-    description: 'Temporal dynamics and change management',
-    displayOrder: 15
+    description: 'Understanding temporal dynamics and managing change',
+    slug: 'time-change'
   }
 };
 
-// Helper function to get category display name
-export const getCategoryDisplayName = (slug: string): string => {
-  if (slug in CATEGORY_METADATA) {
-    return CATEGORY_METADATA[slug as MentalModelCategory].displayName;
-  }
-  // Fallback for any unmapped categories during migration
-  return slug.split('-').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
+// Mental Model interfaces
+export interface MentalModelSummary {
+  name: string;
+  slug: string;
+  category: MentalModelCategory;
+  core_concept: string;
+  order_index: number;
+}
+
+export interface MentalModel extends MentalModelSummary {
+  detailed_explanation: string;
+  expanded_examples: {
+    title: string;
+    content: string;
+  }[];
+  use_cases: string[];
+  common_pitfalls: string[];
+  reflection_questions: string[];
+  related_model_slugs: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RelatedModel {
+  name: string;
+  slug: string;
+  category: MentalModelCategory;
+  core_concept: string;
+}
+
+export interface MentalModelFilters {
+  searchQuery: string;
+  selectedCategory: string | null;
+  page: number;
+}
+
+// Utility functions for categories
+export const getCategoryMetadata = (category: MentalModelCategory): CategoryMetadata => {
+  return CATEGORY_METADATA[category];
 };
 
-// Helper function to get category color
-export const getCategoryColor = (slug: string): string => {
-  if (slug in CATEGORY_METADATA) {
-    return CATEGORY_METADATA[slug as MentalModelCategory].color;
-  }
-  return '#6B7280'; // Default gray color
+export const isValidCategory = (category: string): category is MentalModelCategory => {
+  return MENTAL_MODEL_CATEGORIES.includes(category as MentalModelCategory);
 };
 
-// Helper function to get category icon
-export const getCategoryIcon = (slug: string): string => {
-  if (slug in CATEGORY_METADATA) {
-    return CATEGORY_METADATA[slug as MentalModelCategory].icon;
-  }
-  return '📚'; // Default book icon
+// Get category color with opacity
+export const getCategoryColor = (category: MentalModelCategory, opacity: number = 1): string => {
+  const color = CATEGORY_METADATA[category].color;
+  if (opacity === 1) return color;
+  
+  // Convert hex to rgba
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
+// Category display helpers
+export const getCategoryClasses = (category: MentalModelCategory) => {
+  const base = "transition-all duration-200";
+  return {
+    badge: `${base} bg-opacity-20 border`,
+    card: `${base} hover:border-opacity-50`,
+    filter: `${base} hover:bg-opacity-30`,
+    icon: "text-lg"
+  };
 };
