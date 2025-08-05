@@ -21,7 +21,7 @@ import ConfirmEmail from './pages/ConfirmEmail';
 import ScrollToTop from './components/ScrollToTop';
 import MentalModels from './pages/MentalModels/index';
 import MentalModelDetail from './pages/MentalModels/MentalModelDetail';
-import MentalModelsGuidePage from './pages/MentalModelsGuidePage'; // New import
+import MentalModelsGuidePage from './pages/MentalModelsGuidePage';
 import CognitiveBiases from './pages/CognitiveBiases';
 
 // Import new pages
@@ -38,6 +38,7 @@ import ExampleDetail from './pages/ExampleDetail';
 
 // Import Archive pages
 import ArchivePage from './pages/ArchivePage';
+import ArchiveQuestionPage from './pages/ArchiveQuestionPage'; // This was missing!
 
 function AppContent() {
   const location = useLocation();
@@ -73,10 +74,14 @@ function AppContent() {
           <Route path="/refunds" element={<Refunds />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
-          <Route path="/archive" element={<ArchivePage />} />
           
-          {/* Protected Routes */}
+          {/* Protected Routes - ALL RESTORED */}
           <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/results" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
@@ -94,6 +99,18 @@ function AppContent() {
           <Route path="/checkout-success" element={
             <ProtectedRoute>
               <CheckoutSuccess />
+            </ProtectedRoute>
+          } />
+          
+          {/* Archive routes - Premium feature (RESTORED AS PROTECTED) */}
+          <Route path="/archive" element={
+            <ProtectedRoute>
+              <ArchivePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/archive/:id" element={
+            <ProtectedRoute>
+              <ArchiveQuestionPage />
             </ProtectedRoute>
           } />
         </Routes>
