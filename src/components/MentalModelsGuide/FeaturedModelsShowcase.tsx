@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import CategoryBadge from '../CategoryBadge';
-import { MentalModelCategory } from '../../types/mentalModels';
+import { MentalModelCategory, getCategoryMetadata } from '../../types/mentalModels';
 
 interface FeaturedModel {
   name: string;
@@ -89,10 +89,7 @@ const FeaturedModelsShowcase: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <Link
-                to={`/mental-models/${model.slug}`}
-                className="block bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 h-full group"
-              >
+              <div className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 h-full group">
                 <div className="mb-4">
                   <CategoryBadge category={model.category} size="sm" />
                 </div>
@@ -111,11 +108,14 @@ const FeaturedModelsShowcase: React.FC = () => {
                   </p>
                 </div>
                 
-                <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
-                  Learn More
+                <Link
+                  to={`/mental-models?category=${model.category}`}
+                  className="inline-flex items-center text-[#00FFFF] text-sm font-medium hover:text-white transition-colors"
+                >
+                  Explore {getCategoryMetadata(model.category).name}
                   <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+                </Link>
+              </div>
             </motion.div>
           ))}
         </div>
