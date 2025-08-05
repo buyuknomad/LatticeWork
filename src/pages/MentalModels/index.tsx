@@ -2,14 +2,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Book, Brain, Lightbulb, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   MentalModelSummary, 
   MentalModelFilters, 
   MENTAL_MODEL_CATEGORIES,
   CATEGORY_METADATA,
   getCategoryMetadata,
-  getCategoryColor
+  getCategoryColor,
+  isValidCategory
 } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 import CategoryBadge from '../../components/CategoryBadge';
@@ -18,6 +19,7 @@ import { formatCategoryName, debounce } from '../../lib/mentalModelsUtils';
 
 const MentalModels: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [models, setModels] = useState<MentalModelSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,64 @@ const MentalModels: React.FC = () => {
     selectedCategory: null,
     page: 1
   });
+
+  // Initialize filters from URL parameters on mount
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    const searchParam = searchParams.get('search');
+    const pageParam = searchParams.get('page');
+    
+    let hasChanges = false;
+    let newFilters = { ...filters };
+    
+    if (categoryParam && isValidCategory(categoryParam)) {
+      newFilters.selectedCategory = categoryParam;
+      hasChanges = true;
+    }
+    
+    if (searchParam) {
+      newFilters.searchQuery = searchParam;
+      setSearchInput(searchParam); // Also update the input field
+      hasChanges = true;
+    }
+    
+    if (pageParam) {
+      const pageNum = parseInt(pageParam, 10);
+      if (!isNaN(pageNum) && pageNum > 0) {
+        newFilters.page = pageNum;
+        hasChanges = true;
+      }
+    }
+    
+    if (hasChanges) {
+      setFilters(newFilters);
+    }
+  }, []); // Only run on mount
+
+  // Update URL when filters change (but not on initial mount)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filters.selectedCategory) {
+      params.set('category', filters.selectedCategory);
+    }
+    
+    if (filters.searchQuery) {
+      params.set('search', filters.searchQuery);
+    }
+    
+    if (filters.page > 1) {
+      params.set('page', filters.page.toString());
+    }
+    
+    const newSearch = params.toString();
+    const currentSearch = searchParams.toString();
+    
+    // Only update URL if it actually changed
+    if (newSearch !== currentSearch) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [filters, searchParams, setSearchParams]);
 
   // Debounced search function
   const debouncedSearch = useCallback(
