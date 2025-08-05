@@ -21,32 +21,9 @@ import {
 } from '../components/Dashboard/types';
 
 const Dashboard: React.FC = () => {
-  console.log('1. Dashboard component starting to render');
-  
-  // Try auth hook
-  let user, session;
-  try {
-    const authData = useAuth();
-    user = authData.user;
-    session = authData.session;
-    console.log('2. Auth hook successful:', { user: user?.email, hasSession: !!session });
-  } catch (error) {
-    console.error('2. ERROR: Auth hook failed:', error);
-    return <div>Auth Error</div>;
-  }
-
-  // Try navigation hooks
-  let location, navigate;
-  try {
-    location = useLocation();
-    navigate = useNavigate();
-    console.log('3. Navigation hooks successful');
-  } catch (error) {
-    console.error('3. ERROR: Navigation hooks failed:', error);
-    return <div>Navigation Error</div>;
-  }
-
-  console.log('4. Starting to declare state variables');
+  const { user, session } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // State management
   const [userTier, setUserTier] = useState<UserTier>('free');
@@ -57,11 +34,8 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  console.log('5. Basic state variables declared successfully');
-
   // Set page title
   useEffect(() => {
-    console.log('6. Setting page title');
     document.title = 'Dashboard | Mind Lattice';
   }, []);
   
@@ -83,13 +57,9 @@ const Dashboard: React.FC = () => {
     resetTime: null
   });
 
-  console.log('7. All state variables declared successfully');
-
   // Check if we're on the results page
   const isResultsPage = location.pathname === '/dashboard/results';
   const shouldFocusAnalysis = new URLSearchParams(location.search).get('action') === 'analyze';
-
-  console.log('8. Page state calculated:', { isResultsPage, shouldFocusAnalysis });
 
   // Example queries for animation
   const EXAMPLE_QUERIES = [
@@ -102,31 +72,26 @@ const Dashboard: React.FC = () => {
   ];
 
   useEffect(() => {
-    console.log('9. User tier effect running');
     if (user?.user_metadata?.tier) {
       setUserTier(user.user_metadata.tier as UserTier);
-      console.log('9a. User tier set to:', user.user_metadata.tier);
     }
   }, [user]);
+
+  // Removed pre-filled question logic - query bar should remain empty
 
   // Fetch trending questions
   useEffect(() => {
-    console.log('10. Trending questions effect running');
-    if (user) {
-      fetchTrendingQuestions();
-    }
-  }, [user]);
+    fetchTrendingQuestions();
+  }, []);
 
   // Calculate query limits for free users
   useEffect(() => {
-    console.log('11. Query limits effect running');
     if (userTier === 'free' && user?.id) {
       calculateQueryLimits();
     }
   }, [userTier, user?.id, error]);
 
   const calculateQueryLimits = async () => {
-    console.log('12. calculateQueryLimits called');
     if (!user?.id) return;
 
     try {
@@ -149,11 +114,9 @@ const Dashboard: React.FC = () => {
         .gte('created_at', twentyFourHoursAgo.toISOString());
 
       if (trendingError || manualError) {
-        console.error('12a. Error calculating query limits:', trendingError || manualError);
+        console.error('Error calculating query limits:', trendingError || manualError);
         return;
       }
-      
-      console.log('12b. Query limits calculated:', { trendingCount, manualCount });
       
       // Get reset time from first query
       let resetTime = null;
@@ -165,13 +128,15 @@ const Dashboard: React.FC = () => {
           .gte('created_at', twentyFourHoursAgo.toISOString())
           .order('created_at', { ascending: true })
           .limit(1)
-          .maybeSingle();
+          .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
         
-        if (!firstQueryError && firstQuery) {
+        if (firstQueryError) {
+          console.warn('Error fetching first query:', firstQueryError);
+        } else if (firstQuery) {
           resetTime = new Date(new Date(firstQuery.created_at).getTime() + 24 * 60 * 60 * 1000);
         }
       } catch (error) {
-        console.warn('12c. Error calculating reset time:', error);
+        console.warn('Error calculating reset time:', error);
       }
       
       setQueryLimits({
@@ -182,58 +147,19 @@ const Dashboard: React.FC = () => {
         resetTime
       });
     } catch (error) {
-      console.error('12d. Error in calculateQueryLimits:', error);
-    }
-  };
-
-  const fetchTrendingQuestions = async () => {
-    console.log('13. fetchTrendingQuestions called');
-    try {
-      const { data, error } = await supabase
-        .from('trending_questions')
-        .select('id, question, category, topic_source, click_count, metadata, created_at')
-        .eq('active', true)
-        .order('created_at', { ascending: false })
-        .limit(12);
-      
-      if (error) {
-        console.error('13a. Error fetching trending questions:', error);
-        throw error;
-      }
-      
-      console.log('13b. Trending questions fetched:', data?.length || 0);
-      
-      // Sort to prioritize hot topics
-      const sortedQuestions = (data || []).sort((a, b) => {
-        const isHotA = a.topic_source === 'hot_topic';
-        const isHotB = b.topic_source === 'hot_topic';
-        
-        if (isHotA && !isHotB) return -1;
-        if (!isHotA && isHotB) return 1;
-        
-        return b.click_count - a.click_count;
-      });
-      
-      setTrendingQuestions(sortedQuestions);
-    } catch (error) {
-      console.error('13c. Error in fetchTrendingQuestions:', error);
-    } finally {
-      setLoadingTrending(false);
+      console.error('Error calculating query limits:', error);
     }
   };
 
   // Handle navigation state for results
   useEffect(() => {
-    console.log('14. Navigation state effect running');
     // If we're on results page but have no results, redirect to dashboard
     if (isResultsPage && !results && !location.state?.results) {
-      console.log('14a. Redirecting to dashboard - no results');
       navigate('/dashboard');
     }
     
     // If we have results in location state (from navigation), use them
     if (location.state?.results && location.state?.query) {
-      console.log('14b. Setting results from location state');
       setResults(location.state.results);
       setQuery(location.state.query);
     }
@@ -242,7 +168,6 @@ const Dashboard: React.FC = () => {
     if (!isResultsPage && !location.search.includes('q=')) {
       // Only clear if we had results (meaning we're coming back from results page)
       if (results) {
-        console.log('14c. Clearing query and results');
         setQuery('');
         setQuerySource('manual');
         setResults(null);
@@ -254,12 +179,10 @@ const Dashboard: React.FC = () => {
 
   // Handle upgrade success redirect
   useEffect(() => {
-    console.log('15. Upgrade success effect running');
     const urlParams = new URLSearchParams(location.search);
     const upgradeStatus = urlParams.get('upgrade');
     
     if (upgradeStatus === 'success') {
-      console.log('15a. Showing upgrade success message');
       // Show success message
       setSuccessMessage('🎉 Welcome to Premium! Your subscription is now active.');
       
@@ -279,7 +202,6 @@ const Dashboard: React.FC = () => {
 
   // Function to refresh user tier
   const refreshUserTier = async () => {
-    console.log('16. refreshUserTier called');
     if (!user?.id) return;
     
     try {
@@ -290,7 +212,6 @@ const Dashboard: React.FC = () => {
         .maybeSingle();
       
       if (subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing') {
-        console.log('16a. User is premium');
         setUserTier('premium');
         
         // Update user metadata
@@ -299,13 +220,97 @@ const Dashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('16b. Error checking subscription:', error);
+      console.error('Error checking subscription:', error);
     }
   };
 
+  const fetchTrendingQuestions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('trending_questions')
+        .select('id, question, category, topic_source, click_count, metadata, created_at')
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      
+      if (error) throw error;
+      
+      // Sort to prioritize hot topics
+      const sortedQuestions = (data || []).sort((a, b) => {
+        // Hot topics first
+        const aIsHot = a.metadata?.isHot || false;
+        const bIsHot = b.metadata?.isHot || false;
+        if (aIsHot && !bIsHot) return -1;
+        if (!aIsHot && bIsHot) return 1;
+        
+        // Then by engagement
+        const aEngagement = a.metadata?.engagement || 0;
+        const bEngagement = b.metadata?.engagement || 0;
+        if (aEngagement !== bEngagement) return bEngagement - aEngagement;
+        
+        // Finally by recency
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setTrendingQuestions(sortedQuestions);
+      
+      // Log metadata stats for debugging
+      const hotCount = sortedQuestions.filter(q => q.metadata?.isHot).length;
+      const withEngagement = sortedQuestions.filter(q => q.metadata?.engagement > 0).length;
+      console.log(`Trending questions loaded: ${sortedQuestions.length} total, ${hotCount} hot, ${withEngagement} with engagement`);
+      
+    } catch (error) {
+      console.error('Error fetching trending questions:', error);
+    } finally {
+      setLoadingTrending(false);
+    }
+  };
+
+  const handleTrendingClick = async (question: TrendingQuestion) => {
+    // Update click count in background (no await to prevent delays)
+    supabase
+      .from('trending_questions')
+      .update({ 
+        click_count: (question.click_count || 0) + 1,
+        // Optionally update metadata to mark as "viewed"
+        metadata: {
+          ...question.metadata,
+          lastClickedAt: new Date().toISOString()
+        }
+      })
+      .eq('id', question.id)
+      .then(() => console.log('Click tracked'))
+      .catch(err => console.error('Error tracking click:', err));
+    
+    // Set the query and mark source as trending
+    setQuery(question.question);
+    setQuerySource('trending');
+    setError(null);
+    setIsTypingAnimation(false);
+    
+    // Submit immediately
+    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
+  };
+
+  // Check for query parameter on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const queryParam = urlParams.get('q');
+    
+    if (queryParam && !results && !isLoading && !isResultsPage) {
+      const decodedQuery = decodeURIComponent(queryParam);
+      setQuery(decodedQuery);
+      setQuerySource('manual');
+      setIsTypingAnimation(false);
+      
+      setTimeout(() => {
+        handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
+      }, 500);
+    }
+  }, [location.search]);
+
   // Animated placeholder effect
   useEffect(() => {
-    console.log('17. Animated placeholder effect running');
     if (!isTypingAnimation) return;
 
     let timeoutId: number;
@@ -321,146 +326,146 @@ const Dashboard: React.FC = () => {
         setAnimatedPlaceholder(currentExample.slice(0, charIndex));
         charIndex++;
         timeoutId = window.setTimeout(typeCharacter, 50);
-      } else if (!isDeleting && charIndex > currentExample.length) {
-        // Pause at the end
+      } else if (isDeleting && charIndex >= 0) {
+        setAnimatedPlaceholder(currentExample.slice(0, charIndex));
+        charIndex--;
+        timeoutId = window.setTimeout(typeCharacter, 30);
+      } else if (!isDeleting) {
         timeoutId = window.setTimeout(() => {
           isDeleting = true;
           typeCharacter();
         }, 2000);
-      } else if (isDeleting && charIndex > 0) {
-        setAnimatedPlaceholder(currentExample.slice(0, charIndex - 1));
-        charIndex--;
-        timeoutId = window.setTimeout(typeCharacter, 30);
-      } else if (isDeleting && charIndex === 0) {
-        // Move to next example
-        setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
-        isDeleting = false;
-        timeoutId = window.setTimeout(typeCharacter, 500);
+      } else {
+        timeoutId = window.setTimeout(() => {
+          setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
+        }, 300);
       }
     };
 
-    typeCharacter();
+    timeoutId = window.setTimeout(typeCharacter, 100);
 
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
+    return () => clearTimeout(timeoutId);
   }, [currentExampleIndex, isTypingAnimation]);
 
   const handleInputFocus = () => {
-    console.log('18. handleInputFocus called');
     setIsTypingAnimation(false);
     setAnimatedPlaceholder('');
   };
 
-  const handleInputChange = (newQuery: string) => {
-    console.log('19. handleInputChange called');
-    setQuery(newQuery);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setQuery(newValue);
     setError(null);
+    
+    // If user is typing/modifying, reset to manual
+    if (newValue !== query && querySource === 'trending') {
+      setQuerySource('manual');
+    }
   };
 
   const handleQuerySubmit = async (e: React.FormEvent) => {
-    console.log('20. handleQuerySubmit called');
     e.preventDefault();
-    
-    if (!query.trim()) return;
-    
+    if (!query.trim() || isLoading) return;
+
+    // Use the stored source
+    const queryType = querySource;
+
     setIsLoading(true);
+    setResults(null);
     setError(null);
-    
+
+    if (!session?.access_token) {
+      setError("Authentication error. Please log in again.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Call the edge function with the query and source
-      const { data, error: fetchError } = await supabase.functions.invoke('get-lattice-insights', {
+      const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights-narrative`;
+      
+      console.log(`SUBMIT_DEBUG: Submitting ${queryType} query to edge function`);
+      
+      const response = await fetch(edgeFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ 
-          query: query.trim(),
-          source: querySource
-        })
+          query: query,
+          queryType: queryType
+        }),
       });
-      
-      if (fetchError) throw fetchError;
-      
-      // Check if we got a quality-based response (v1.4+)
-      const isV14 = isV14Response(data);
-      
-      if (isV14 && data.error && data.status === 429) {
-        // Handle rate limit from v1.4
-        setError(data.error);
+
+      setIsLoading(false);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ 
+          error: "An unexpected error occurred.", 
+          details: response.statusText 
+        }));
         
-        // Refresh limits if we hit them
+        // Check if it's a rate limit error and format consistently
+        if (response.status === 429 || errorData.error?.includes('limit reached')) {
+          // Format error message based on query type
+          if (errorData.error?.includes('trending')) {
+            setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
+          } else if (errorData.error?.includes('manual')) {
+            setError('Daily manual analysis limit reached (1 per day). Upgrade to Premium for unlimited queries.');
+          } else {
+            setError(errorData.error || 'Query limit reached. Upgrade to Premium for unlimited queries.');
+          }
+        } else {
+          setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
+        }
+        
+        // Recalculate limits after an error (might be rate limit)
         if (userTier === 'free') {
-          await calculateQueryLimits();
+          setTimeout(() => calculateQueryLimits(), 100);
         }
         return;
       }
-      
-      if (!data || !data.recommendedTools) {
-        throw new Error('Invalid response format');
-      }
-      
-      setResults(data);
-      
-      // Navigate to results page
-      navigate('/dashboard/results', { 
-        state: { 
-          results: data, 
-          query: query.trim() 
-        } 
+
+      const data: LatticeInsightResponse = await response.json();
+
+      // Updated debug log for v14.7
+      console.log('RESPONSE_DEBUG: Received from edge function:', {
+        toolCount: data.recommendedTools?.length,
+        tools: data.recommendedTools?.map(t => t.name),
+        hasNarrative: !!data.narrativeAnalysis,
+        hasKeyLessons: !!data.keyLessons,
+        isV14: isV14Response(data),
+        metadata: data.metadata
       });
-      
-    } catch (error: any) {
-      console.error('20a. Error getting insights:', error);
-      setError(error.message || 'Failed to analyze your query. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const handleTrendingClick = (question: TrendingQuestion) => {
-    console.log('21. handleTrendingClick called');
-    // Track click
-    supabase
-      .from('trending_questions')
-      .update({ 
-        click_count: question.click_count + 1,
-        metadata: {
-          ...question.metadata,
-          lastClickedAt: new Date().toISOString()
+      if (data.error) {
+        setError(data.error);
+      } else {
+        console.log('RESPONSE_DEBUG: Received analysis with', data.recommendedTools?.length, 'tools');
+        setResults(data);
+        setQuerySource('manual'); // Reset after successful submission
+        
+        // Navigate to results page with the data
+        navigate('/dashboard/results', { 
+          state: { 
+            results: data, 
+            query: query 
+          } 
+        });
+        
+        // Recalculate limits after successful query
+        if (userTier === 'free') {
+          setTimeout(() => calculateQueryLimits(), 100);
         }
-      })
-      .eq('id', question.id)
-      .then(() => console.log('21a. Click tracked'))
-      .catch(err => console.error('21b. Error tracking click:', err));
-    
-    // Set the query and mark source as trending
-    setQuery(question.question);
-    setQuerySource('trending');
-    setError(null);
-    setIsTypingAnimation(false);
-    
-    // Submit immediately
-    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
-  };
+      }
 
-  // Check for query parameter on mount
-  useEffect(() => {
-    console.log('22. Query parameter effect running');
-    const urlParams = new URLSearchParams(location.search);
-    const queryParam = urlParams.get('q');
-    
-    if (queryParam && !results && !isLoading && !isResultsPage) {
-      console.log('22a. Setting query from URL parameter');
-      const decodedQuery = decodeURIComponent(queryParam);
-      setQuery(decodedQuery);
-      setQuerySource('manual');
-      setIsTypingAnimation(false);
-      
-      setTimeout(() => {
-        handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
-      }, 500);
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message || "Failed to fetch insights. Please try again.");
     }
-  }, [location.search]);
+  };
 
   const resetQuery = () => {
-    console.log('23. resetQuery called');
     setQuery('');
     setQuerySource('manual');
     setResults(null);
@@ -472,108 +477,71 @@ const Dashboard: React.FC = () => {
     navigate('/dashboard');
   };
 
-  console.log('24. About to render JSX');
-  console.log('24a. Current state:', {
-    user: !!user,
-    isResultsPage,
-    isLoading,
-    results: !!results,
-    error,
-    trendingQuestions: trendingQuestions.length,
-    loadingTrending
-  });
+  return (
+    <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
+      <BackgroundAnimation />
+      
+      <div className="relative z-10 min-h-screen">
+        <EmailVerificationBanner />
+        <DashboardHeader
+          user={user}
+          displayTier={userTier}
+        />
 
-  // Try to render the component
-  try {
-    return (
-      <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-        {console.log('25. Rendering BackgroundAnimation')}
-        <BackgroundAnimation />
-        
-        <div className="relative z-10 min-h-screen">
-          {console.log('26. Rendering EmailVerificationBanner')}
-          <EmailVerificationBanner />
-          {console.log('27. Rendering DashboardHeader')}
-          <DashboardHeader
-            user={user}
-            displayTier={userTier}
-          />
-
-          {/* Success Message */}
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="max-w-6xl mx-auto px-4 mb-6"
-            >
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                <p className="text-green-400 text-center font-medium">{successMessage}</p>
-              </div>
-            </motion.div>
-          )}
-
-          <div className="px-4 pb-20">
-            <div className="max-w-6xl mx-auto">
-              <AnimatePresence mode="wait">
-                {!isResultsPage && !isLoading && (
-                  <>
-                    {console.log('28. Rendering QuerySection')}
-                    <QuerySection
-                      query={query}
-                      setQuery={setQuery}
-                      error={error}
-                      isLoading={isLoading}
-                      isTypingAnimation={isTypingAnimation}
-                      animatedPlaceholder={animatedPlaceholder}
-                      trendingQuestions={trendingQuestions}
-                      loadingTrending={loadingTrending}
-                      displayTier={userTier}
-                      onSubmit={handleQuerySubmit}
-                      onInputFocus={handleInputFocus}
-                      onInputChange={handleInputChange}
-                      onTrendingClick={handleTrendingClick}
-                      shouldFocusAnalysis={shouldFocusAnalysis}
-                      userId={user?.id}
-                      limits={queryLimits}
-                    />
-                  </>
-                )}
-
-                {isLoading && (
-                  <>
-                    {console.log('29. Rendering LoadingState')}
-                    <LoadingState />
-                  </>
-                )}
-
-                {isResultsPage && results && !isLoading && results.recommendedTools && (
-                  <>
-                    {console.log('30. Rendering ResultsSection')}
-                    <ResultsSection
-                      results={results}
-                      query={query}
-                      displayTier={userTier}
-                      onResetQuery={resetQuery}
-                    />
-                  </>
-                )}
-              </AnimatePresence>
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-6xl mx-auto px-4 mb-6"
+          >
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 text-center font-medium">{successMessage}</p>
             </div>
+          </motion.div>
+        )}
+
+        <div className="px-4 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <AnimatePresence mode="wait">
+              {!isResultsPage && !isLoading && (
+                <QuerySection
+                  query={query}
+                  setQuery={setQuery}
+                  error={error}
+                  isLoading={isLoading}
+                  isTypingAnimation={isTypingAnimation}
+                  animatedPlaceholder={animatedPlaceholder}
+                  trendingQuestions={trendingQuestions}
+                  loadingTrending={loadingTrending}
+                  displayTier={userTier}
+                  onSubmit={handleQuerySubmit}
+                  onInputFocus={handleInputFocus}
+                  onInputChange={handleInputChange}
+                  onTrendingClick={handleTrendingClick}
+                  shouldFocusAnalysis={shouldFocusAnalysis}
+                  userId={user?.id}
+                  limits={queryLimits}
+                />
+              )}
+
+              {isLoading && <LoadingState />}
+
+              {isResultsPage && results && !isLoading && results.recommendedTools && (
+                <ResultsSection
+                  results={results}
+                  query={query}
+                  displayTier={userTier}
+                  onResetQuery={resetQuery}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
-    );
-  } catch (renderError) {
-    console.error('31. ERROR: Failed to render Dashboard JSX:', renderError);
-    return (
-      <div className="min-h-screen bg-[#1A1A1A] text-white p-8">
-        <h1 className="text-3xl font-bold mb-4 text-red-500">Dashboard Render Error</h1>
-        <p>Error: {String(renderError)}</p>
-        <p className="mt-4">Check console for details</p>
-      </div>
-    );
-  }
+    </div>
+  );
 };
 
-export default Dashboard;
+export default Dashboard; 
