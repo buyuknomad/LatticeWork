@@ -103,4 +103,4 @@ const CategoryOverview: React.FC = () => {
   );
 };
 
-export default CategoryOverview;
+export default CategoryOverview; 
