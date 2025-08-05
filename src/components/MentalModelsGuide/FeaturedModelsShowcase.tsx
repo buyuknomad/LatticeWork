@@ -146,4 +146,4 @@ const FeaturedModelsShowcase: React.FC = () => {
   );
 };
 
-export default FeaturedModelsShowcase;
+export default FeaturedModelsShowcase; 
