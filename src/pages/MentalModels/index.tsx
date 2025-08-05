@@ -3,7 +3,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Book, Brain, Lightbulb, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { MentalModelSummary, MentalModelFilters, MENTAL_MODEL_CATEGORIES } from '../../types/mentalModels';
+import { 
+  MentalModelSummary, 
+  MentalModelFilters, 
+  MENTAL_MODEL_CATEGORIES,
+  CATEGORY_METADATA,
+  getCategoryMetadata,
+  getCategoryColor
+} from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
 import { formatCategoryName, debounce } from '../../lib/mentalModelsUtils';
@@ -163,7 +170,7 @@ const MentalModels: React.FC = () => {
                 </div>
                 <div className="flex items-center">
                   <Filter className="w-5 h-5 mr-2 text-[#8B5CF6]" />
-                  <span>16 Categories</span>
+                  <span>15 Categories</span>
                 </div>
               </div>
             </motion.div>
@@ -202,11 +209,14 @@ const MentalModels: React.FC = () => {
                   className="w-full px-4 py-3 bg-[#252525] border border-[#333333] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:border-transparent transition-colors"
                 >
                   <option value="">All Categories</option>
-                  {MENTAL_MODEL_CATEGORIES.map(category => (
-                    <option key={category} value={category}>
-                      {formatCategoryName(category)}
-                    </option>
-                  ))}
+                  {MENTAL_MODEL_CATEGORIES.map(category => {
+                    const metadata = CATEGORY_METADATA[category];
+                    return (
+                      <option key={category} value={category}>
+                        {metadata.icon} {metadata.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -229,8 +239,15 @@ const MentalModels: React.FC = () => {
                   </span>
                 )}
                 {filters.selectedCategory && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                    Category: {formatCategoryName(filters.selectedCategory)}
+                  <span 
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm border"
+                    style={{
+                      backgroundColor: getCategoryColor(filters.selectedCategory, 0.2),
+                      color: getCategoryMetadata(filters.selectedCategory).color,
+                      borderColor: getCategoryColor(filters.selectedCategory, 0.3)
+                    }}
+                  >
+                    {getCategoryMetadata(filters.selectedCategory).icon} {getCategoryMetadata(filters.selectedCategory).name}
                     <button 
                       onClick={() => handleCategoryChange(null)}
                       className="ml-2 hover:text-white transition-colors"
@@ -309,42 +326,53 @@ const MentalModels: React.FC = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
                 >
-                  {filteredModels.map((model, index) => (
-                  <motion.div
-                    key={model.slug}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 cursor-pointer group"
-                    onClick={() => handleModelClick(model.slug)}
-                  >
-                    {/* Category Badge */}
-                    <div className="mb-4">
-                      <span className="inline-block px-3 py-1 text-xs rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                        {formatCategoryName(model.category)}
-                      </span>
-                    </div>
+                  {filteredModels.map((model, index) => {
+                    const categoryMetadata = getCategoryMetadata(model.category);
+                    return (
+                      <motion.div
+                        key={model.slug}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 cursor-pointer group"
+                        onClick={() => handleModelClick(model.slug)}
+                      >
+                        {/* Category Badge */}
+                        <div className="mb-4">
+                          <span 
+                            className="inline-flex items-center px-3 py-1 text-xs rounded-full border"
+                            style={{
+                              backgroundColor: getCategoryColor(model.category, 0.2),
+                              color: categoryMetadata.color,
+                              borderColor: getCategoryColor(model.category, 0.3)
+                            }}
+                          >
+                            <span className="mr-1">{categoryMetadata.icon}</span>
+                            {categoryMetadata.name}
+                          </span>
+                        </div>
 
-                    {/* Model Name */}
-                    <h3 className="text-xl font-semibold mb-3 group-hover:text-[#00FFFF] transition-colors">
-                      {model.name}
-                    </h3>
+                        {/* Model Name */}
+                        <h3 className="text-xl font-semibold mb-3 group-hover:text-[#00FFFF] transition-colors">
+                          {model.name}
+                        </h3>
 
-                    {/* Core Concept */}
-                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                      {model.core_concept}
-                    </p>
+                        {/* Core Concept */}
+                        <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                          {model.core_concept}
+                        </p>
 
-                    {/* Read More */}
-                    <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
-                      Read More
-                      <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                        {/* Read More */}
+                        <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
+                          Read More
+                          <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
               )}
 
               {/* Pagination */}
