@@ -100,4 +100,4 @@ const GetStartedCTA: React.FC = () => {
   );
 };
 
-export default GetStartedCTA;
+export default GetStartedCTA; 
