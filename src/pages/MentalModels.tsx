@@ -1,3 +1,4 @@
+//src/pages/MentalModels.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, ChevronLeft, Construction } from 'lucide-react';
