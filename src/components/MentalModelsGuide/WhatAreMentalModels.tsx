@@ -160,4 +160,4 @@ const WhatAreMentalModels: React.FC = () => {
   );
 };
 
-export default WhatAreMentalModels; 
+export default WhatAreMentalModels;  
