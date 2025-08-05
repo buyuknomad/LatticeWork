@@ -12,6 +12,7 @@ import {
   getCategoryColor
 } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
+import CategoryBadge from '../../components/CategoryBadge';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
 import { formatCategoryName, debounce } from '../../lib/mentalModelsUtils';
 
@@ -239,22 +240,18 @@ const MentalModels: React.FC = () => {
                   </span>
                 )}
                 {filters.selectedCategory && (
-                  <span 
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm border"
-                    style={{
-                      backgroundColor: getCategoryColor(filters.selectedCategory, 0.2),
-                      color: getCategoryMetadata(filters.selectedCategory).color,
-                      borderColor: getCategoryColor(filters.selectedCategory, 0.3)
-                    }}
-                  >
-                    {getCategoryMetadata(filters.selectedCategory).icon} {getCategoryMetadata(filters.selectedCategory).name}
+                  <div className="inline-flex items-center">
+                    <CategoryBadge 
+                      category={filters.selectedCategory} 
+                      size="sm"
+                    />
                     <button 
                       onClick={() => handleCategoryChange(null)}
-                      className="ml-2 hover:text-white transition-colors"
+                      className="ml-2 text-gray-400 hover:text-white transition-colors"
                     >
                       ×
                     </button>
-                  </span>
+                  </div>
                 )}
               </div>
             )}
@@ -327,7 +324,6 @@ const MentalModels: React.FC = () => {
                   transition={{ duration: 0.4 }}
                 >
                   {filteredModels.map((model, index) => {
-                    const categoryMetadata = getCategoryMetadata(model.category);
                     return (
                       <motion.div
                         key={model.slug}
@@ -339,17 +335,10 @@ const MentalModels: React.FC = () => {
                       >
                         {/* Category Badge */}
                         <div className="mb-4">
-                          <span 
-                            className="inline-flex items-center px-3 py-1 text-xs rounded-full border"
-                            style={{
-                              backgroundColor: getCategoryColor(model.category, 0.2),
-                              color: categoryMetadata.color,
-                              borderColor: getCategoryColor(model.category, 0.3)
-                            }}
-                          >
-                            <span className="mr-1">{categoryMetadata.icon}</span>
-                            {categoryMetadata.name}
-                          </span>
+                          <CategoryBadge 
+                            category={model.category} 
+                            size="sm"
+                          />
                         </div>
 
                         {/* Model Name */}
