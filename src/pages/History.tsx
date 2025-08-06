@@ -16,7 +16,6 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import BackgroundAnimation from '../components/BackgroundAnimation';
 import ResultsSection from '../components/Dashboard/ResultsSection';
 import { LatticeInsightResponse, UserTier } from '../components/Dashboard/types';
 
@@ -184,12 +183,12 @@ const History: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-      {/* Background Animation Layer */}
-      <BackgroundAnimation />
+    <div className="relative">
+      {/* Removed BackgroundAnimation - now handled in App.tsx */}
+      {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
       
       {/* Main Content */}
-      <div className="relative z-10 pt-20">
+      <div className="relative z-10 pt-20 min-h-screen">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between p-4 border-b border-[#333333]">
           <h1 className="text-lg font-bold">Query History</h1>
