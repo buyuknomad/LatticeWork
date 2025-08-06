@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { Link } from 'react-router-dom';
 import { RecommendedTool } from './types';
 
 interface ToolCardProps {
@@ -14,6 +15,16 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const isMentalModel = tool.type === 'mental_model';
+  
+  // Generate slug from tool name for mental models
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')          // Replace spaces with hyphens
+      .replace(/-+/g, '-')           // Replace multiple hyphens with single hyphen
+      .trim();
+  };
   
   // Custom markdown components for consistent styling
   const markdownComponents = {
@@ -58,6 +69,18 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
     processed = processed.replace(/%%DOUBLE%%/g, '**');
     
     return processed;
+  };
+  
+  // Generate the appropriate link based on tool type
+  const getLearnMoreLink = (): string => {
+    if (isMentalModel) {
+      // For mental models, link to the specific model page
+      const slug = generateSlug(tool.name);
+      return `/mental-models/${slug}`;
+    } else {
+      // For cognitive biases, link to the mental models library (or could be /cognitive-biases if that page exists)
+      return '/mental-models';
+    }
   };
   
   return (
@@ -258,7 +281,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             </AnimatePresence>
           </div>
 
-          {/* Enhanced Learn More Section - REMOVED the visual indicator section */}
+          {/* Enhanced Learn More Section - Now with functional Link */}
           <motion.div 
             className="mt-6 pt-4 border-t border-[#333333]/50"
             initial={{ opacity: 0 }}
@@ -266,14 +289,17 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             transition={{ delay: 0.3 }}
           >
             <div className="flex items-center justify-center">
-              <button className={`group/learn flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 ${
-                isMentalModel 
-                  ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
-                  : 'text-amber-500 hover:bg-amber-500/10'
-              }`}>
+              <Link 
+                to={getLearnMoreLink()}
+                className={`group/learn flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 ${
+                  isMentalModel 
+                    ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
+                    : 'text-amber-500 hover:bg-amber-500/10'
+                }`}
+              >
                 <span>Learn More</span>
                 <ExternalLink size={14} className="group-hover/learn:translate-x-0.5 group-hover/learn:-translate-y-0.5 transition-transform" />
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>
