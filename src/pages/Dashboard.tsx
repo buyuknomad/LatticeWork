@@ -96,33 +96,48 @@ const Dashboard: React.FC = () => {
     try {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       
-      // Get trending count
-      const { data: trendingData, error: trendingError } = await supabase
-        .from('trending_queries')
-        .select('id')
+      // Get query count from queries table
+      // Note: Adjust table name and structure based on your actual database schema
+      const { data: queriesData, error: queriesError } = await supabase
+        .from('queries')  // Changed from 'trending_queries' and 'manual_queries'
+        .select('id, query_type')
         .eq('user_id', user.id)
         .gte('created_at', twentyFourHoursAgo.toISOString());
 
-      if (trendingError) throw trendingError;
+      if (queriesError) {
+        // If queries table doesn't exist, set default limits
+        console.log('Queries table not found, using default limits');
+        setQueryLimits({
+          trendingUsed: 0,
+          trendingLimit: 2,
+          manualUsed: 0,
+          manualLimit: 1,
+          resetTime: new Date(twentyFourHoursAgo.getTime() + 24 * 60 * 60 * 1000)
+        });
+        return;
+      }
 
-      // Get manual count  
-      const { data: manualData, error: manualError } = await supabase
-        .from('manual_queries')
-        .select('id')
-        .eq('user_id', user.id)
-        .gte('created_at', twentyFourHoursAgo.toISOString());
-
-      if (manualError) throw manualError;
+      // Count queries by type
+      const trendingCount = queriesData?.filter(q => q.query_type === 'trending').length || 0;
+      const manualCount = queriesData?.filter(q => q.query_type === 'manual').length || 0;
 
       setQueryLimits({
-        trendingUsed: trendingData?.length || 0,
+        trendingUsed: trendingCount,
         trendingLimit: 2,
-        manualUsed: manualData?.length || 0,
+        manualUsed: manualCount,
         manualLimit: 1,
         resetTime: new Date(twentyFourHoursAgo.getTime() + 24 * 60 * 60 * 1000)
       });
     } catch (err) {
       console.error('Error calculating limits:', err);
+      // Set default limits on error
+      setQueryLimits({
+        trendingUsed: 0,
+        trendingLimit: 2,
+        manualUsed: 0,
+        manualLimit: 1,
+        resetTime: null
+      });
     }
   };
 
@@ -132,7 +147,7 @@ const Dashboard: React.FC = () => {
       const { data, error } = await supabase
         .from('trending_questions')
         .select('*')
-        .eq('is_active', true)
+        .eq('active', true)  // Changed from 'is_active' to 'active'
         .order('display_order', { ascending: true })
         .limit(6);
 
