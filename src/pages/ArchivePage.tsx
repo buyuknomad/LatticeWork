@@ -9,7 +9,6 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserTier } from '../components/Dashboard/types';
-import BackgroundAnimation from '../components/BackgroundAnimation';
 
 interface ArchiveQuestion {
   id: string;
@@ -239,8 +238,9 @@ const ArchivePage: React.FC = () => {
 
   if (userTier === 'free') {
     return (
-      <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-        <BackgroundAnimation />
+      <div className="relative">
+        {/* Removed BackgroundAnimation - now handled in App.tsx */}
+        {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
         
         <div className="relative z-10 min-h-screen">
           <div className="pt-20 pb-8 px-4">
@@ -361,8 +361,9 @@ const ArchivePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-      <BackgroundAnimation />
+    <div className="relative">
+      {/* Removed BackgroundAnimation - now handled in App.tsx */}
+      {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
       
       <div className="relative z-10 min-h-screen">
         <div className="pt-20 pb-8 px-4">
