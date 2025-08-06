@@ -76,6 +76,8 @@ const Dashboard: React.FC = () => {
     }
   }, [user]);
 
+  // Removed pre-filled question logic - query bar should remain empty
+
   // Fetch trending questions
   useEffect(() => {
     fetchTrendingQuestions();
@@ -324,65 +326,65 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="relative">
-      {/* Email Verification Banner */}
-      <EmailVerificationBanner />
+      {/* BackgroundAnimation removed - now handled in App.tsx */}
       
-      {/* Dashboard Header */}
-      <DashboardHeader
-        user={user}
-        displayTier={userTier}
-      />
+      <div className="relative z-10 min-h-screen">
+        <EmailVerificationBanner />
+        <DashboardHeader
+          user={user}
+          displayTier={userTier}
+        />
 
-      {/* Success Message */}
-      {successMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="max-w-6xl mx-auto px-4 mb-6"
-        >
-          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-            <p className="text-green-400 text-center font-medium">{successMessage}</p>
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="max-w-6xl mx-auto px-4 mb-6"
+          >
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <p className="text-green-400 text-center font-medium">{successMessage}</p>
+            </div>
+          </motion.div>
+        )}
+
+        <div className="px-4 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <AnimatePresence mode="wait">
+              {!isResultsPage && !isLoading && (
+                <QuerySection
+                  query={query}
+                  setQuery={setQuery}
+                  error={error}
+                  isLoading={isLoading}
+                  isTypingAnimation={isTypingAnimation}
+                  animatedPlaceholder={animatedPlaceholder}
+                  trendingQuestions={trendingQuestions}
+                  loadingTrending={loadingTrending}
+                  displayTier={userTier}
+                  onSubmit={handleQuerySubmit}
+                  onInputFocus={handleInputFocus}
+                  onInputChange={handleInputChange}
+                  onTrendingClick={handleTrendingClick}
+                  shouldFocusAnalysis={shouldFocusAnalysis}
+                  userId={user?.id}
+                  limits={queryLimits}
+                />
+              )}
+
+              {isLoading && <LoadingState />}
+
+              {isResultsPage && results && !isLoading && results.recommendedTools && (
+                <ResultsSection
+                  results={results}
+                  query={query}
+                  displayTier={userTier}
+                  onResetQuery={resetQuery}
+                />
+              )}
+            </AnimatePresence>
           </div>
-        </motion.div>
-      )}
-
-      {/* Main Content */}
-      <div className="px-4 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <AnimatePresence mode="wait">
-            {!isResultsPage && !isLoading && (
-              <QuerySection
-                query={query}
-                setQuery={setQuery}
-                error={error}
-                isLoading={isLoading}
-                isTypingAnimation={isTypingAnimation}
-                animatedPlaceholder={animatedPlaceholder}
-                trendingQuestions={trendingQuestions}
-                loadingTrending={loadingTrending}
-                displayTier={userTier}
-                onSubmit={handleQuerySubmit}
-                onInputFocus={handleInputFocus}
-                onInputChange={handleInputChange}
-                onTrendingClick={handleTrendingClick}
-                shouldFocusAnalysis={shouldFocusAnalysis}
-                userId={user?.id}
-                limits={queryLimits}
-              />
-            )}
-
-            {isLoading && <LoadingState />}
-
-            {isResultsPage && results && !isLoading && results.recommendedTools && (
-              <ResultsSection
-                results={results}
-                query={query}
-                displayTier={userTier}
-                onResetQuery={resetQuery}
-              />
-            )}
-          </AnimatePresence>
         </div>
       </div>
     </div>
