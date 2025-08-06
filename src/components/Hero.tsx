@@ -156,7 +156,7 @@ const Hero = () => {
                 <div className="relative flex items-center gap-2">
                   <HelpCircle className="w-4 h-4 text-[#8B5CF6]" />
                   <span className="text-sm font-medium text-white group-hover:text-[#00FFFF] transition-colors">
-                    New? Start with our Guide
+                    New Here? Start with our Guide
                   </span>
                   <ArrowRight className="w-3 h-3 text-[#00FFFF] opacity-0 group-hover:opacity-100 -ml-1 group-hover:ml-0 transition-all" />
                 </div>
