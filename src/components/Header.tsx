@@ -93,6 +93,14 @@ const Header = () => {
               </>
             )}
             
+            {/* Mental Models Library Link - Always visible */}
+            <Link 
+              to="/mental-models" 
+              className="text-white hover:text-[#00FFFF] transition-colors"
+            >
+              Mental Models
+            </Link>
+            
             {/* Dashboard Link - Only visible when user is logged in */}
             {user && (
               <a 
@@ -171,6 +179,15 @@ const Header = () => {
                   )}
                 </>
               )}
+              
+              {/* Mental Models Library Link - Always visible */}
+              <Link 
+                to="/mental-models" 
+                className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Mental Models
+              </Link>
               
               {/* Dashboard Link - Only visible when user is logged in */}
               {user && (
