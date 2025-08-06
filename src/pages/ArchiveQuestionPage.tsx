@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import BackgroundAnimation from '../components/BackgroundAnimation';
 import ResultsSection from '../components/Dashboard/ResultsSection';
 import { LatticeInsightResponse, UserTier } from '../components/Dashboard/types';
 
@@ -179,8 +178,9 @@ const ArchiveQuestionPage: React.FC = () => {
   // Premium check for free users
   if (userTier === 'free') {
     return (
-      <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-        <BackgroundAnimation />
+      <div className="relative">
+        {/* Removed BackgroundAnimation - now handled in App.tsx */}
+        {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
         
         <div className="relative z-10 min-h-screen">
           <div className="pt-20 pb-8 px-4">
@@ -232,8 +232,9 @@ const ArchiveQuestionPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] relative overflow-hidden">
-      <BackgroundAnimation />
+    <div className="relative">
+      {/* Removed BackgroundAnimation - now handled in App.tsx */}
+      {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
       
       <div className="relative z-10 min-h-screen">
         <div className="pt-20 pb-8 px-4">
