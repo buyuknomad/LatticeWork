@@ -1,9 +1,9 @@
 // src/components/Hero.tsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TrendingUp, Zap } from 'lucide-react';
+import { TrendingUp, Zap, HelpCircle, ArrowRight } from 'lucide-react';
 import InteractiveDemo from './InteractiveDemo';
 
 // Define examples OUTSIDE the component for a stable reference
@@ -123,16 +123,46 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Supporting Badge */}
-          <motion.div 
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FFFF]/10 backdrop-blur-sm rounded-full border border-[#00FFFF]/30 mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Zap className="h-4 w-4 text-[#00FFFF]" />
-            <span className="text-sm font-medium text-[#00FFFF]">Real Analysis, Not Theory</span>
-          </motion.div>
+          {/* Supporting Badge and Guide Link Container */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            {/* Supporting Badge */}
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FFFF]/10 backdrop-blur-sm rounded-full border border-[#00FFFF]/30"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Zap className="h-4 w-4 text-[#00FFFF]" />
+              <span className="text-sm font-medium text-[#00FFFF]">Real Analysis, Not Theory</span>
+            </motion.div>
+            
+            {/* Mental Models Guide Link */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Link 
+                to="/mental-models-guide"
+                className="group relative inline-flex items-center gap-2 px-6 py-2.5 overflow-hidden rounded-full transition-all duration-300 hover:scale-105"
+              >
+                {/* Gradient Background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/15 to-[#00FFFF]/15 group-hover:from-[#8B5CF6]/25 group-hover:to-[#00FFFF]/25 transition-all duration-300" />
+                
+                {/* Animated Border */}
+                <div className="absolute inset-0 rounded-full border border-transparent bg-gradient-to-r from-[#8B5CF6]/50 to-[#00FFFF]/50 opacity-50 group-hover:opacity-100 transition-opacity duration-300" style={{ padding: '1px', WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude' }} />
+                
+                {/* Content */}
+                <div className="relative flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-[#8B5CF6]" />
+                  <span className="text-sm font-medium text-white group-hover:text-[#00FFFF] transition-colors">
+                    New? Start with our Guide
+                  </span>
+                  <ArrowRight className="w-3 h-3 text-[#00FFFF] opacity-0 group-hover:opacity-100 -ml-1 group-hover:ml-0 transition-all" />
+                </div>
+              </Link>
+            </motion.div>
+          </div>
           
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 md:mb-4 leading-tight">
             See Mental Models{' '}
