@@ -560,8 +560,8 @@ const TrendingSection: React.FC<TrendingSectionProps> = ({
                           displayTier === 'premium' ? 'text-[#8B5CF6]' : 'text-white group-hover:text-[#8B5CF6]'
                         } transition-colors`}>
                           {displayTier === 'premium' 
-                            ? 'Browse Premium Archive'
-                            : 'Unlock Premium Archive'
+                            ? 'Browse Trending Questions Archive'
+                            : 'Unlock Trending Questions Archive'
                           }
                         </span>
                         {displayTier === 'free' && (
