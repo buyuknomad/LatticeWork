@@ -38,7 +38,7 @@ import ExampleDetail from './pages/ExampleDetail';
 
 // Import Archive pages
 import ArchivePage from './pages/ArchivePage';
-import ArchiveQuestionPage from './pages/ArchiveQuestionPage'; // This was missing!
+import ArchiveQuestionPage from './pages/ArchiveQuestionPage';
 
 function AppContent() {
   const location = useLocation();
@@ -47,76 +47,88 @@ function AppContent() {
   const hideHeaderFooter = ['/login', '/signup', '/signup-success', '/forgot-password', '/reset-password', '/confirm-email'].includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white flex flex-col">
+    <>
+      {/* Background Animation is now outside the flex container for global coverage */}
       <BackgroundAnimation />
-      {!hideHeaderFooter && <Header />}
-      <main className="flex-grow relative z-10">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/signup-success" element={<SignupSuccessPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/confirm-email" element={<ConfirmEmail />} />
-          
-          {/* Mental Models Routes */}
-          <Route path="/mental-models-guide" element={<MentalModelsGuidePage />} />
-          <Route path="/mental-models" element={<MentalModels />} />
-          <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
-          
-          <Route path="/cognitive-biases" element={<CognitiveBiases />} />
-          <Route path="/examples" element={<Examples />} />
-          <Route path="/examples/:slug" element={<ExampleDetail />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/refunds" element={<Refunds />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          
-          {/* Protected Routes - ALL RESTORED */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/results" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          } />
-          <Route path="/history" element={
-            <ProtectedRoute>
-              <History />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkout-success" element={
-            <ProtectedRoute>
-              <CheckoutSuccess />
-            </ProtectedRoute>
-          } />
-          
-          {/* Archive routes - Premium feature (RESTORED AS PROTECTED) */}
-          <Route path="/archive" element={
-            <ProtectedRoute>
-              <ArchivePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/archive/:id" element={
-            <ProtectedRoute>
-              <ArchiveQuestionPage />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </main>
-      {!hideHeaderFooter && <Footer />}
-    </div>
+      
+      {/* Main app container with proper flex layout */}
+      <div className="min-h-screen bg-transparent text-white flex flex-col relative z-10">
+        {/* Header - conditional rendering */}
+        {!hideHeaderFooter && <Header />}
+        
+        {/* Main content area - flex-grow ensures it expands to push footer down */}
+        <main className="flex-grow">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signup-success" element={<SignupSuccessPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/confirm-email" element={<ConfirmEmail />} />
+            
+            {/* Mental Models Routes */}
+            <Route path="/mental-models-guide" element={<MentalModelsGuidePage />} />
+            <Route path="/mental-models" element={<MentalModels />} />
+            <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
+            
+            {/* Other Public Routes */}
+            <Route path="/cognitive-biases" element={<CognitiveBiases />} />
+            <Route path="/examples" element={<Examples />} />
+            <Route path="/examples/:slug" element={<ExampleDetail />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/refunds" element={<Refunds />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/results" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            } />
+            <Route path="/checkout-success" element={
+              <ProtectedRoute>
+                <CheckoutSuccess />
+              </ProtectedRoute>
+            } />
+            
+            {/* Archive routes - Premium feature */}
+            <Route path="/archive" element={
+              <ProtectedRoute>
+                <ArchivePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/archive/:id" element={
+              <ProtectedRoute>
+                <ArchiveQuestionPage />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </main>
+        
+        {/* Footer - conditional rendering */}
+        {!hideHeaderFooter && <Footer />}
+      </div>
+    </>
   );
 }
 
