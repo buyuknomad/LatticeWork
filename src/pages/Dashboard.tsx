@@ -96,229 +96,366 @@ const Dashboard: React.FC = () => {
     try {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       
-      // Get query count from queries table
-      // Note: Adjust table name and structure based on your actual database schema
-      const { data: queriesData, error: queriesError } = await supabase
-        .from('queries')  // Changed from 'trending_queries' and 'manual_queries'
-        .select('id, query_type')
+      // Get trending count
+      const { count: trendingCount, error: trendingError } = await supabase
+        .from('query_history')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
+        .eq('query_type', 'trending')
+        .gte('created_at', twentyFourHoursAgo.toISOString());
+      
+      // Get manual count
+      const { count: manualCount, error: manualError } = await supabase
+        .from('query_history')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('query_type', 'manual')
         .gte('created_at', twentyFourHoursAgo.toISOString());
 
-      if (queriesError) {
-        // If queries table doesn't exist, set default limits
-        console.log('Queries table not found, using default limits');
-        setQueryLimits({
-          trendingUsed: 0,
-          trendingLimit: 2,
-          manualUsed: 0,
-          manualLimit: 1,
-          resetTime: new Date(twentyFourHoursAgo.getTime() + 24 * 60 * 60 * 1000)
-        });
+      if (trendingError || manualError) {
+        console.error('Error calculating query limits:', trendingError || manualError);
         return;
       }
-
-      // Count queries by type
-      const trendingCount = queriesData?.filter(q => q.query_type === 'trending').length || 0;
-      const manualCount = queriesData?.filter(q => q.query_type === 'manual').length || 0;
-
+      
+      // Get reset time from first query
+      let resetTime = null;
+      try {
+        const { data: firstQuery, error: firstQueryError } = await supabase
+          .from('query_history')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', twentyFourHoursAgo.toISOString())
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
+        
+        if (firstQueryError) {
+          console.warn('Error fetching first query:', firstQueryError);
+        } else if (firstQuery) {
+          resetTime = new Date(new Date(firstQuery.created_at).getTime() + 24 * 60 * 60 * 1000);
+        }
+      } catch (error) {
+        console.warn('Error calculating reset time:', error);
+      }
+      
       setQueryLimits({
-        trendingUsed: trendingCount,
+        trendingUsed: trendingCount || 0,
         trendingLimit: 2,
-        manualUsed: manualCount,
+        manualUsed: manualCount || 0,
         manualLimit: 1,
-        resetTime: new Date(twentyFourHoursAgo.getTime() + 24 * 60 * 60 * 1000)
+        resetTime
       });
-    } catch (err) {
-      console.error('Error calculating limits:', err);
-      // Set default limits on error
-      setQueryLimits({
-        trendingUsed: 0,
-        trendingLimit: 2,
-        manualUsed: 0,
-        manualLimit: 1,
-        resetTime: null
-      });
+    } catch (error) {
+      console.error('Error calculating query limits:', error);
+    }
+  };
+
+  // Handle navigation state for results
+  useEffect(() => {
+    // If we're on results page but have no results, redirect to dashboard
+    if (isResultsPage && !results && !location.state?.results) {
+      navigate('/dashboard');
+    }
+    
+    // If we have results in location state (from navigation), use them
+    if (location.state?.results && location.state?.query) {
+      setResults(location.state.results);
+      setQuery(location.state.query);
+    }
+    
+    // Clear query when returning to main dashboard
+    if (!isResultsPage && !location.search.includes('q=')) {
+      // Only clear if we had results (meaning we're coming back from results page)
+      if (results) {
+        setQuery('');
+        setQuerySource('manual');
+        setResults(null);
+        setError(null);
+        setIsTypingAnimation(true);
+      }
+    }
+  }, [isResultsPage, results, location.state, location.pathname, navigate]);
+
+  // Handle upgrade success redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const upgradeStatus = urlParams.get('upgrade');
+    
+    if (upgradeStatus === 'success') {
+      // Show success message
+      setSuccessMessage('🎉 Welcome to Premium! Your subscription is now active.');
+      
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Refresh user data to get updated tier
+      refreshUserTier();
+      
+      // Auto-hide message after 10 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 10000);
+    }
+  }, [location.search]);
+
+  // Function to refresh user tier
+  const refreshUserTier = async () => {
+    if (!user?.id) return;
+    
+    try {
+      // Check subscription status from the view
+      const { data: subscription } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('subscription_status')
+        .maybeSingle();
+      
+      if (subscription?.subscription_status === 'active' || subscription?.subscription_status === 'trialing') {
+        setUserTier('premium');
+        
+        // Update user metadata
+        await supabase.auth.updateUser({
+          data: { tier: 'premium' }
+        });
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
     }
   };
 
   const fetchTrendingQuestions = async () => {
-    setLoadingTrending(true);
     try {
       const { data, error } = await supabase
         .from('trending_questions')
-        .select('*')
-        .eq('active', true)  // Changed from 'is_active' to 'active'
-        .order('display_order', { ascending: true })
-        .limit(6);
-
+        .select('id, question, category, topic_source, click_count, metadata, created_at')
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      
       if (error) throw error;
-      setTrendingQuestions(data || []);
-    } catch (err) {
-      console.error('Error fetching trending questions:', err);
+      
+      // Sort to prioritize hot topics
+      const sortedQuestions = (data || []).sort((a, b) => {
+        // Hot topics first
+        const aIsHot = a.metadata?.isHot || false;
+        const bIsHot = b.metadata?.isHot || false;
+        if (aIsHot && !bIsHot) return -1;
+        if (!aIsHot && bIsHot) return 1;
+        
+        // Then by engagement
+        const aEngagement = a.metadata?.engagement || 0;
+        const bEngagement = b.metadata?.engagement || 0;
+        if (aEngagement !== bEngagement) return bEngagement - aEngagement;
+        
+        // Finally by recency
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setTrendingQuestions(sortedQuestions);
+      
+      // Log metadata stats for debugging
+      const hotCount = sortedQuestions.filter(q => q.metadata?.isHot).length;
+      const withEngagement = sortedQuestions.filter(q => q.metadata?.engagement > 0).length;
+      console.log(`Trending questions loaded: ${sortedQuestions.length} total, ${hotCount} hot, ${withEngagement} with engagement`);
+      
+    } catch (error) {
+      console.error('Error fetching trending questions:', error);
     } finally {
       setLoadingTrending(false);
     }
   };
 
-  // Animation effect
-  useEffect(() => {
-    if (isTypingAnimation && !isResultsPage) {
-      const currentQuery = EXAMPLE_QUERIES[currentExampleIndex];
-      let charIndex = 0;
-      let currentText = '';
-
-      const typeInterval = setInterval(() => {
-        if (charIndex < currentQuery.length) {
-          currentText += currentQuery[charIndex];
-          setAnimatedPlaceholder(currentText);
-          charIndex++;
-        } else {
-          setTimeout(() => {
-            let deleteIndex = currentText.length;
-            const deleteInterval = setInterval(() => {
-              if (deleteIndex > 0) {
-                currentText = currentText.slice(0, -1);
-                setAnimatedPlaceholder(currentText);
-                deleteIndex--;
-              } else {
-                clearInterval(deleteInterval);
-                setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
-              }
-            }, 30);
-          }, 2000);
-          clearInterval(typeInterval);
+  const handleTrendingClick = async (question: TrendingQuestion) => {
+    // Update click count in background (no await to prevent delays)
+    supabase
+      .from('trending_questions')
+      .update({ 
+        click_count: (question.click_count || 0) + 1,
+        // Optionally update metadata to mark as "viewed"
+        metadata: {
+          ...question.metadata,
+          lastClickedAt: new Date().toISOString()
         }
-      }, 50);
+      })
+      .eq('id', question.id)
+      .then(() => console.log('Click tracked'))
+      .catch(err => console.error('Error tracking click:', err));
+    
+    // Set the query and mark source as trending
+    setQuery(question.question);
+    setQuerySource('trending');
+    setError(null);
+    setIsTypingAnimation(false);
+    
+    // Submit immediately
+    handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
+  };
 
-      return () => clearInterval(typeInterval);
+  // Check for query parameter on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const queryParam = urlParams.get('q');
+    
+    if (queryParam && !results && !isLoading && !isResultsPage) {
+      const decodedQuery = decodeURIComponent(queryParam);
+      setQuery(decodedQuery);
+      setQuerySource('manual');
+      setIsTypingAnimation(false);
+      
+      setTimeout(() => {
+        handleQuerySubmit({ preventDefault: () => {} } as React.FormEvent);
+      }, 500);
     }
-  }, [currentExampleIndex, isTypingAnimation, isResultsPage]);
+  }, [location.search]);
+
+  // Animated placeholder effect
+  useEffect(() => {
+    if (!isTypingAnimation) return;
+
+    let timeoutId: number;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    const typeCharacter = () => {
+      if (!isTypingAnimation) return;
+
+      const currentExample = EXAMPLE_QUERIES[currentExampleIndex];
+
+      if (!isDeleting && charIndex <= currentExample.length) {
+        setAnimatedPlaceholder(currentExample.slice(0, charIndex));
+        charIndex++;
+        timeoutId = window.setTimeout(typeCharacter, 50);
+      } else if (isDeleting && charIndex >= 0) {
+        setAnimatedPlaceholder(currentExample.slice(0, charIndex));
+        charIndex--;
+        timeoutId = window.setTimeout(typeCharacter, 30);
+      } else if (!isDeleting) {
+        timeoutId = window.setTimeout(() => {
+          isDeleting = true;
+          typeCharacter();
+        }, 2000);
+      } else {
+        timeoutId = window.setTimeout(() => {
+          setCurrentExampleIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
+        }, 300);
+      }
+    };
+
+    timeoutId = window.setTimeout(typeCharacter, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentExampleIndex, isTypingAnimation]);
 
   const handleInputFocus = () => {
     setIsTypingAnimation(false);
     setAnimatedPlaceholder('');
   };
 
-  const handleInputChange = (value: string) => {
-    setQuery(value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setQuery(newValue);
     setError(null);
-    if (value === '') {
+    
+    // If user is typing/modifying, reset to manual
+    if (newValue !== query && querySource === 'trending') {
       setQuerySource('manual');
     }
   };
 
-  const handleTrendingClick = async (question: TrendingQuestion) => {
-    setQuery(question.question);
-    setQuerySource('trending');
-    
-    if (userTier === 'free' && queryLimits.trendingUsed >= queryLimits.trendingLimit) {
-      setError(`You've used all ${queryLimits.trendingLimit} trending questions today. Try your own question or upgrade to Premium for unlimited access!`);
-      return;
-    }
-    
-    // Auto-submit after selection
-    setTimeout(() => {
-      handleQuerySubmit(question.question, 'trending');
-    }, 100);
-  };
+  const handleQuerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim() || isLoading) return;
 
-  const handleQuerySubmit = async (submittedQuery?: string, source?: 'manual' | 'trending') => {
-    const queryToSubmit = submittedQuery || query;
-    const querySourceToUse = source || querySource;
-    
-    if (!queryToSubmit.trim()) {
-      setError("Please enter a question to analyze");
-      return;
-    }
-
-    // Check limits for free users
-    if (userTier === 'free') {
-      if (querySourceToUse === 'trending' && queryLimits.trendingUsed >= queryLimits.trendingLimit) {
-        setError(`You've used all ${queryLimits.trendingLimit} trending questions today. Try your own question or upgrade to Premium!`);
-        return;
-      }
-      if (querySourceToUse === 'manual' && queryLimits.manualUsed >= queryLimits.manualLimit) {
-        setError(`You've used your daily custom question. Try a trending question or upgrade to Premium for unlimited access!`);
-        return;
-      }
-    }
+    // Use the stored source
+    const queryType = querySource;
 
     setIsLoading(true);
-    setError(null);
     setResults(null);
+    setError(null);
+
+    if (!session?.access_token) {
+      setError("Authentication error. Please log in again.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const requestBody = {
-        question: queryToSubmit,
-        userId: user?.id || 'anonymous',
-        tier: userTier,
-        querySource: querySourceToUse
-      };
+      const edgeFunctionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-lattice-insights-narrative`;
+      
+      console.log(`SUBMIT_DEBUG: Submitting ${queryType} query to edge function`);
+      
+      const response = await fetch(edgeFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ 
+          query: query,
+          queryType: queryType
+        }),
+      });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-gemini`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify(requestBody)
-        }
-      );
+      setIsLoading(false);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const errorData = await response.json().catch(() => ({ 
+          error: "An unexpected error occurred.", 
+          details: response.statusText 
+        }));
         
-        if (response.status === 429) {
-          if (userTier === 'free') {
-            const limitType = querySourceToUse === 'trending' ? 
-              `${queryLimits.trendingLimit} trending` : 
-              `${queryLimits.manualLimit} custom`;
-            throw new Error(`Daily limit reached! Free users get ${limitType} questions per day. Upgrade to Premium for unlimited access.`);
+        // Check if it's a rate limit error and format consistently
+        if (response.status === 429 || errorData.error?.includes('limit reached')) {
+          // Format error message based on query type
+          if (errorData.error?.includes('trending')) {
+            setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
+          } else if (errorData.error?.includes('manual')) {
+            setError('Daily manual analysis limit reached (1 per day). Upgrade to Premium for unlimited queries.');
           } else {
-            throw new Error("Rate limit reached. Please wait a moment before trying again.");
+            setError(errorData.error || 'Query limit reached. Upgrade to Premium for unlimited queries.');
           }
+        } else {
+          setError(errorData.error || `Error: ${response.status} ${response.statusText}`);
         }
         
-        throw new Error(errorData?.error || `Server error: ${response.status}`);
+        // Recalculate limits after an error (might be rate limit)
+        if (userTier === 'free') {
+          setTimeout(() => calculateQueryLimits(), 100);
+        }
+        return;
       }
 
-      const data = await response.json();
-      
-      // Validate response structure
-      if (!data.recommendedTools || !Array.isArray(data.recommendedTools)) {
-        throw new Error("Invalid response format from server");
-      }
+      const data: LatticeInsightResponse = await response.json();
 
-      if (data.recommendedTools.length === 0) {
-        throw new Error("No insights were generated. Please try rephrasing your question.");
-      }
+      // Updated debug log for v14.7
+      console.log('RESPONSE_DEBUG: Received from edge function:', {
+        toolCount: data.recommendedTools?.length,
+        tools: data.recommendedTools?.map(t => t.name),
+        hasNarrative: !!data.narrativeAnalysis,
+        hasKeyLessons: !!data.keyLessons,
+        isV14: isV14Response(data),
+        metadata: data.metadata
+      });
 
-      setResults(data);
-      setIsLoading(false);
-      
-      // Store the query and results
-      if (isV14Response(data)) {
-        navigate('/dashboard/results', { 
-          state: { 
-            results: data, 
-            query: queryToSubmit 
-          } 
-        });
+      if (data.error) {
+        setError(data.error);
       } else {
+        console.log('RESPONSE_DEBUG: Received analysis with', data.recommendedTools?.length, 'tools');
+        setResults(data);
+        setQuerySource('manual'); // Reset after successful submission
+        
         // Navigate to results page with the data
         navigate('/dashboard/results', { 
           state: { 
             results: data, 
-            query: queryToSubmit 
+            query: query 
           } 
         });
-      }
-      
-      // Recalculate limits after successful query
-      if (userTier === 'free') {
-        setTimeout(() => calculateQueryLimits(), 100);
+        
+        // Recalculate limits after successful query
+        if (userTier === 'free') {
+          setTimeout(() => calculateQueryLimits(), 100);
+        }
       }
 
     } catch (err: any) {
@@ -341,7 +478,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="relative">
-      {/* BackgroundAnimation removed - now handled in App.tsx */}
+      {/* Removed BackgroundAnimation - now handled in App.tsx */}
+      {/* Changed from min-h-screen bg-[#1A1A1A] relative overflow-hidden to just relative */}
       
       <div className="relative z-10 min-h-screen">
         <EmailVerificationBanner />
