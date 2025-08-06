@@ -186,7 +186,6 @@ const MentalModels: React.FC = () => {
       />
       
       <div className="min-h-screen bg-[#1A1A1A] text-white">
-        {/* Header Section - Fixed padding to account for fixed header */}
         <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] pt-24 pb-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
@@ -194,16 +193,63 @@ const MentalModels: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              {/* New: Link to Guide */}
-              <div className="mb-6">
+              {/* PROMINENT Guide Link - Moved to top and enhanced */}
+              <motion.div 
+                className="mb-8"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 <Link 
                   to="/mental-models-guide"
-                  className="inline-flex items-center px-4 py-2 bg-[#252525] border border-[#333333] rounded-lg text-gray-300 hover:text-[#00FFFF] hover:border-[#00FFFF]/30 transition-all duration-300 text-sm"
+                  className="group relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105"
                 >
-                  <HelpCircle className="w-4 h-4 mr-2" />
-                  New to mental models? Start with our guide
+                  {/* Gradient Background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/20 to-[#00FFFF]/20 group-hover:from-[#8B5CF6]/30 group-hover:to-[#00FFFF]/30 transition-all duration-300" />
+                  
+                  {/* Animated Border */}
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] opacity-50 group-hover:opacity-100 transition-opacity duration-300" style={{ padding: '2px', WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude' }} />
+                  
+                  {/* Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-[#00FFFF]/10 blur-xl group-hover:blur-2xl transition-all duration-300" />
+                  
+                  {/* Content */}
+                  <div className="relative flex items-center gap-3">
+                    {/* Animated Icon */}
+                    <motion.div
+                      className="p-2 bg-white/10 rounded-lg"
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3
+                      }}
+                    >
+                      <HelpCircle className="w-6 h-6 text-[#00FFFF]" />
+                    </motion.div>
+                    
+                    {/* Text Content */}
+                    <div className="text-left">
+                      <div className="text-xs text-[#8B5CF6] font-semibold uppercase tracking-wider mb-1">
+                        New Here?
+                      </div>
+                      <div className="text-lg font-bold text-white group-hover:text-[#00FFFF] transition-colors">
+                        Start with our Mental Models Guide
+                      </div>
+                      <div className="text-sm text-gray-400 mt-0.5">
+                        Learn the fundamentals in 10 minutes
+                      </div>
+                    </div>
+                    
+                    {/* Arrow */}
+                    <svg className="w-5 h-5 text-[#00FFFF] group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
                 </Link>
-              </div>
+              </motion.div>
 
               <div className="flex items-center justify-center mb-6">
                 <Brain className="w-12 h-12 text-[#00FFFF] mr-4" />
