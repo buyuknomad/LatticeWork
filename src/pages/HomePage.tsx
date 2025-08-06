@@ -5,7 +5,7 @@ import Hero from '../components/Hero';
 import SeeItWork from '../components/SeeItWork';
 import Differentiators from '../components/Differentiators';
 import Features from '../components/Features';
-import ExamplesSection from '../components/ExamplesSection'; // New import
+import ExamplesSection from '../components/ExamplesSection';
 import CallToAction from '../components/CallToAction';
 import Pricing from '../components/Pricing';
 
@@ -35,15 +35,14 @@ const HomePage: React.FC = () => {
         url="/"
         schema={homeSchema}
       />
-      <main>
-        <Hero />
-        <SeeItWork /> 
-        <Differentiators />
-        <Features />
-        <ExamplesSection /> {/* Add the new section here */}
-        <CallToAction />
-        <Pricing />
-      </main>
+      {/* Removed the <main> wrapper to prevent nesting */}
+      <Hero />
+      <SeeItWork /> 
+      <Differentiators />
+      <Features />
+      <ExamplesSection />
+      <CallToAction />
+      <Pricing />
     </>
   );
 };
