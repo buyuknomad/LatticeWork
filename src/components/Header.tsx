@@ -98,7 +98,7 @@ const Header = () => {
               to="/mental-models" 
               className="text-white hover:text-[#00FFFF] transition-colors"
             >
-              Mental Models
+              Mental Models Library
             </Link>
             
             {/* Dashboard Link - Only visible when user is logged in */}
@@ -186,7 +186,7 @@ const Header = () => {
                 className="text-white hover:text-[#00FFFF] transition-colors py-2 px-3 rounded-md hover:bg-[#2A2D35]"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Mental Models
+                Mental Models Library
               </Link>
               
               {/* Dashboard Link - Only visible when user is logged in */}
