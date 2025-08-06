@@ -46,6 +46,11 @@ const Footer = () => {
                 </a>
               </li>
               <li>
+                <Link to="/mental-models" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
+                  Mental Models Library
+                </Link>
+              </li>
+              <li>
                 <Link to="/faq" className="text-gray-400 hover:text-[#00FFFF] transition-colors duration-300">
                   FAQ
                 </Link>
