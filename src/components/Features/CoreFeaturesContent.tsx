@@ -91,4 +91,4 @@ const CoreFeaturesContent: React.FC = () => {
   );
 };
 
-export default CoreFeaturesContent;
+export default CoreFeaturesContent; 
