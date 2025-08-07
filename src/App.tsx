@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { HelmetProvider } from 'react-helmet-async';
@@ -40,8 +40,16 @@ import ExampleDetail from './pages/ExampleDetail';
 import ArchivePage from './pages/ArchivePage';
 import ArchiveQuestionPage from './pages/ArchiveQuestionPage';
 
+// Import Analytics
+import { analytics } from './services/analytics';
+
 function AppContent() {
   const location = useLocation();
+  
+  // Initialize Google Analytics once when app loads
+  useEffect(() => {
+    analytics.initialize();
+  }, []);
   
   // Hide header and footer on specific pages
   const hideHeaderFooter = ['/login', '/signup', '/signup-success', '/forgot-password', '/reset-password', '/confirm-email'].includes(location.pathname);
