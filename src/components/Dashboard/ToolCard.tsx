@@ -5,6 +5,8 @@ import { Brain, AlertTriangle, Eye, ChevronDown, ChevronUp, ExternalLink } from 
 import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import { RecommendedTool } from './types';
+import { analytics } from '../../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../../constants/analytics';
 
 interface ToolCardProps {
   tool: RecommendedTool;
@@ -81,6 +83,26 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
       // For cognitive biases, link to the mental models library (or could be /cognitive-biases if that page exists)
       return '/mental-models';
     }
+  };
+  
+  const handleExpandClick = () => {
+    setIsExpanded(!isExpanded);
+    
+    // Track tool card expansion
+    analytics.trackEvent(
+      GA_CATEGORIES.ENGAGEMENT,
+      'tool_card_expand',
+      `${tool.type}_${tool.name}_${!isExpanded ? 'expand' : 'collapse'}`
+    );
+  };
+  
+  const handleLearnMoreClick = () => {
+    // Track Learn More click
+    analytics.trackEvent(
+      GA_CATEGORIES.MENTAL_MODELS,
+      GA_EVENTS.MENTAL_MODELS.CLICK_LEARN_MORE,
+      `${tool.type}_${tool.name}`
+    );
   };
   
   return (
@@ -229,7 +251,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             isExpanded ? 'border-[#444444]' : 'border-[#333333]'
           }`}>
             <button
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={handleExpandClick}
               className={`w-full flex items-center justify-between p-3 -m-3 rounded-xl transition-all duration-300 ${
                 isMentalModel 
                   ? 'hover:bg-[#00FFFF]/5' 
@@ -291,6 +313,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, index }) => {
             <div className="flex items-center justify-center">
               <Link 
                 to={getLearnMoreLink()}
+                onClick={handleLearnMoreClick}
                 className={`group/learn flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 ${
                   isMentalModel 
                     ? 'text-[#00FFFF] hover:bg-[#00FFFF]/10' 
