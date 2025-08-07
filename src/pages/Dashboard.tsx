@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import EmailVerificationBanner from '../components/EmailVerificationBanner';
+import { analytics } from '../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
 
 // Import Dashboard components
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
@@ -32,6 +34,7 @@ const Dashboard: React.FC = () => {
   const [results, setResults] = useState<LatticeInsightResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [analysisStartTime, setAnalysisStartTime] = useState<number | null>(null);
 
   // Set page title
   useEffect(() => {
@@ -75,6 +78,47 @@ const Dashboard: React.FC = () => {
       setUserTier(user.user_metadata.tier as UserTier);
     }
   }, [user]);
+
+  // Track results view
+  useEffect(() => {
+    if (results && results.recommendedTools) {
+      analytics.trackEvent(
+        GA_CATEGORIES.ANALYSIS,
+        GA_EVENTS.ANALYSIS.VIEW_RESULTS,
+        results.recommendedTools.length ? `${results.recommendedTools.length}_tools` : 'no_tools'
+      );
+    }
+  }, [results]);
+
+  // Track successful upgrade
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const upgradeStatus = urlParams.get('upgrade');
+    
+    if (upgradeStatus === 'success') {
+      // Track successful purchase
+      analytics.trackEvent(
+        GA_CATEGORIES.PREMIUM,
+        GA_EVENTS.PREMIUM.COMPLETE_PURCHASE,
+        'dashboard_upgrade'
+      );
+      
+      // Show success message
+      setSuccessMessage('🎉 Welcome to Premium! Your subscription is now active.');
+      
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Refresh user data to get updated tier
+      refreshUserTier();
+      
+      // Auto-hide message after 10 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 10000);
+    }
+  }, [location.search]);
 
   // Removed pre-filled question logic - query bar should remain empty
 
@@ -176,29 +220,6 @@ const Dashboard: React.FC = () => {
     }
   }, [isResultsPage, results, location.state, location.pathname, navigate]);
 
-  // Handle upgrade success redirect
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const upgradeStatus = urlParams.get('upgrade');
-    
-    if (upgradeStatus === 'success') {
-      // Show success message
-      setSuccessMessage('🎉 Welcome to Premium! Your subscription is now active.');
-      
-      // Clean up the URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
-      
-      // Refresh user data to get updated tier
-      refreshUserTier();
-      
-      // Auto-hide message after 10 seconds
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 10000);
-    }
-  }, [location.search]);
-
   // Function to refresh user tier
   const refreshUserTier = async () => {
     if (!user?.id) return;
@@ -266,6 +287,13 @@ const Dashboard: React.FC = () => {
   };
 
   const handleTrendingClick = async (question: TrendingQuestion) => {
+    // Track trending question click
+    analytics.trackEvent(
+      GA_CATEGORIES.ENGAGEMENT,
+      GA_EVENTS.ENGAGEMENT.TRENDING_CLICK,
+      question.question
+    );
+    
     // Update click count in background (no await to prevent delays)
     supabase
       .from('trending_questions')
@@ -366,6 +394,17 @@ const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!query.trim() || isLoading) return;
 
+    // Track analysis start
+    analytics.trackEvent(
+      GA_CATEGORIES.ANALYSIS,
+      GA_EVENTS.ANALYSIS.START,
+      querySource === 'trending' ? 'trending_question' : 'manual_query'
+    );
+    
+    // Start timing for performance tracking
+    const startTime = Date.now();
+    setAnalysisStartTime(startTime);
+
     // Use the stored source
     const queryType = querySource;
 
@@ -404,8 +443,22 @@ const Dashboard: React.FC = () => {
           details: response.statusText 
         }));
         
+        // Track analysis error
+        analytics.trackEvent(
+          GA_CATEGORIES.ERROR,
+          GA_EVENTS.ERROR.API_ERROR,
+          `analysis_failed: ${errorData.error || response.statusText}`
+        );
+        
         // Check if it's a rate limit error and format consistently
         if (response.status === 429 || errorData.error?.includes('limit reached')) {
+          // Track rate limit
+          analytics.trackEvent(
+            GA_CATEGORIES.ANALYSIS,
+            'rate_limit_reached',
+            queryType
+          );
+          
           // Format error message based on query type
           if (errorData.error?.includes('trending')) {
             setError('Daily trending analysis limit reached (2 per day). Upgrade to Premium for unlimited queries.');
@@ -426,6 +479,23 @@ const Dashboard: React.FC = () => {
       }
 
       const data: LatticeInsightResponse = await response.json();
+
+      // Track successful analysis
+      const analysisTime = Date.now() - startTime;
+      analytics.trackEvent(
+        GA_CATEGORIES.ANALYSIS,
+        GA_EVENTS.ANALYSIS.COMPLETE,
+        querySource === 'trending' ? 'trending_question' : 'manual_query',
+        Math.round(analysisTime / 1000) // Time in seconds
+      );
+      
+      // Track timing
+      analytics.trackTiming(
+        GA_CATEGORIES.ANALYSIS,
+        'analysis_duration',
+        analysisTime,
+        querySource
+      );
 
       // Updated debug log for v14.7
       console.log('RESPONSE_DEBUG: Received from edge function:', {
@@ -460,6 +530,14 @@ const Dashboard: React.FC = () => {
 
     } catch (err: any) {
       setIsLoading(false);
+      
+      // Track error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.API_ERROR,
+        `analysis_exception: ${err.message}`
+      );
+      
       setError(err.message || "Failed to fetch insights. Please try again.");
     }
   };
@@ -471,6 +549,7 @@ const Dashboard: React.FC = () => {
     setError(null);
     setIsLoading(false);
     setIsTypingAnimation(true);
+    setAnalysisStartTime(null);
     
     // Navigate back to dashboard
     navigate('/dashboard');
