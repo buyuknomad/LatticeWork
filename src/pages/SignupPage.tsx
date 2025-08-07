@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
 import SEO from '../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { AuthError } from '@supabase/supabase-js';
+import { analytics } from '../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
 
 const SignupPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -34,6 +36,13 @@ const SignupPage: React.FC = () => {
 
   const handleSignup = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    
+    // Track signup attempt
+    analytics.trackEvent(
+      GA_CATEGORIES.AUTH,
+      GA_EVENTS.AUTH.SIGNUP_START,
+      'email_password'
+    );
     
     // Basic validation
     if (password !== confirmPassword) {
@@ -77,6 +86,16 @@ const SignupPage: React.FC = () => {
         return;
       }
       
+      // Track successful signup
+      analytics.trackEvent(
+        GA_CATEGORIES.AUTH,
+        GA_EVENTS.AUTH.SIGNUP_COMPLETE,
+        data.session ? 'auto_confirmed' : 'email_confirmation_required'
+      );
+      if (data.user?.id) {
+        analytics.setUserId(data.user.id);
+      }
+      
       // Check if there is a session (auto-confirmation)
       if (data.session) {
         console.log('Account created and auto-confirmed with active session, navigating to dashboard');
@@ -106,6 +125,14 @@ const SignupPage: React.FC = () => {
     } catch (error) {
       console.error('Error during signup:', error);
       const authError = error as AuthError;
+      
+      // Track signup error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.AUTH_ERROR,
+        `signup_failed: ${authError.message}`
+      );
+      
       setErrorMessage(authError.message || 'Failed to sign up. Please try again.');
     } finally {
       setIsLoading(false);
@@ -118,6 +145,14 @@ const SignupPage: React.FC = () => {
     
     try {
       console.log('Attempting Google signup');
+      
+      // Track Google signup attempt
+      analytics.trackEvent(
+        GA_CATEGORIES.AUTH,
+        GA_EVENTS.AUTH.SIGNUP_START,
+        'google_oauth'
+      );
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -130,6 +165,14 @@ const SignupPage: React.FC = () => {
     } catch (error) {
       console.error('Error with Google signup:', error);
       const authError = error as AuthError;
+      
+      // Track Google signup error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.AUTH_ERROR,
+        `google_signup_failed: ${authError.message}`
+      );
+      
       setErrorMessage(authError.message || 'Failed to sign up with Google. Please try again.');
       setIsLoading(false);
     }
