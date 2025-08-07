@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { analytics } from '../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
 
 type AuthContextType = {
   session: Session | null;
@@ -48,6 +50,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log(`Auth event [${event}]:`, newSession ? `User ${newSession.user.email}` : 'No session');
+        
+        // Track auth events
+        if (event === 'SIGNED_IN' && newSession) {
+          analytics.setUserId(newSession.user.id);
+        } else if (event === 'SIGNED_OUT') {
+          analytics.setUserId(null);
+        } else if (event === 'USER_UPDATED' && newSession) {
+          analytics.trackEvent(
+            GA_CATEGORIES.AUTH,
+            'user_updated',
+            'profile_update'
+          );
+        }
         
         // Update state based on session changes
         if (newSession) {
@@ -101,6 +116,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         console.log('Successfully signed out');
+        
+        // Track successful logout
+        analytics.trackEvent(
+          GA_CATEGORIES.AUTH,
+          GA_EVENTS.AUTH.LOGOUT,
+          'manual_logout'
+        );
+        analytics.setUserId(null); // Clear user ID
+        
         setSession(null);
         setUser(null);
       }
