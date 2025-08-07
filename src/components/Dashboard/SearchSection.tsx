@@ -1,11 +1,13 @@
 // src/components/Dashboard/SearchSection.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, X, ArrowRight, AlertCircle, Clock, Crown, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { UserTier } from './types';
 import { useAuth } from '../../context/AuthContext';
 import { products } from '../../stripe-config';
+import { analytics } from '../../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../../constants/analytics';
 
 interface SearchSectionProps {
   query: string;
@@ -44,6 +46,17 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const isRateLimitError = error?.includes('limit reached');
 
+  // Track rate limit reached
+  useEffect(() => {
+    if (isRateLimitError) {
+      analytics.trackEvent(
+        GA_CATEGORIES.ANALYSIS,
+        'rate_limit_reached',
+        displayTier === 'free' ? 'free_tier' : 'premium_tier'
+      );
+    }
+  }, [isRateLimitError, displayTier]);
+
   const formatTimeUntilReset = () => {
     if (!queryResetTime) return '';
     const now = new Date();
@@ -63,7 +76,21 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       e.stopPropagation();
     }
 
+    // Track upgrade click
+    analytics.trackEvent(
+      GA_CATEGORIES.PREMIUM,
+      GA_EVENTS.PREMIUM.CLICK_UPGRADE,
+      isRateLimitError ? 'rate_limit_reached' : 'upgrade_prompt'
+    );
+
     if (!session) {
+      // Track non-authenticated upgrade attempt
+      analytics.trackEvent(
+        GA_CATEGORIES.PREMIUM,
+        'upgrade_redirect_signup',
+        'not_authenticated'
+      );
+      
       navigate('/signup?plan=premium');
       return;
     }
@@ -72,6 +99,13 @@ const SearchSection: React.FC<SearchSectionProps> = ({
     setCheckoutError(null);
 
     try {
+      // Track checkout start
+      analytics.trackEvent(
+        GA_CATEGORIES.PREMIUM,
+        GA_EVENTS.PREMIUM.START_CHECKOUT,
+        'dashboard_search'
+      );
+      
       const premiumProduct = products[0];
       
       if (!premiumProduct || !premiumProduct.priceId) {
@@ -101,10 +135,28 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       window.location.href = url;
       
     } catch (error: any) {
+      // Track checkout error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.PAYMENT_ERROR,
+        `checkout_failed: ${error.message}`
+      );
+      
       console.error('Checkout error:', error);
       setCheckoutError(error.message || 'Failed to start checkout. Please try again.');
       setIsLoadingCheckout(false);
     }
+  };
+
+  const handleInputFocusWithTracking = () => {
+    onInputFocus();
+    
+    // Track search input focus
+    analytics.trackEvent(
+      GA_CATEGORIES.ENGAGEMENT,
+      'search_input_focus',
+      'dashboard'
+    );
   };
 
   return (
@@ -212,7 +264,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                 type="text"
                 value={query}
                 onChange={onInputChange}
-                onFocus={onInputFocus}
+                onFocus={handleInputFocusWithTracking}
                 placeholder={isTypingAnimation ? '' : "Describe what you're observing or experiencing..."}
                 className="w-full bg-[#1A1A1A]/90 text-white pl-12 pr-12 py-4 rounded-xl border border-[#444444] focus:border-[#00FFFF]/50 focus:outline-none transition-all duration-300 text-base"
                 autoFocus={shouldFocusAnalysis}
