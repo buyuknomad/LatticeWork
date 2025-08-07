@@ -6,6 +6,8 @@ import { supabase } from '../lib/supabase';
 import SEO from '../components/SEO';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthError } from '@supabase/supabase-js';
+import { analytics } from '../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
 
 interface LocationState {
   message?: string;
@@ -60,11 +62,27 @@ const LoginPage: React.FC = () => {
       if (error) throw error;
       
       console.log('Login successful:', data.user?.email);
+      
+      // Track successful login
+      analytics.trackEvent(
+        GA_CATEGORIES.AUTH,
+        GA_EVENTS.AUTH.LOGIN,
+        'email_password'
+      );
+      analytics.setUserId(data.user?.id || null);
+      
       // Successful login
       navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Login error:', error);
       const authError = error as AuthError;
+      
+      // Track login error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.AUTH_ERROR,
+        `login_failed: ${authError.message}`
+      );
       
       // Provide more helpful error messages
       if (authError.message.includes('Invalid login credentials')) {
@@ -86,6 +104,14 @@ const LoginPage: React.FC = () => {
     
     try {
       console.log('Attempting Google login');
+      
+      // Track Google login attempt
+      analytics.trackEvent(
+        GA_CATEGORIES.AUTH,
+        GA_EVENTS.AUTH.LOGIN,
+        'google_oauth'
+      );
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -98,6 +124,14 @@ const LoginPage: React.FC = () => {
     } catch (error) {
       console.error('Google login error:', error);
       const authError = error as AuthError;
+      
+      // Track Google login error
+      analytics.trackEvent(
+        GA_CATEGORIES.ERROR,
+        GA_EVENTS.ERROR.AUTH_ERROR,
+        `google_login_failed: ${authError.message}`
+      );
+      
       setErrorMessage(authError.message || 'Failed to sign in with Google. Please try again.');
       setIsLoading(false);
     }
