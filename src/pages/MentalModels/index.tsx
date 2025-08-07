@@ -16,6 +16,8 @@ import SEO from '../../components/SEO';
 import CategoryBadge from '../../components/CategoryBadge';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
 import { formatCategoryName, debounce } from '../../lib/mentalModelsUtils';
+import { analytics } from '../../services/analytics';
+import { GA_EVENTS, GA_CATEGORIES } from '../../constants/analytics';
 
 const MentalModels: React.FC = () => {
   const navigate = useNavigate();
@@ -66,6 +68,15 @@ const MentalModels: React.FC = () => {
     }
   }, []); // Only run on mount
 
+  // Track page view
+  useEffect(() => {
+    analytics.trackEvent(
+      GA_CATEGORIES.MENTAL_MODELS,
+      GA_EVENTS.MENTAL_MODELS.VIEW_LIBRARY,
+      'library_page_load'
+    );
+  }, []);
+
   // Update URL when filters change (but not on initial mount)
   useEffect(() => {
     const params = new URLSearchParams();
@@ -96,6 +107,16 @@ const MentalModels: React.FC = () => {
     debounce((query: string) => {
       setFilters(prev => ({ ...prev, searchQuery: query, page: 1 }));
     }, 300),
+    []
+  );
+
+  // Create debounced search tracker
+  const trackSearch = useCallback(
+    analytics.createDebouncedTracker(
+      GA_CATEGORIES.MENTAL_MODELS,
+      GA_EVENTS.MENTAL_MODELS.SEARCH,
+      1000 // 1 second debounce
+    ),
     []
   );
 
@@ -142,14 +163,34 @@ const MentalModels: React.FC = () => {
 
   const handleSearchInputChange = (query: string) => {
     setSearchInput(query);
+    
+    // Track search (will be debounced by the analytics service)
+    if (query) {
+      trackSearch(query);
+    }
   };
 
   const handleCategoryChange = (category: string | null) => {
     setFilters(prev => ({ ...prev, selectedCategory: category, page: 1 }));
+    
+    // Track category filter
+    analytics.trackEvent(
+      GA_CATEGORIES.MENTAL_MODELS,
+      GA_EVENTS.MENTAL_MODELS.FILTER_CATEGORY,
+      category || 'all_categories'
+    );
   };
 
   const handlePageChange = (page: number) => {
     setFilters(prev => ({ ...prev, page }));
+    
+    // Track pagination
+    analytics.trackEvent(
+      GA_CATEGORIES.ENGAGEMENT,
+      'pagination_click',
+      `page_${page}`
+    );
+    
     // Scroll to top when changing pages
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -160,6 +201,13 @@ const MentalModels: React.FC = () => {
   };
 
   const handleModelClick = (slug: string) => {
+    // Track model view
+    analytics.trackEvent(
+      GA_CATEGORIES.MENTAL_MODELS,
+      GA_EVENTS.MENTAL_MODELS.VIEW_MODEL,
+      slug
+    );
+    
     navigate(`/mental-models/${slug}`);
   };
 
@@ -202,6 +250,14 @@ const MentalModels: React.FC = () => {
               >
                 <Link 
                   to="/mental-models-guide"
+                  onClick={() => {
+                    // Track guide click
+                    analytics.trackEvent(
+                      GA_CATEGORIES.MENTAL_MODELS,
+                      GA_EVENTS.MENTAL_MODELS.CLICK_GUIDE,
+                      'header_guide_link'
+                    );
+                  }}
                   className="group relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105"
                 >
                   {/* Gradient Background */}
@@ -529,4 +585,4 @@ const MentalModels: React.FC = () => {
   );
 };
 
-export default MentalModels; 
+export default MentalModels;
