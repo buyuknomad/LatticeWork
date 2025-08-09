@@ -23,6 +23,7 @@ import MentalModels from './pages/MentalModels/index';
 import MentalModelDetail from './pages/MentalModels/MentalModelDetail';
 import MentalModelsGuidePage from './pages/MentalModelsGuidePage';
 import CognitiveBiases from './pages/CognitiveBiases';
+import CognitiveBiasDetail from './pages/CognitiveBiases/CognitiveBiasDetail';
 
 // Import new pages
 import Terms from './pages/Terms';
