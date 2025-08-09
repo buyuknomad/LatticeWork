@@ -1,4 +1,12 @@
 // src/lib/cognitiveBiasesUtils.ts
+/**
+ * Utility functions for Cognitive Biases
+ * 
+ * IMPORTANT: All functions ensure duplicates are never shown to users
+ * - 227 unique biases are displayed
+ * - 18 duplicates (245 total - 227 unique) are hidden
+ * - Duplicate CB IDs automatically redirect to primary versions
+ */
 import { CognitiveBiasCategory, CATEGORY_METADATA, DUPLICATE_MAPPINGS } from '../types/cognitiveBiases';
 
 /**
@@ -128,6 +136,7 @@ export const scrollToSection = (sectionId: string) => {
 
 /**
  * Get progress statistics for display
+ * Shows unique biases (227) vs total entries (245)
  */
 export const formatProgressStats = (
   uniqueBiases: number, 
@@ -136,25 +145,31 @@ export const formatProgressStats = (
   percentage: number;
   text: string;
   color: string;
+  duplicatesHidden: number;
 } => {
   const percentage = Math.round((uniqueBiases / 227) * 100);
-  const text = `${uniqueBiases} of 227 unique biases (${totalBiases} total entries)`;
+  const duplicatesHidden = totalBiases - uniqueBiases;
+  const text = `${uniqueBiases} of 227 unique biases`;
   
   let color = 'text-yellow-500';
   if (percentage >= 100) color = 'text-green-500';
   else if (percentage >= 75) color = 'text-blue-500';
   else if (percentage >= 50) color = 'text-indigo-500';
   
-  return { percentage, text, color };
+  return { percentage, text, color, duplicatesHidden };
 };
 
 /**
  * Group biases by category for display
+ * Automatically filters out duplicates
  */
-export const groupBiasesByCategory = <T extends { category: string }>(
+export const groupBiasesByCategory = <T extends { category: string; is_duplicate?: boolean; cb_id?: string }>(
   biases: T[]
 ): Record<string, T[]> => {
-  return biases.reduce((acc, bias) => {
+  // Filter out duplicates first
+  const uniqueBiases = filterUniqueBiases(biases);
+  
+  return uniqueBiases.reduce((acc, bias) => {
     const category = bias.category;
     if (!acc[category]) {
       acc[category] = [];
@@ -195,30 +210,45 @@ export const getBiasDifficulty = (mitigationCount: number): {
 
 /**
  * Filter out duplicate biases from a list
+ * ALWAYS use this when displaying biases to users
  */
-export const filterUniqueBiases = <T extends { cb_id: string; is_duplicate?: boolean }>(
+export const filterUniqueBiases = <T extends { cb_id?: string; is_duplicate?: boolean }>(
   biases: T[]
 ): T[] => {
-  return biases.filter(bias => !bias.is_duplicate);
+  return biases.filter(bias => {
+    // Check both is_duplicate flag and DUPLICATE_MAPPINGS
+    if (bias.is_duplicate === true) return false;
+    if (bias.cb_id && DUPLICATE_MAPPINGS.hasOwnProperty(bias.cb_id)) return false;
+    return true;
+  });
 };
 
 /**
  * Get a random bias for "Bias of the Day" feature
+ * Only returns unique biases, never duplicates
  */
-export const getRandomBias = <T>(biases: T[]): T | null => {
-  if (biases.length === 0) return null;
-  const randomIndex = Math.floor(Math.random() * biases.length);
-  return biases[randomIndex];
+export const getRandomBias = <T extends { is_duplicate?: boolean; cb_id?: string }>(
+  biases: T[]
+): T | null => {
+  // Filter out duplicates first
+  const uniqueBiases = filterUniqueBiases(biases);
+  
+  if (uniqueBiases.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * uniqueBiases.length);
+  return uniqueBiases[randomIndex];
 };
 
 /**
  * Sort biases by various criteria
+ * Automatically filters out duplicates
  */
-export const sortBiases = <T extends { name: string; order_index: number }>(
+export const sortBiases = <T extends { name: string; order_index: number; is_duplicate?: boolean; cb_id?: string }>(
   biases: T[],
   sortBy: 'name' | 'index' | 'random' = 'index'
 ): T[] => {
-  const sorted = [...biases];
+  // Filter out duplicates first
+  const uniqueBiases = filterUniqueBiases(biases);
+  const sorted = [...uniqueBiases];
   
   switch (sortBy) {
     case 'name':
@@ -252,11 +282,15 @@ export const generateMetaDescription = (
 
 /**
  * Check if user has seen a bias (using localStorage)
+ * Handles duplicates by converting to primary CB ID
  */
 export const markBiasAsViewed = (cbId: string): void => {
+  // If this is a duplicate, mark the primary as viewed instead
+  const actualId = DUPLICATE_MAPPINGS[cbId] || cbId;
+  
   const viewed = getViewedBiases();
-  if (!viewed.includes(cbId)) {
-    viewed.push(cbId);
+  if (!viewed.includes(actualId)) {
+    viewed.push(actualId);
     localStorage.setItem('viewedBiases', JSON.stringify(viewed));
   }
 };
@@ -267,7 +301,9 @@ export const getViewedBiases = (): string[] => {
 };
 
 export const isBiasViewed = (cbId: string): boolean => {
-  return getViewedBiases().includes(cbId);
+  // Check both the given ID and its primary (if it's a duplicate)
+  const actualId = DUPLICATE_MAPPINGS[cbId] || cbId;
+  return getViewedBiases().includes(actualId);
 };
 
 /**
@@ -275,4 +311,45 @@ export const isBiasViewed = (cbId: string): boolean => {
  */
 export const formatBatchNumber = (batchNumber: number): string => {
   return `Batch ${batchNumber.toString().padStart(2, '0')}`;
+};
+
+/**
+ * Get the primary CB ID or slug for potential duplicates
+ * Use this when handling navigation or links
+ */
+export const getPrimaryIdentifier = (identifier: string): string => {
+  // If it's a CB ID and it's a duplicate, return the primary
+  if (identifier.startsWith('CB') && DUPLICATE_MAPPINGS[identifier]) {
+    return DUPLICATE_MAPPINGS[identifier];
+  }
+  return identifier;
+};
+
+/**
+ * Check if we should redirect from a duplicate to primary
+ * Returns the slug to redirect to, or null if no redirect needed
+ */
+export const getRedirectForDuplicate = async (
+  identifier: string,
+  getBiasSlug: (cbId: string) => Promise<string | null>
+): Promise<string | null> => {
+  if (identifier.startsWith('CB') && DUPLICATE_MAPPINGS[identifier]) {
+    const primaryCbId = DUPLICATE_MAPPINGS[identifier];
+    return await getBiasSlug(primaryCbId);
+  }
+  return null;
+};
+
+/**
+ * Validate that a list only contains unique biases
+ * Useful for debugging
+ */
+export const validateNoDuplicates = <T extends { cb_id?: string; is_duplicate?: boolean }>(
+  biases: T[]
+): boolean => {
+  return biases.every(bias => {
+    if (bias.is_duplicate === true) return false;
+    if (bias.cb_id && DUPLICATE_MAPPINGS.hasOwnProperty(bias.cb_id)) return false;
+    return true;
+  });
 };
