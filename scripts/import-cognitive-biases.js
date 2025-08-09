@@ -1,3 +1,5 @@
+//scripts/import-cognitive-biases.js
+
 #!/usr/bin/env node
 
 /**
