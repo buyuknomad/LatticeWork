@@ -1,15 +1,6 @@
-//scripts/import-cognitive-biases.js
-
-#!/usr/bin/env node
-
 /**
  * Cognitive Biases Database Seeder
  * Handles 227 unique biases from 245 total IDs (18 duplicates)
- * 
- * Prerequisites:
- * 1. npm install @supabase/supabase-js dotenv
- * 2. Ensure your .env file has SUPABASE_SERVICE_KEY and VITE_SUPABASE_URL
- * 3. Place CognitiveBiasesBatch[N].json files in the scripts directory
  * 
  * Usage: 
  * node scripts/import-cognitive-biases.js [batch-number] - Import specific batch
@@ -156,23 +147,23 @@ async function insertCognitiveBias(bias, batchNumber) {
   if (!isDup) {
     Object.assign(dataToInsert, {
       detailed_explanation: bias.detailed_explanation,
-      expanded_examples: JSON.stringify(bias.expanded_examples || []),
-      recognition_strategies: JSON.stringify(bias.recognition_strategies || []),
-      mitigation_approaches: JSON.stringify(bias.mitigation_approaches || []),
-      common_contexts: JSON.stringify(bias.common_contexts || []),
-      reflection_questions: JSON.stringify(bias.reflection_questions || []),
-      related_bias_ids: JSON.stringify(bias.related_bias_ids || [])
+      expanded_examples: bias.expanded_examples || [],
+      recognition_strategies: bias.recognition_strategies || [],
+      mitigation_approaches: bias.mitigation_approaches || [],
+      common_contexts: bias.common_contexts || [],
+      reflection_questions: bias.reflection_questions || [],
+      related_bias_ids: bias.related_bias_ids || []
     });
   } else {
     // For duplicates, set empty arrays
     Object.assign(dataToInsert, {
       detailed_explanation: `See primary bias: ${primaryId}`,
-      expanded_examples: JSON.stringify([]),
-      recognition_strategies: JSON.stringify([]),
-      mitigation_approaches: JSON.stringify([]),
-      common_contexts: JSON.stringify([]),
-      reflection_questions: JSON.stringify([]),
-      related_bias_ids: JSON.stringify([])
+      expanded_examples: [],
+      recognition_strategies: [],
+      mitigation_approaches: [],
+      common_contexts: [],
+      reflection_questions: [],
+      related_bias_ids: []
     });
   }
   
