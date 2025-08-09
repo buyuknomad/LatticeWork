@@ -1,3 +1,5 @@
+//scripts/import-mental-models.js
+
 #!/usr/bin/env node
 
 /**
