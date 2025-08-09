@@ -82,8 +82,12 @@ function AppContent() {
             <Route path="/mental-models" element={<MentalModels />} />
             <Route path="/mental-models/:slug" element={<MentalModelDetail />} />
             
-            {/* Other Public Routes */}
+            {/* Cognitive Biases Routes */}
             <Route path="/cognitive-biases" element={<CognitiveBiases />} />
+            <Route path="/cognitive-biases" element={<CognitiveBiases />} />
+            <Route path="/cognitive-biases/:slug" element={<CognitiveBiasDetail />} />
+
+            {/* Other Public Routes */}
             <Route path="/examples" element={<Examples />} />
             <Route path="/examples/:slug" element={<ExampleDetail />} />
             <Route path="/faq" element={<FAQ />} />
