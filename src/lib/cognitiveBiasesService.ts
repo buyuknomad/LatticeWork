@@ -31,10 +31,9 @@ export const getCognitiveBiases = async (
       .select('id, cb_id, name, slug, category, core_concept, order_index, is_duplicate, duplicate_of_id', 
         { count: 'exact' });
 
-    // Filter duplicates by default (unless admin viewing all)
-    if (!filters.showDuplicates) {
-      query = query.eq('is_duplicate', false);
-    }
+    // ALWAYS filter out duplicates for regular users
+    // Only show duplicates if explicitly requested (admin only)
+    query = query.eq('is_duplicate', false);
 
     // Apply search filter
     if (filters.searchQuery.trim()) {
@@ -82,57 +81,65 @@ export const getCognitiveBiases = async (
   }
 };
 
-// Get single cognitive bias by slug or CB ID with duplicate handling
+// Get single cognitive bias by slug or CB ID with automatic duplicate redirect
 export const getCognitiveBiasByIdentifier = async (
   identifier: string
 ): Promise<{
   bias: CognitiveBias | null;
   relatedBiases: RelatedBias[];
-  primaryBias?: CognitiveBias | null;
-  redirectToPrimary?: boolean;
+  redirectTo?: string; // Slug to redirect to if this is a duplicate
 }> => {
   try {
     // Check if identifier is a CB ID or slug
     const isCbId = identifier.startsWith('CB');
     
-    // Get the bias
+    // First, check if this is a duplicate CB ID
+    if (isCbId && isDuplicate(identifier)) {
+      const primaryCbId = getPrimaryCbId(identifier);
+      if (primaryCbId) {
+        // Get the primary bias directly
+        const { data: primaryBias } = await supabase
+          .from('cognitive_biases_library')
+          .select('*')
+          .eq('cb_id', primaryCbId)
+          .single();
+        
+        if (primaryBias) {
+          // Return with redirect instruction
+          return {
+            bias: null,
+            relatedBiases: [],
+            redirectTo: primaryBias.slug
+          };
+        }
+      }
+    }
+    
+    // Get the bias (will be blocked by RLS if it's a duplicate)
     const { data: bias, error: biasError } = await supabase
       .from('cognitive_biases_library')
       .select('*')
       .eq(isCbId ? 'cb_id' : 'slug', identifier)
+      .eq('is_duplicate', false) // Ensure we only get non-duplicates
       .single();
 
     if (biasError) {
       if (biasError.code === 'PGRST116') {
-        // Not found
+        // Not found (might be a duplicate that's filtered out)
         return { bias: null, relatedBiases: [] };
       }
       console.error('Error fetching cognitive bias:', biasError);
       throw biasError;
     }
 
-    // If it's a duplicate, fetch the primary bias
-    let primaryBias = null;
-    let redirectToPrimary = false;
-    if (bias.is_duplicate && bias.duplicate_of_id) {
-      const { data: primary } = await supabase
-        .from('cognitive_biases_library')
-        .select('*')
-        .eq('cb_id', bias.duplicate_of_id)
-        .single();
-      
-      primaryBias = primary as CognitiveBias;
-      redirectToPrimary = true; // Flag to indicate UI should redirect
-    }
-
-    // Get related biases (only for non-duplicates)
+    // Get related biases (only non-duplicates)
     let relatedBiases: RelatedBias[] = [];
-    if (!bias.is_duplicate && bias.related_bias_slugs && bias.related_bias_slugs.length > 0) {
+    if (bias.related_bias_slugs && bias.related_bias_slugs.length > 0) {
       const { data: related, error: relatedError } = await supabase
         .from('cognitive_biases_library')
         .select('cb_id, name, slug, category, core_concept')
         .in('slug', bias.related_bias_slugs)
-        .eq('is_duplicate', false); // Only show unique biases in related
+        .eq('is_duplicate', false); // Only show unique biases
       
       if (!relatedError) {
         relatedBiases = related || [];
@@ -141,9 +148,7 @@ export const getCognitiveBiasByIdentifier = async (
 
     return {
       bias: bias as CognitiveBias,
-      relatedBiases,
-      primaryBias,
-      redirectToPrimary
+      relatedBiases
     };
   } catch (error) {
     console.error('Error in getCognitiveBiasByIdentifier:', error);
@@ -354,4 +359,32 @@ export const checkBiasExists = async (identifier: string): Promise<boolean> => {
     console.error('Error in checkBiasExists:', error);
     return false;
   }
+};
+
+// ADMIN ONLY: Get all biases including duplicates
+export const getAllBiasesAdmin = async (): Promise<CognitiveBias[]> => {
+  try {
+    // This bypasses RLS and gets all biases
+    // Should only be used in admin contexts
+    const { data, error } = await supabase
+      .from('cognitive_biases_library')
+      .select('*')
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching all biases (admin):', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAllBiasesAdmin:', error);
+    return [];
+  }
+};
+
+// Get duplicate mapping for redirects
+export const getDuplicateRedirect = (cbId: string): string | null => {
+  // If someone tries to access CB068, return CB023
+  return getPrimaryCbId(cbId);
 };
