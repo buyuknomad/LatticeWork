@@ -277,15 +277,37 @@ async function updateAllRelatedSlugs() {
   console.log('\n🔗 Updating related bias slugs...');
   
   try {
-    // Call the database function to update slugs
-    const { error } = await supabase.rpc('update_related_bias_slugs');
-    
-    if (error) {
-      console.error('❌ Error updating related slugs:', error);
-      return;
+    // Get all biases with related_bias_ids
+    const { data: biases, error: fetchError } = await supabase
+      .from('cognitive_biases_library')
+      .select('id, cb_id, related_bias_ids')
+      .not('related_bias_ids', 'is', null);
+
+    if (fetchError) throw fetchError;
+
+    let updated = 0;
+    for (const bias of biases) {
+      if (!bias.related_bias_ids || bias.related_bias_ids.length === 0) continue;
+
+      // Get the slugs for the related CB IDs
+      const { data: relatedBiases } = await supabase
+        .from('cognitive_biases_library')
+        .select('cb_id, slug')
+        .in('cb_id', bias.related_bias_ids);
+
+      if (relatedBiases && relatedBiases.length > 0) {
+        const slugArray = relatedBiases.map(rb => rb.slug).filter(Boolean);
+        
+        await supabase
+          .from('cognitive_biases_library')
+          .update({ related_bias_slugs: slugArray })
+          .eq('id', bias.id);
+        
+        updated++;
+      }
     }
     
-    console.log('✅ Related bias slugs updated successfully');
+    console.log(`✅ Updated ${updated} biases with related slugs`);
   } catch (error) {
     console.error('❌ Error in updateAllRelatedSlugs:', error);
   }
@@ -386,6 +408,11 @@ async function main() {
     console.log(`\n🚀 Processing batch ${batchNumber}...`);
     totalResults = await processBatch(batchNumber);
     
+    // Update related slugs after single batch import
+    if (totalResults.inserted > 0) {
+      await updateAllRelatedSlugs();
+    }
+    
   } else {
     console.log('\n📖 Usage:');
     console.log('  node scripts/import-cognitive-biases.js [batch]   - Import specific batch (1-25)');
@@ -393,6 +420,11 @@ async function main() {
     console.log('  node scripts/import-cognitive-biases.js check-duplicates - Verify duplicates');
     console.log('\n💡 Starting with batch 1 by default...');
     totalResults = await processBatch(1);
+    
+    // Update related slugs after single batch import
+    if (totalResults.inserted > 0) {
+      await updateAllRelatedSlugs();
+    }
   }
   
   // Summary
