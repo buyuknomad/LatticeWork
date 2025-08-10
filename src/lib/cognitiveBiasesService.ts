@@ -134,24 +134,12 @@ export const getCognitiveBiasByIdentifier = async (
 
     // Get related biases (only non-duplicates)
     let relatedBiases: RelatedBias[] = [];
-    if (bias.related_bias_ids && bias.related_bias_ids.length > 0) {
-      // Query using CB IDs instead of slugs since slugs might not be populated yet
-      const { data: related, error: relatedError } = await supabase
-        .from('cognitive_biases_library')
-        .select('cb_id, name, slug, category, core_concept')
-        .in('cb_id', bias.related_bias_ids) // Use cb_id instead of slug
-        .eq('is_duplicate', false); // Only show unique biases
-      
-      if (!relatedError) {
-        relatedBiases = related || [];
-      }
-    } else if (bias.related_bias_slugs && bias.related_bias_slugs.length > 0) {
-      // Fallback to slugs if they exist
+    if (bias.related_bias_slugs && bias.related_bias_slugs.length > 0) {
       const { data: related, error: relatedError } = await supabase
         .from('cognitive_biases_library')
         .select('cb_id, name, slug, category, core_concept')
         .in('slug', bias.related_bias_slugs)
-        .eq('is_duplicate', false);
+        .eq('is_duplicate', false); // Only show unique biases
       
       if (!relatedError) {
         relatedBiases = related || [];
