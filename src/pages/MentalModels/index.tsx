@@ -596,4 +596,4 @@ const MentalModels: React.FC = () => {
   );
 };
 
-export default MentalModels;
+export default MentalModels; 
