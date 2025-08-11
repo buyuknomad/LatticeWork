@@ -1,11 +1,10 @@
 // src/components/AdminRoute.tsx
-// Fixed version that works with Google OAuth and Supabase Auth
+// Fixed to work with your existing AuthContext structure
 
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Lock } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -20,58 +19,64 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
   allowedRoles = ['admin', 'super_admin'],
   redirectTo = '/dashboard'
 }) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth(); // Changed from 'loading' to 'isLoading'
   const location = useLocation();
-  const [isChecking, setIsChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckComplete, setAdminCheckComplete] = useState(false);
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      // If still loading auth, wait
-      if (loading) {
-        return;
-      }
+    // Wait for auth to finish loading
+    if (isLoading) {
+      return;
+    }
 
-      // If no user, we'll handle redirect below
-      if (!user) {
-        setIsChecking(false);
-        return;
-      }
+    // If no user after loading is complete, mark check as done
+    if (!user) {
+      setAdminCheckComplete(true);
+      return;
+    }
 
-      // For Google OAuth users, the email might be in different places
+    // Check admin status
+    const checkAdminStatus = () => {
+      // Get user email - could be in different places for Google OAuth
       const userEmail = user.email || user.user_metadata?.email || '';
       
-      console.log('Admin check - User email:', userEmail);
-      console.log('Admin check - User ID:', user.id);
-      console.log('Admin check - User metadata:', user.user_metadata);
+      console.log('Admin check:', {
+        userEmail,
+        userId: user.id,
+        metadata: user.user_metadata,
+        appMetadata: user.app_metadata
+      });
       
-      // Check if user is admin by email
-      const emailIsAdmin = allowedEmails.includes(userEmail.toLowerCase());
+      // Check if user is admin by email (case-insensitive)
+      const emailIsAdmin = allowedEmails.some(
+        adminEmail => adminEmail.toLowerCase() === userEmail.toLowerCase()
+      );
       
-      // Check if user is admin by role (if you have roles set up)
+      // Check if user is admin by role
       const roleIsAdmin = 
         allowedRoles.includes(user.user_metadata?.role) ||
         allowedRoles.includes(user.app_metadata?.role) ||
         false;
 
-      // Set admin status
-      setIsAdmin(emailIsAdmin || roleIsAdmin);
-      setIsChecking(false);
-
-      // Log the result for debugging
+      const adminStatus = emailIsAdmin || roleIsAdmin;
+      
       console.log('Admin check result:', {
         email: userEmail,
         emailIsAdmin,
         roleIsAdmin,
-        finalIsAdmin: emailIsAdmin || roleIsAdmin
+        finalIsAdmin: adminStatus
       });
+
+      setIsAdmin(adminStatus);
+      setAdminCheckComplete(true);
     };
 
     checkAdminStatus();
-  }, [user, loading, allowedEmails, allowedRoles]);
+  }, [user, isLoading, allowedEmails, allowedRoles]);
 
   // Show loading state while checking auth
-  if (loading || isChecking) {
+  if (isLoading || !adminCheckComplete) {
     return (
       <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
         <div className="text-center">
@@ -84,14 +89,16 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
 
   // Check if user is logged in
   if (!user) {
-    console.log('No user found, redirecting to login');
+    console.log('No user found, redirecting to login from:', location.pathname);
     // Store the intended destination
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   // If not admin, show access denied
   if (!isAdmin) {
-    console.log('User is not admin, showing access denied');
+    const userEmail = user.email || user.user_metadata?.email || 'Unknown';
+    console.log(`Access denied for user: ${userEmail}`);
+    
     return (
       <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -100,8 +107,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
           <p className="text-gray-400 mb-6">
             You don't have permission to access this page. This area is restricted to administrators only.
           </p>
-          <div className="text-sm text-gray-500 mb-6">
-            Logged in as: {user.email || user.user_metadata?.email || 'Unknown'}
+          <div className="bg-[#252525] rounded-lg p-3 mb-6">
+            <p className="text-sm text-gray-500">Logged in as:</p>
+            <p className="text-sm text-white font-mono">{userEmail}</p>
           </div>
           <div className="space-y-3">
             <button
@@ -120,13 +128,28 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
           <p className="text-xs text-gray-500 mt-6">
             If you believe you should have access, contact your administrator.
           </p>
+          
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <details className="mt-4 text-left">
+              <summary className="text-xs text-gray-500 cursor-pointer">Debug Info</summary>
+              <pre className="mt-2 p-2 bg-black/50 rounded text-xs text-gray-400 overflow-auto">
+{JSON.stringify({
+  allowedEmails,
+  userEmail,
+  userId: user.id,
+  provider: user.app_metadata?.provider
+}, null, 2)}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     );
   }
 
   // User is admin, render children
-  console.log('User is admin, rendering protected content');
+  console.log('Admin access granted, rendering protected content');
   return <>{children}</>;
 };
 
