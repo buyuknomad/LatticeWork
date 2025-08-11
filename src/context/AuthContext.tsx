@@ -1,160 +1,175 @@
-//src/context/AuthContext.tsx
+// src/context/AuthContext.tsx
+// Enhanced auth context with admin role management
 
-
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { Session, User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-import { analytics } from '../services/analytics';
-import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
 
-type AuthContextType = {
-  session: Session | null;
+interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
+  loading: boolean;
+  isAdmin: boolean; // New: admin status
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  checkAdminStatus: () => boolean; // New: check admin status
+}
+
+// Admin configuration - centralized for easy management
+const ADMIN_CONFIG = {
+  emails: [
+    'infiernodel@gmail.com',
+    // Add more admin emails here
+  ],
+  roles: ['admin', 'super_admin'],
+  // You can also add user IDs if needed
+  userIds: [
+    '7afaef73-ce6d-426a-b4d7-b04fd6b0edc2', // infiernodel@gmail.com
+  ]
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if a user is an admin
+  const checkAdminStatus = (currentUser?: User | null): boolean => {
+    const userToCheck = currentUser || user;
+    
+    if (!userToCheck) return false;
+
+    // Check by email
+    if (ADMIN_CONFIG.emails.includes(userToCheck.email || '')) {
+      return true;
+    }
+
+    // Check by user ID
+    if (ADMIN_CONFIG.userIds.includes(userToCheck.id)) {
+      return true;
+    }
+
+    // Check by role in user metadata
+    const userRole = userToCheck.user_metadata?.role || userToCheck.app_metadata?.role;
+    if (userRole && ADMIN_CONFIG.roles.includes(userRole)) {
+      return true;
+    }
+
+    // Optional: Check against a database table (uncomment if you have an admin table)
+    // This would be an async check, so you'd need to handle it differently
+    /*
+    const { data } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('user_id', userToCheck.id)
+      .single();
+    return !!data;
+    */
+
+    return false;
+  };
+
+  // Initialize auth state
   useEffect(() => {
-    // Get initial session
-    const loadSession = async (): Promise<void> => {
+    const initAuth = async () => {
       try {
-        console.log('Loading initial session');
-        const { data, error } = await supabase.auth.getSession();
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error('Error loading session:', error);
-          return;
+        if (session?.user) {
+          setUser(session.user);
+          setIsAdmin(checkAdminStatus(session.user));
         }
-        
-        if (data?.session) {
-          console.log('Initial session found:', data.session.user.email);
-          setSession(data.session);
-          setUser(data.session.user);
-        } else {
-          console.log('No active session found');
-        }
-      } catch (err) {
-        console.error('Unexpected error loading session:', err);
+      } catch (error) {
+        console.error('Error initializing auth:', error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    loadSession();
+    initAuth();
 
-    // Set up auth state change listener
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        console.log(`Auth event [${event}]:`, newSession ? `User ${newSession.user.email}` : 'No session');
+      async (event, session) => {
+        setUser(session?.user || null);
+        setIsAdmin(checkAdminStatus(session?.user || null));
         
-        // Track auth events
-        if (event === 'SIGNED_IN' && newSession) {
-          analytics.setUserId(newSession.user.id);
-        } else if (event === 'SIGNED_OUT') {
-          analytics.setUserId(null);
-        } else if (event === 'USER_UPDATED' && newSession) {
-          analytics.trackEvent(
-            GA_CATEGORIES.AUTH,
-            'user_updated',
-            'profile_update'
-          );
+        // Log admin access for security monitoring
+        if (session?.user && checkAdminStatus(session.user)) {
+          console.log(`Admin access: ${session.user.email} at ${new Date().toISOString()}`);
+          
+          // Optional: Track admin access in database
+          try {
+            await supabase.from('admin_access_logs').insert({
+              user_id: session.user.id,
+              email: session.user.email,
+              action: event,
+              timestamp: new Date().toISOString()
+            });
+          } catch (error) {
+            // Silently fail if table doesn't exist
+          }
         }
-        
-        // Update state based on session changes
-        if (newSession) {
-          setSession(newSession);
-          setUser(newSession.user);
-        } else {
-          setSession(null);
-          setUser(null);
-        }
-        
-        setIsLoading(false);
       }
     );
-    
-    // Clean up subscription on unmount
+
     return () => {
-      console.log('Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
 
-  const signOut = useCallback(async (): Promise<void> => {
-    try {
-      console.log('Attempting to sign out');
-      setIsLoading(true);
-      
-      // Check if there's actually a session to sign out from
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (!currentSession) {
-        console.log('No active session to sign out from');
-        // Clear local state anyway
-        setSession(null);
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
-      
-      // Attempt to sign out
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        // If error is about missing session, just clear local state
-        if (error.message.includes('session') || error.message.includes('Session')) {
-          console.log('Session already expired, clearing local state');
-          setSession(null);
-          setUser(null);
-        } else {
-          console.error('Error signing out:', error);
-          throw error;
-        }
-      } else {
-        console.log('Successfully signed out');
-        
-        // Track successful logout
-        analytics.trackEvent(
-          GA_CATEGORIES.AUTH,
-          GA_EVENTS.AUTH.LOGOUT,
-          'manual_logout'
-        );
-        analytics.setUserId(null); // Clear user ID
-        
-        setSession(null);
-        setUser(null);
-      }
-    } catch (err) {
-      console.error('Unexpected error during sign out:', err);
-      // Even on error, clear local state to ensure user can "sign out"
-      setSession(null);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const signIn = async (email: string, password: string) => {
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  const value: AuthContextType = {
-    session,
+    if (error) throw error;
+    
+    // Check admin status after sign in
+    if (data.user) {
+      setIsAdmin(checkAdminStatus(data.user));
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+  };
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    setIsAdmin(false);
+  };
+
+  const value = {
     user,
-    isLoading,
-    signOut
+    loading,
+    isAdmin,
+    signIn,
+    signUp,
+    signOut,
+    checkAdminStatus: () => checkAdminStatus(user),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// Export admin config for use in other components
+export { ADMIN_CONFIG };
