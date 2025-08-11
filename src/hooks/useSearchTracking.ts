@@ -413,4 +413,4 @@ export function useSearchTracking(options = { debug: false }) {
     isSearching: !!searchIdRef.current,
     searchMetrics: searchMetricsRef.current
   };
-} 
+}
