@@ -12,14 +12,17 @@ import {
   ChevronUp,
   Share2,
   Clock,
-  Tag
+  Tag,
+  Eye,
+  Activity
 } from 'lucide-react';
 import { MentalModel, RelatedModel } from '../../types/mentalModels';
 import SEO from '../../components/SEO';
 import { getMentalModelBySlug, getNavigationModels } from '../../lib/mentalModelsService';
 import { formatCategoryName } from '../../lib/mentalModelsUtils';
 
-// ADD THESE IMPORTS
+// TRACKING IMPORTS
+import { useAuth } from '../../context/AuthContext'; // ADD THIS - Critical for tracking
 import { useModelTracking } from '../../hooks/useModelTracking';
 import { SessionManager } from '../../utils/sessionManager';
 
@@ -27,6 +30,8 @@ const MentalModelDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth(); // ADD THIS - Get authenticated user
+  
   const [model, setModel] = useState<MentalModel | null>(null);
   const [relatedModels, setRelatedModels] = useState<RelatedModel[]>([]);
   const [navigation, setNavigation] = useState<{ previous: any; next: any }>({ previous: null, next: null });
@@ -34,18 +39,35 @@ const MentalModelDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['explanation']));
 
-  // ADD ANALYTICS TRACKING
+  // ANALYTICS TRACKING - Now with proper user check
   const { 
     trackInteraction, 
     isTracking, 
     viewDuration,
-    sessionId 
+    sessionId,
+    interactionCount 
   } = useModelTracking(model, {
-    enabled: true,
+    enabled: !!user && !!model, // Only track if user is logged in AND model is loaded
     trackDuration: true,
     trackInteractions: true,
     debug: import.meta.env.DEV // Debug in development
   });
+
+  // Log tracking status in development
+  useEffect(() => {
+    if (import.meta.env.DEV && model && user) {
+      console.log('📊 Model Tracking Status:', {
+        modelName: model.name,
+        modelSlug: model.slug,
+        userId: user.id,
+        userEmail: user.email,
+        isTracking,
+        sessionId,
+        viewDuration: `${viewDuration}s`,
+        interactions: interactionCount
+      });
+    }
+  }, [model, user, isTracking, sessionId, viewDuration, interactionCount]);
 
   useEffect(() => {
     if (slug) {
@@ -70,6 +92,9 @@ const MentalModelDetail: React.FC = () => {
       setModel(fetchedModel);
       setRelatedModels(fetchedRelated);
       
+      // Log successful model load
+      console.log('✅ Model loaded:', fetchedModel.name, 'User:', user?.email || 'Not logged in');
+      
       // Fetch navigation models
       const navModels = await getNavigationModels(fetchedModel.order_index);
       setNavigation(navModels);
@@ -88,10 +113,16 @@ const MentalModelDetail: React.FC = () => {
       const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
         newSet.delete(sectionId);
-        trackInteraction('section_collapsed', { section: sectionId });
+        trackInteraction('section_collapsed', { 
+          section: sectionId,
+          modelSlug: model?.slug 
+        });
       } else {
         newSet.add(sectionId);
-        trackInteraction('section_expanded', { section: sectionId });
+        trackInteraction('section_expanded', { 
+          section: sectionId,
+          modelSlug: model?.slug 
+        });
       }
       return newSet;
     });
@@ -99,7 +130,10 @@ const MentalModelDetail: React.FC = () => {
 
   // TRACK SHARE BUTTON
   const handleShare = async () => {
-    trackInteraction('share_clicked', { model: model?.slug });
+    trackInteraction('share_clicked', { 
+      model: model?.slug,
+      method: 'button_click' 
+    });
     
     const url = window.location.href;
     const title = `${model?.name} - Mental Model | Mind Lattice`;
@@ -111,7 +145,10 @@ const MentalModelDetail: React.FC = () => {
           text: model?.core_concept,
           url
         });
-        trackInteraction('share_completed', { method: 'native' });
+        trackInteraction('share_completed', { 
+          method: 'native',
+          model: model?.slug 
+        });
       } catch (err) {
         // User cancelled or error occurred
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -126,7 +163,10 @@ const MentalModelDetail: React.FC = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      trackInteraction('share_completed', { method: 'clipboard' });
+      trackInteraction('share_completed', { 
+        method: 'clipboard',
+        model: model?.slug 
+      });
       console.log('URL copied to clipboard');
     }).catch(() => {
       console.log('Failed to copy URL');
@@ -137,12 +177,13 @@ const MentalModelDetail: React.FC = () => {
   const handleRelatedModelClick = (relatedModel: RelatedModel) => {
     trackInteraction('related_model_click', { 
       from: model?.slug,
-      to: relatedModel.slug 
+      to: relatedModel.slug,
+      relatedModelName: relatedModel.name 
     });
     
     // Navigate with tracking source
-    navigate(`/mental-models/${relatedModel.slug}?ref=related`, {
-      state: { from: 'related' }
+    navigate(`/mental-models/${relatedModel.slug}?ref=related&from=${model?.slug}`, {
+      state: { from: 'related', previousModel: model?.slug }
     });
   };
 
@@ -151,23 +192,23 @@ const MentalModelDetail: React.FC = () => {
     trackInteraction('navigation_click', { 
       from: model?.slug,
       to: targetModel.slug,
-      direction 
+      direction,
+      targetModelName: targetModel.name 
     });
     
-    navigate(`/mental-models/${targetModel.slug}?ref=navigation`, {
-      state: { from: 'navigation' }
+    navigate(`/mental-models/${targetModel.slug}?ref=navigation&dir=${direction}`, {
+      state: { from: 'navigation', direction }
     });
   };
 
-  // SHOW TRACKING STATUS IN DEV MODE
-  if (import.meta.env.DEV && model) {
-    console.log('📊 Analytics Status:', {
-      tracking: isTracking,
-      duration: viewDuration,
-      session: sessionId,
-      model: model.slug
+  // TRACK EXAMPLE INTERACTIONS
+  const handleExampleExpand = (exampleIndex: number, exampleTitle: string) => {
+    trackInteraction('example_viewed', {
+      modelSlug: model?.slug,
+      exampleIndex,
+      exampleTitle
     });
-  }
+  };
 
   if (loading) {
     return (
@@ -245,7 +286,7 @@ const MentalModelDetail: React.FC = () => {
     
     return (
       <div 
-        className={`flex items-center justify-between mb-4 ${collapsible ? 'cursor-pointer' : ''}`}
+        className={`flex items-center justify-between mb-4 ${collapsible ? 'cursor-pointer select-none' : ''}`}
         onClick={collapsible ? () => toggleSection(id) : undefined}
       >
         <div className="flex items-center">
@@ -253,7 +294,7 @@ const MentalModelDetail: React.FC = () => {
           <h2 className="text-2xl font-bold ml-3">{title}</h2>
         </div>
         {collapsible && (
-          <div className="text-gray-400">
+          <div className="text-gray-400 hover:text-white transition-colors">
             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
         )}
@@ -287,10 +328,29 @@ const MentalModelDetail: React.FC = () => {
       />
       
       <div className="min-h-screen bg-[#1A1A1A] text-white">
-        {/* Add tracking badge in development */}
-        {import.meta.env.DEV && (
-          <div className="fixed bottom-4 right-4 bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs z-50">
-            Tracking: {viewDuration}s | Session: {sessionId?.slice(0, 8)}
+        {/* Tracking Status Badge - Development Only */}
+        {import.meta.env.DEV && user && isTracking && (
+          <div className="fixed bottom-4 right-4 bg-green-500/20 backdrop-blur-sm border border-green-500/50 rounded-lg px-3 py-2 text-xs z-50 max-w-xs">
+            <div className="flex items-center gap-2 text-green-400">
+              <Activity className="w-3 h-3 animate-pulse" />
+              <span className="font-mono">Tracking Active</span>
+            </div>
+            <div className="mt-1 space-y-0.5 text-[10px] text-green-300/80">
+              <div>Duration: {viewDuration}s</div>
+              <div>Session: {sessionId?.slice(0, 8)}...</div>
+              <div>Interactions: {interactionCount}</div>
+              <div>User: {user.email?.split('@')[0]}</div>
+            </div>
+          </div>
+        )}
+
+        {/* No Tracking Warning - Development Only */}
+        {import.meta.env.DEV && !user && model && (
+          <div className="fixed bottom-4 right-4 bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/50 rounded-lg px-3 py-2 text-xs z-50 max-w-xs">
+            <div className="flex items-center gap-2 text-yellow-400">
+              <Eye className="w-3 h-3" />
+              <span>Not Tracking (Not Logged In)</span>
+            </div>
           </div>
         )}
         
@@ -323,6 +383,12 @@ const MentalModelDetail: React.FC = () => {
                   <Share2 className="w-4 h-4 mr-1" />
                   Share
                 </button>
+                {user && (
+                  <span className="flex items-center px-3 py-1 text-sm text-gray-500">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {viewDuration > 0 ? `${viewDuration}s` : 'Just started'}
+                  </span>
+                )}
               </div>
 
               <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">
@@ -370,7 +436,11 @@ const MentalModelDetail: React.FC = () => {
                 className="space-y-6"
               >
                 {model.expanded_examples.map((example, index) => (
-                  <div key={index} className="bg-[#252525] rounded-lg p-6 border border-[#333333]">
+                  <div 
+                    key={index} 
+                    className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#FFB84D]/30 transition-colors"
+                    onClick={() => handleExampleExpand(index, example.title)}
+                  >
                     <h3 className="text-xl font-semibold mb-3 text-[#FFB84D]">
                       {example.title}
                     </h3>
@@ -398,7 +468,7 @@ const MentalModelDetail: React.FC = () => {
                 className="space-y-3"
               >
                 {model.use_cases.map((useCase, index) => (
-                  <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#333333]">
+                  <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#333333] hover:border-[#00FFFF]/30 transition-colors">
                     <div className="w-2 h-2 bg-[#00FFFF] rounded-full mt-2 mr-4 flex-shrink-0"></div>
                     <p className="text-gray-300 leading-relaxed">
                       {useCase}
@@ -463,7 +533,7 @@ const MentalModelDetail: React.FC = () => {
             )}
           </section>
 
-          {/* Related Models - Updated with tracking */}
+          {/* Related Models */}
           {relatedModels.length > 0 && (
             <section className="mb-12">
               <SectionHeader 
@@ -493,7 +563,7 @@ const MentalModelDetail: React.FC = () => {
             </section>
           )}
 
-          {/* Navigation - Updated with tracking */}
+          {/* Navigation */}
           <div className="flex justify-between items-center pt-8 border-t border-[#333333]">
             {navigation.previous ? (
               <button
@@ -533,4 +603,4 @@ const MentalModelDetail: React.FC = () => {
   );
 };
 
-export default MentalModelDetail; 
+export default MentalModelDetail;
