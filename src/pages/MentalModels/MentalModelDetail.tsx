@@ -1,6 +1,6 @@
 // src/pages/MentalModels/MentalModelDetail.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
@@ -19,14 +19,33 @@ import SEO from '../../components/SEO';
 import { getMentalModelBySlug, getNavigationModels } from '../../lib/mentalModelsService';
 import { formatCategoryName } from '../../lib/mentalModelsUtils';
 
+// ADD THESE IMPORTS
+import { useModelTracking } from '../../hooks/useModelTracking';
+import { SessionManager } from '../../utils/sessionManager';
+
 const MentalModelDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [model, setModel] = useState<MentalModel | null>(null);
   const [relatedModels, setRelatedModels] = useState<RelatedModel[]>([]);
   const [navigation, setNavigation] = useState<{ previous: any; next: any }>({ previous: null, next: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['explanation']));
+
+  // ADD ANALYTICS TRACKING
+  const { 
+    trackInteraction, 
+    isTracking, 
+    viewDuration,
+    sessionId 
+  } = useModelTracking(model, {
+    enabled: true,
+    trackDuration: true,
+    trackInteractions: true,
+    debug: import.meta.env.DEV // Debug in development
+  });
 
   useEffect(() => {
     if (slug) {
@@ -63,19 +82,25 @@ const MentalModelDetail: React.FC = () => {
     }
   };
 
+  // TRACK SECTION EXPANSIONS
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => {
       const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
         newSet.delete(sectionId);
+        trackInteraction('section_collapsed', { section: sectionId });
       } else {
         newSet.add(sectionId);
+        trackInteraction('section_expanded', { section: sectionId });
       }
       return newSet;
     });
   };
 
+  // TRACK SHARE BUTTON
   const handleShare = async () => {
+    trackInteraction('share_clicked', { model: model?.slug });
+    
     const url = window.location.href;
     const title = `${model?.name} - Mental Model | Mind Lattice`;
     
@@ -86,9 +111,13 @@ const MentalModelDetail: React.FC = () => {
           text: model?.core_concept,
           url
         });
+        trackInteraction('share_completed', { method: 'native' });
       } catch (err) {
-        // Fallback to clipboard
-        copyToClipboard(url);
+        // User cancelled or error occurred
+        if (err instanceof Error && err.name !== 'AbortError') {
+          // Fallback to clipboard
+          copyToClipboard(url);
+        }
       }
     } else {
       copyToClipboard(url);
@@ -97,12 +126,48 @@ const MentalModelDetail: React.FC = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      // You could add a toast notification here
+      trackInteraction('share_completed', { method: 'clipboard' });
       console.log('URL copied to clipboard');
     }).catch(() => {
       console.log('Failed to copy URL');
     });
   };
+
+  // TRACK RELATED MODEL CLICKS
+  const handleRelatedModelClick = (relatedModel: RelatedModel) => {
+    trackInteraction('related_model_click', { 
+      from: model?.slug,
+      to: relatedModel.slug 
+    });
+    
+    // Navigate with tracking source
+    navigate(`/mental-models/${relatedModel.slug}?ref=related`, {
+      state: { from: 'related' }
+    });
+  };
+
+  // TRACK NAVIGATION CLICKS
+  const handleNavigationClick = (targetModel: any, direction: 'previous' | 'next') => {
+    trackInteraction('navigation_click', { 
+      from: model?.slug,
+      to: targetModel.slug,
+      direction 
+    });
+    
+    navigate(`/mental-models/${targetModel.slug}?ref=navigation`, {
+      state: { from: 'navigation' }
+    });
+  };
+
+  // SHOW TRACKING STATUS IN DEV MODE
+  if (import.meta.env.DEV && model) {
+    console.log('📊 Analytics Status:', {
+      tracking: isTracking,
+      duration: viewDuration,
+      session: sessionId,
+      model: model.slug
+    });
+  }
 
   if (loading) {
     return (
@@ -222,239 +287,248 @@ const MentalModelDetail: React.FC = () => {
       />
       
       <div className="min-h-screen bg-[#1A1A1A] text-white">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] pt-20 pb-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Breadcrumb */}
-          <Link 
-            to="/mental-models"
-            className="inline-flex items-center text-[#00FFFF] hover:text-white transition-colors mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Mental Models
-          </Link>
-
-          {/* Model Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex flex-wrap items-center gap-4 mb-4">
-              <span className="inline-block px-3 py-1 text-sm rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
-                {formatCategoryName(model.category)}
-              </span>
-              <button 
-                onClick={handleShare}
-                className="flex items-center px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                <Share2 className="w-4 h-4 mr-1" />
-                Share
-              </button>
-            </div>
-
-            <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">
-              {model.name}
-            </h1>
-
-            <p className="text-xl text-gray-300 leading-relaxed">
-              {model.core_concept}
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Detailed Explanation */}
-        <section className="mb-12">
-          <SectionHeader 
-            id="explanation"
-            icon={<Book className="w-6 h-6 text-[#00FFFF]" />}
-            title="Detailed Explanation"
-            collapsible={false}
-          />
-          <div className="prose prose-invert max-w-none">
-            {model.detailed_explanation.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="text-gray-300 leading-relaxed mb-4">
-                {paragraph}
-              </p>
-            ))}
+        {/* Add tracking badge in development */}
+        {import.meta.env.DEV && (
+          <div className="fixed bottom-4 right-4 bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs z-50">
+            Tracking: {viewDuration}s | Session: {sessionId?.slice(0, 8)}
           </div>
-        </section>
-
-        {/* Examples */}
-        <section className="mb-12">
-          <SectionHeader 
-            id="examples"
-            icon={<Lightbulb className="w-6 h-6 text-[#FFB84D]" />}
-            title="Real-World Examples"
-          />
-          {expandedSections.has('examples') && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-6"
+        )}
+        
+        {/* Header */}
+        <div className="bg-gradient-to-b from-[#1A1A1A] to-[#252525] pt-20 pb-8 px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Breadcrumb */}
+            <Link 
+              to="/mental-models"
+              className="inline-flex items-center text-[#00FFFF] hover:text-white transition-colors mb-6"
             >
-              {model.expanded_examples.map((example, index) => (
-                <div key={index} className="bg-[#252525] rounded-lg p-6 border border-[#333333]">
-                  <h3 className="text-xl font-semibold mb-3 text-[#FFB84D]">
-                    {example.title}
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    {example.content}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </section>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Mental Models
+            </Link>
 
-        {/* Use Cases */}
-        <section className="mb-12">
-          <SectionHeader 
-            id="use-cases"
-            icon={<Tag className="w-6 h-6 text-[#00FFFF]" />}
-            title="Use Cases"
-          />
-          {expandedSections.has('use-cases') && (
+            {/* Model Header */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              {model.use_cases.map((useCase, index) => (
-                <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#333333]">
-                  <div className="w-2 h-2 bg-[#00FFFF] rounded-full mt-2 mr-4 flex-shrink-0"></div>
-                  <p className="text-gray-300 leading-relaxed">
-                    {useCase}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </section>
+              <div className="flex flex-wrap items-center gap-4 mb-4">
+                <span className="inline-block px-3 py-1 text-sm rounded-full bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">
+                  {formatCategoryName(model.category)}
+                </span>
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  <Share2 className="w-4 h-4 mr-1" />
+                  Share
+                </button>
+              </div>
 
-        {/* Common Pitfalls */}
-        <section className="mb-12">
-          <SectionHeader 
-            id="pitfalls"
-            icon={<AlertTriangle className="w-6 h-6 text-[#FFB84D]" />}
-            title="Common Pitfalls"
-          />
-          {expandedSections.has('pitfalls') && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-3"
-            >
-              {model.common_pitfalls.map((pitfall, index) => (
-                <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#FFB84D]/30">
-                  <div className="w-2 h-2 bg-[#FFB84D] rounded-full mt-2 mr-4 flex-shrink-0"></div>
-                  <p className="text-gray-300 leading-relaxed">
-                    {pitfall}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </section>
+              <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">
+                {model.name}
+              </h1>
 
-        {/* Reflection Questions */}
-        <section className="mb-12">
-          <SectionHeader 
-            id="questions"
-            icon={<HelpCircle className="w-6 h-6 text-[#8B5CF6]" />}
-            title="Questions to Ask Yourself"
-          />
-          {expandedSections.has('questions') && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-3"
-            >
-              {model.reflection_questions.map((question, index) => (
-                <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#8B5CF6]/30">
-                  <div className="text-[#8B5CF6] font-bold mr-4 flex-shrink-0">
-                    {index + 1}.
-                  </div>
-                  <p className="text-gray-300 leading-relaxed italic">
-                    {question}
-                  </p>
-                </div>
-              ))}
+              <p className="text-xl text-gray-300 leading-relaxed">
+                {model.core_concept}
+              </p>
             </motion.div>
-          )}
-        </section>
+          </div>
+        </div>
 
-        {/* Related Models */}
-        {relatedModels.length > 0 && (
+        {/* Content */}
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Detailed Explanation */}
           <section className="mb-12">
             <SectionHeader 
-              id="related"
+              id="explanation"
               icon={<Book className="w-6 h-6 text-[#00FFFF]" />}
-              title="Related Mental Models"
+              title="Detailed Explanation"
               collapsible={false}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {relatedModels.map((relatedModel) => (
-                <Link
-                  key={relatedModel.slug}
-                  to={`/mental-models/${relatedModel.slug}`}
-                  className="block bg-[#252525] rounded-lg p-4 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 group"
-                >
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-[#00FFFF] transition-colors">
-                    {relatedModel.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    {relatedModel.core_concept}
-                  </p>
-                </Link>
+            <div className="prose prose-invert max-w-none">
+              {model.detailed_explanation.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="text-gray-300 leading-relaxed mb-4">
+                  {paragraph}
+                </p>
               ))}
             </div>
           </section>
-        )}
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-8 border-t border-[#333333]">
-          {navigation.previous ? (
-            <Link
-              to={`/mental-models/${navigation.previous.slug}`}
-              className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              <div className="text-left">
-                <div className="text-xs text-gray-500">Previous</div>
-                <div className="text-sm">{navigation.previous.name}</div>
+          {/* Examples */}
+          <section className="mb-12">
+            <SectionHeader 
+              id="examples"
+              icon={<Lightbulb className="w-6 h-6 text-[#FFB84D]" />}
+              title="Real-World Examples"
+            />
+            {expandedSections.has('examples') && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-6"
+              >
+                {model.expanded_examples.map((example, index) => (
+                  <div key={index} className="bg-[#252525] rounded-lg p-6 border border-[#333333]">
+                    <h3 className="text-xl font-semibold mb-3 text-[#FFB84D]">
+                      {example.title}
+                    </h3>
+                    <p className="text-gray-300 leading-relaxed">
+                      {example.content}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </section>
+
+          {/* Use Cases */}
+          <section className="mb-12">
+            <SectionHeader 
+              id="use-cases"
+              icon={<Tag className="w-6 h-6 text-[#00FFFF]" />}
+              title="Use Cases"
+            />
+            {expandedSections.has('use-cases') && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3"
+              >
+                {model.use_cases.map((useCase, index) => (
+                  <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#333333]">
+                    <div className="w-2 h-2 bg-[#00FFFF] rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                    <p className="text-gray-300 leading-relaxed">
+                      {useCase}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </section>
+
+          {/* Common Pitfalls */}
+          <section className="mb-12">
+            <SectionHeader 
+              id="pitfalls"
+              icon={<AlertTriangle className="w-6 h-6 text-[#FFB84D]" />}
+              title="Common Pitfalls"
+            />
+            {expandedSections.has('pitfalls') && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3"
+              >
+                {model.common_pitfalls.map((pitfall, index) => (
+                  <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#FFB84D]/30">
+                    <div className="w-2 h-2 bg-[#FFB84D] rounded-full mt-2 mr-4 flex-shrink-0"></div>
+                    <p className="text-gray-300 leading-relaxed">
+                      {pitfall}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </section>
+
+          {/* Reflection Questions */}
+          <section className="mb-12">
+            <SectionHeader 
+              id="questions"
+              icon={<HelpCircle className="w-6 h-6 text-[#8B5CF6]" />}
+              title="Questions to Ask Yourself"
+            />
+            {expandedSections.has('questions') && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3"
+              >
+                {model.reflection_questions.map((question, index) => (
+                  <div key={index} className="flex items-start bg-[#252525] rounded-lg p-4 border border-[#8B5CF6]/30">
+                    <div className="text-[#8B5CF6] font-bold mr-4 flex-shrink-0">
+                      {index + 1}.
+                    </div>
+                    <p className="text-gray-300 leading-relaxed italic">
+                      {question}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </section>
+
+          {/* Related Models - Updated with tracking */}
+          {relatedModels.length > 0 && (
+            <section className="mb-12">
+              <SectionHeader 
+                id="related"
+                icon={<Book className="w-6 h-6 text-[#00FFFF]" />}
+                title="Related Mental Models"
+                collapsible={false}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {relatedModels.map((relatedModel) => (
+                  <motion.button
+                    key={relatedModel.slug}
+                    onClick={() => handleRelatedModelClick(relatedModel)}
+                    className="text-left block bg-[#252525] rounded-lg p-4 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <h3 className="text-lg font-semibold mb-2 group-hover:text-[#00FFFF] transition-colors">
+                      {relatedModel.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {relatedModel.core_concept}
+                    </p>
+                  </motion.button>
+                ))}
               </div>
-            </Link>
-          ) : (
-            <div></div>
+            </section>
           )}
-          
-          {navigation.next ? (
-            <Link
-              to={`/mental-models/${navigation.next.slug}`}
-              className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group text-right"
-            >
-              <div className="text-right">
-                <div className="text-xs text-gray-500">Next</div>
-                <div className="text-sm">{navigation.next.name}</div>
-              </div>
-              <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </Link>
-          ) : (
-            <div></div>
-          )}
+
+          {/* Navigation - Updated with tracking */}
+          <div className="flex justify-between items-center pt-8 border-t border-[#333333]">
+            {navigation.previous ? (
+              <button
+                onClick={() => handleNavigationClick(navigation.previous, 'previous')}
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group text-left"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                <div className="text-left">
+                  <div className="text-xs text-gray-500">Previous</div>
+                  <div className="text-sm">{navigation.previous.name}</div>
+                </div>
+              </button>
+            ) : (
+              <div></div>
+            )}
+            
+            {navigation.next ? (
+              <button
+                onClick={() => handleNavigationClick(navigation.next, 'next')}
+                className="flex items-center px-4 py-2 text-gray-400 hover:text-white transition-colors group text-right"
+              >
+                <div className="text-right">
+                  <div className="text-xs text-gray-500">Next</div>
+                  <div className="text-sm">{navigation.next.name}</div>
+                </div>
+                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            ) : (
+              <div></div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };
