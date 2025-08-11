@@ -11,6 +11,7 @@ import SignupSuccessPage from './pages/SignupSuccessPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute'; // NEW: Admin protection component
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import History from './pages/History';
@@ -40,6 +41,11 @@ import ExampleDetail from './pages/ExampleDetail';
 // Import Archive pages
 import ArchivePage from './pages/ArchivePage';
 import ArchiveQuestionPage from './pages/ArchiveQuestionPage';
+
+// Import Admin pages - NEW
+import AdminAnalytics from './pages/AdminAnalytics';
+// Uncomment if you create the test component
+// import SearchTrackingTest from './components/Analytics/SearchTrackingTest';
 
 // Import Analytics
 import { analytics } from './services/analytics';
@@ -134,6 +140,131 @@ function AppContent() {
               <ProtectedRoute>
                 <ArchiveQuestionPage />
               </ProtectedRoute>
+            } />
+            
+            {/* ===== ADMIN ROUTES - NEW ===== */}
+            {/* Admin Analytics Dashboard */}
+            <Route 
+              path="/admin/analytics" 
+              element={
+                <AdminRoute
+                  allowedEmails={['infiernodel@gmail.com']} // Add more admin emails here
+                  allowedRoles={['admin', 'super_admin']} // Optional: role-based access
+                  redirectTo="/dashboard"
+                >
+                  <AdminAnalytics />
+                </AdminRoute>
+              } 
+            />
+            
+            {/* Admin nested routes for future expansion */}
+            <Route 
+              path="/admin/*" 
+              element={
+                <AdminRoute
+                  allowedEmails={['infiernodel@gmail.com']}
+                  redirectTo="/dashboard"
+                >
+                  <Routes>
+                    {/* Add more admin pages here as you build them */}
+                    <Route path="users" element={
+                      <div className="min-h-screen bg-[#1A1A1A] pt-20 px-4">
+                        <div className="max-w-7xl mx-auto">
+                          <h1 className="text-2xl font-bold text-white">User Management (Coming Soon)</h1>
+                        </div>
+                      </div>
+                    } />
+                    <Route path="content" element={
+                      <div className="min-h-screen bg-[#1A1A1A] pt-20 px-4">
+                        <div className="max-w-7xl mx-auto">
+                          <h1 className="text-2xl font-bold text-white">Content Management (Coming Soon)</h1>
+                        </div>
+                      </div>
+                    } />
+                    <Route path="*" element={
+                      <div className="min-h-screen bg-[#1A1A1A] pt-20 px-4">
+                        <div className="max-w-7xl mx-auto text-center">
+                          <h1 className="text-2xl font-bold text-white mb-4">Admin Page Not Found</h1>
+                          <a href="/admin/analytics" className="text-[#00FFFF] hover:underline">
+                            Go to Admin Dashboard
+                          </a>
+                        </div>
+                      </div>
+                    } />
+                  </Routes>
+                </AdminRoute>
+              } 
+            />
+            
+            {/* Development/Test Routes - Only in development mode */}
+            {process.env.NODE_ENV === 'development' && (
+              <>
+                <Route 
+                  path="/test/search-tracking" 
+                  element={
+                    <AdminRoute
+                      allowedEmails={['infiernodel@gmail.com']}
+                      redirectTo="/dashboard"
+                    >
+                      <div className="min-h-screen bg-[#1A1A1A] pt-20">
+                        {/* Uncomment when you create the test component */}
+                        {/* <SearchTrackingTest /> */}
+                        <div className="max-w-4xl mx-auto px-4">
+                          <h1 className="text-2xl font-bold text-white mb-4">Search Tracking Test</h1>
+                          <p className="text-gray-400">
+                            Import and add SearchTrackingTest component here
+                          </p>
+                        </div>
+                      </div>
+                    </AdminRoute>
+                  } 
+                />
+                
+                {/* General test area for development */}
+                <Route 
+                  path="/test/*" 
+                  element={
+                    <AdminRoute
+                      allowedEmails={['infiernodel@gmail.com']}
+                      redirectTo="/dashboard"
+                    >
+                      <div className="min-h-screen bg-[#1A1A1A] pt-20 px-4">
+                        <div className="max-w-7xl mx-auto">
+                          <h1 className="text-2xl font-bold text-white mb-4">
+                            Development Test Area
+                          </h1>
+                          <div className="bg-[#252525] rounded-lg p-6">
+                            <p className="text-gray-400 mb-4">
+                              This area is only visible in development mode.
+                            </p>
+                            <div className="space-y-2">
+                              <a href="/test/search-tracking" className="block text-[#00FFFF] hover:underline">
+                                → Search Tracking Test
+                              </a>
+                              <a href="/admin/analytics" className="block text-[#00FFFF] hover:underline">
+                                → Admin Analytics Dashboard
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </AdminRoute>
+                  } 
+                />
+              </>
+            )}
+            
+            {/* 404 Route - Catch all undefined routes */}
+            <Route path="*" element={
+              <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-6xl font-bold text-white mb-4">404</h1>
+                  <p className="text-xl text-gray-400 mb-8">Page not found</p>
+                  <a href="/" className="text-[#00FFFF] hover:underline">
+                    Go back home
+                  </a>
+                </div>
+              </div>
             } />
           </Routes>
         </main>
