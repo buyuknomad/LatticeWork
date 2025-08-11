@@ -1,9 +1,11 @@
 // src/pages/MentalModels/index.tsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, Filter, Book, Brain, Lightbulb, HelpCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+// Enhanced version with complete search tracking integration
+
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Search, Filter, Book, Brain, Lightbulb, HelpCircle, X, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { debounce } from 'lodash'; // Make sure to install lodash if not already installed
+import { debounce } from 'lodash';
 import { 
   MentalModelSummary, 
   MentalModelFilters, 
@@ -20,8 +22,8 @@ import { formatCategoryName } from '../../lib/mentalModelsUtils';
 import { analytics } from '../../services/analytics';
 import { GA_EVENTS, GA_CATEGORIES } from '../../constants/analytics';
 
-// ADD THESE IMPORTS
-import { useSearchTracking } from '../../hooks/useModelTracking';
+// Import enhanced search tracking
+import { useSearchTracking } from '../../hooks/useSearchTracking';
 
 const MentalModels: React.FC = () => {
   const navigate = useNavigate();
@@ -38,10 +40,19 @@ const MentalModels: React.FC = () => {
     selectedCategory: null,
     page: 1
   });
-  const [searchResults, setSearchResults] = useState<MentalModelSummary[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchStartTimeRef = useRef<number>(0);
 
-  // ADD SEARCH TRACKING
-  const { trackSearch, trackSearchClick } = useSearchTracking();
+  // Initialize enhanced search tracking
+  const { 
+    trackSearch, 
+    trackSearchClick, 
+    trackSearchAbandonment,
+    getSearchSuggestions,
+    getSearchAnalytics 
+  } = useSearchTracking({ debug: process.env.NODE_ENV === 'development' });
 
   // Initialize filters from URL parameters on mount
   useEffect(() => {
@@ -109,19 +120,40 @@ const MentalModels: React.FC = () => {
     }
   }, [filters, searchParams, setSearchParams]);
 
-  // TRACK SEARCH WITH DEBOUNCE
-  const handleSearch = useMemo(
-    () => debounce((query: string) => {
-      // Perform the search
-      setFilters(prev => ({ ...prev, searchQuery: query, page: 1 }));
+  // Create debounced search handler
+  const debouncedSearch = useMemo(
+    () => debounce(async (query: string) => {
+      setIsSearching(true);
+      searchStartTimeRef.current = Date.now();
       
-      // Track the search after results are loaded
-      // This will be called after fetchModels completes
+      try {
+        // Update filters which will trigger fetchModels
+        setFilters(prev => ({ ...prev, searchQuery: query, page: 1 }));
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
     }, 500),
     []
   );
 
-  // Create debounced search tracker for Google Analytics
+  // Create debounced suggestion fetcher
+  const debouncedGetSuggestions = useMemo(
+    () => debounce(async (query: string) => {
+      if (query.length >= 2) {
+        const suggestions = await getSearchSuggestions(query);
+        setSearchSuggestions(suggestions);
+        setShowSuggestions(suggestions.length > 0);
+      } else {
+        setSearchSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300),
+    [getSearchSuggestions]
+  );
+
+  // Track search for Google Analytics (separate debouncing)
   const trackGoogleSearch = useCallback(
     analytics.createDebouncedTracker(
       GA_CATEGORIES.MENTAL_MODELS,
@@ -141,16 +173,37 @@ const MentalModels: React.FC = () => {
     fetchTotalCount();
   }, []);
 
-  // UPDATE SEARCH INPUT HANDLER
+  // Track search abandonment when user leaves
+  useEffect(() => {
+    return () => {
+      if (filters.searchQuery && !document.hidden) {
+        trackSearchAbandonment();
+      }
+    };
+  }, [filters.searchQuery, trackSearchAbandonment]);
+
+  // Handle search input changes
   const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchInput(query);
-    handleSearch(query);
     
-    // Track search for Google Analytics (debounced)
+    // Trigger debounced search
+    debouncedSearch(query);
+    
+    // Get search suggestions
+    debouncedGetSuggestions(query);
+    
+    // Track for Google Analytics
     if (query) {
       trackGoogleSearch(query);
     }
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchInput(suggestion);
+    setShowSuggestions(false);
+    setFilters(prev => ({ ...prev, searchQuery: suggestion, page: 1 }));
   };
 
   const fetchModels = async () => {
@@ -159,20 +212,37 @@ const MentalModels: React.FC = () => {
     
     try {
       const response = await getMentalModels(filters, 20);
+      const searchDuration = searchStartTimeRef.current 
+        ? Date.now() - searchStartTimeRef.current 
+        : 0;
+      
       setModels(response.data);
-      setSearchResults(response.data); // Store for search tracking
       setFilteredCount(response.count);
       setTotalPages(response.totalPages);
       
-      // Track the search if there's a query
+      // Track the search with complete context
       if (filters.searchQuery) {
-        trackSearch(filters.searchQuery, response.data, { 
-          category: filters.selectedCategory 
+        trackSearch(filters.searchQuery, response.data, {
+          category: filters.selectedCategory,
+          page: filters.page,
+          duration: searchDuration,
+          resultsPerPage: 20
         });
       }
+      
+      searchStartTimeRef.current = 0;
     } catch (err) {
       console.error('Error fetching mental models:', err);
       setError('Failed to load mental models. Please try again.');
+      
+      // Track failed search
+      if (filters.searchQuery) {
+        trackSearch(filters.searchQuery, [], {
+          category: filters.selectedCategory,
+          page: filters.page,
+          error: true
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -190,7 +260,7 @@ const MentalModels: React.FC = () => {
   const handleCategoryChange = (category: string | null) => {
     setFilters(prev => ({ ...prev, selectedCategory: category, page: 1 }));
     
-    // Track category filter for both analytics systems
+    // Track category filter
     analytics.trackEvent(
       GA_CATEGORIES.MENTAL_MODELS,
       GA_EVENTS.MENTAL_MODELS.FILTER_CATEGORY,
@@ -214,14 +284,18 @@ const MentalModels: React.FC = () => {
   const clearFilters = () => {
     setSearchInput('');
     setFilters({ searchQuery: '', selectedCategory: null, page: 1 });
-    setSearchResults([]);
+    setSearchSuggestions([]);
+    setShowSuggestions(false);
   };
 
-  // TRACK MODEL CLICKS
+  // Enhanced model click handler with position tracking
   const handleModelClick = (model: MentalModelSummary, index: number) => {
-    // Track if this was from search results
+    // Calculate actual position considering pagination
+    const actualPosition = ((filters.page - 1) * 20) + index + 1;
+    
+    // Track click if from search
     if (filters.searchQuery) {
-      trackSearchClick(model.slug, index + 1);
+      trackSearchClick(model.slug, actualPosition);
     }
     
     // Track for Google Analytics
@@ -231,11 +305,29 @@ const MentalModels: React.FC = () => {
       model.slug
     );
     
-    // Navigate with appropriate tracking source
-    const source = filters.searchQuery ? 'library_search' : 'library_browse';
-    navigate(`/mental-models/${model.slug}?source=${source}`, {
-      state: { from: filters.searchQuery ? 'search' : 'browse' }
+    // Navigate with tracking parameters
+    const navigationParams = new URLSearchParams({
+      source: filters.searchQuery ? 'library_search' : 'library_browse',
+      ...(filters.searchQuery && { query: filters.searchQuery }),
+      ...(filters.selectedCategory && { category: filters.selectedCategory }),
+      position: actualPosition.toString()
     });
+    
+    navigate(`/mental-models/${model.slug}?${navigationParams.toString()}`, {
+      state: { 
+        from: filters.searchQuery ? 'search' : 'browse',
+        searchQuery: filters.searchQuery,
+        position: actualPosition
+      }
+    });
+  };
+
+  // Clear search button
+  const clearSearch = () => {
+    setSearchInput('');
+    setFilters(prev => ({ ...prev, searchQuery: '', page: 1 }));
+    setSearchSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const filteredModels = models;
@@ -361,8 +453,8 @@ const MentalModels: React.FC = () => {
         <div className="sticky top-16 z-40 bg-[#1A1A1A]/95 backdrop-blur-sm border-b border-[#333333] py-4 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search Bar */}
-              <div className="flex-1">
+              {/* Enhanced Search Bar */}
+              <div className="flex-1 relative">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
@@ -370,14 +462,55 @@ const MentalModels: React.FC = () => {
                     placeholder="Search mental models..."
                     value={searchInput}
                     onChange={onSearchChange}
-                    className="w-full pl-12 pr-4 py-3 bg-[#252525] border border-[#333333] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:border-transparent transition-colors"
+                    onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
+                    className="w-full pl-12 pr-12 py-3 bg-[#252525] border border-[#333333] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:border-transparent transition-colors"
                   />
-                  {searchInput !== filters.searchQuery && (
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  
+                  {/* Loading indicator */}
+                  {isSearching && (
+                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                       <div className="w-4 h-4 border-2 border-[#00FFFF] border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   )}
+                  
+                  {/* Clear button */}
+                  {searchInput && (
+                    <button
+                      onClick={clearSearch}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
+                
+                {/* Search Suggestions Dropdown */}
+                <AnimatePresence>
+                  {showSuggestions && searchSuggestions.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full mt-2 w-full bg-[#252525] border border-[#333333] rounded-lg shadow-lg z-50"
+                    >
+                      <div className="p-2">
+                        <div className="text-xs text-gray-400 px-3 py-1 uppercase tracking-wider">
+                          Suggestions
+                        </div>
+                        {searchSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="w-full text-left px-3 py-2 text-white hover:bg-[#333333] rounded transition-colors flex items-center gap-2"
+                          >
+                            <TrendingUp className="w-4 h-4 text-[#00FFFF]" />
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Category Filter */}
@@ -407,10 +540,7 @@ const MentalModels: React.FC = () => {
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/30">
                     Search: "{filters.searchQuery}"
                     <button 
-                      onClick={() => {
-                        setSearchInput('');
-                        setFilters(prev => ({ ...prev, searchQuery: '', page: 1 }));
-                      }}
+                      onClick={clearSearch}
                       className="ml-2 hover:text-white transition-colors"
                     >
                       ×
@@ -431,6 +561,12 @@ const MentalModels: React.FC = () => {
                     </button>
                   </div>
                 )}
+                <button 
+                  onClick={clearFilters}
+                  className="text-[#00FFFF] hover:text-white text-sm transition-colors"
+                >
+                  Clear all filters
+                </button>
               </div>
             )}
           </div>
@@ -474,16 +610,6 @@ const MentalModels: React.FC = () => {
                       • Showing {models.length} on this page
                     </span>
                   )}
-                  {filters.searchQuery || filters.selectedCategory ? (
-                    <span className="ml-2">
-                      • <button 
-                          onClick={clearFilters}
-                          className="text-[#00FFFF] hover:underline text-sm transition-colors"
-                        >
-                          Clear filters
-                        </button>
-                    </span>
-                  ) : ''}
                 </p>
                 
                 {totalPages > 1 && (
@@ -501,40 +627,38 @@ const MentalModels: React.FC = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
                 >
-                  {filteredModels.map((model, index) => {
-                    return (
-                      <motion.div
-                        key={model.slug}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 cursor-pointer group"
-                        onClick={() => handleModelClick(model, index)}
-                      >
-                        <div className="mb-4">
-                          <CategoryBadge 
-                            category={model.category} 
-                            size="sm"
-                          />
-                        </div>
+                  {filteredModels.map((model, index) => (
+                    <motion.div
+                      key={model.slug}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.05 }}
+                      className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 cursor-pointer group"
+                      onClick={() => handleModelClick(model, index)}
+                    >
+                      <div className="mb-4">
+                        <CategoryBadge 
+                          category={model.category} 
+                          size="sm"
+                        />
+                      </div>
 
-                        <h3 className="text-xl font-semibold mb-3 group-hover:text-[#00FFFF] transition-colors">
-                          {model.name}
-                        </h3>
+                      <h3 className="text-xl font-semibold mb-3 group-hover:text-[#00FFFF] transition-colors">
+                        {model.name}
+                      </h3>
 
-                        <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                          {model.core_concept}
-                        </p>
+                      <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                        {model.core_concept}
+                      </p>
 
-                        <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
-                          Read More
-                          <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                      <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
+                        Read More
+                        <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </motion.div>
+                  ))}
                 </motion.div>
               )}
 
@@ -584,7 +708,17 @@ const MentalModels: React.FC = () => {
                   <div className="text-gray-400 mb-4">
                     <Search className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p className="text-xl">No mental models found</p>
-                    <p className="text-sm">Try adjusting your search or filter criteria</p>
+                    <p className="text-sm">
+                      {filters.searchQuery 
+                        ? `No results for "${filters.searchQuery}". Try different keywords or browse all models.`
+                        : 'Try adjusting your filter criteria'}
+                    </p>
+                    <button 
+                      onClick={clearFilters}
+                      className="mt-4 px-4 py-2 bg-[#00FFFF] text-black rounded-lg hover:bg-[#00FFFF]/90 transition-colors"
+                    >
+                      Clear Filters & Browse All
+                    </button>
                   </div>
                 </div>
               )}
@@ -596,4 +730,4 @@ const MentalModels: React.FC = () => {
   );
 };
 
-export default MentalModels; 
+export default MentalModels;
