@@ -1,10 +1,11 @@
 // src/components/AdminRoute.tsx
-// Protected route component for admin-only pages
+// Fixed version that works with Google OAuth and Supabase Auth
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Lock } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface AdminRouteProps {
   children: React.ReactNode;
@@ -20,9 +21,57 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
   redirectTo = '/dashboard'
 }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      // If still loading auth, wait
+      if (loading) {
+        return;
+      }
+
+      // If no user, we'll handle redirect below
+      if (!user) {
+        setIsChecking(false);
+        return;
+      }
+
+      // For Google OAuth users, the email might be in different places
+      const userEmail = user.email || user.user_metadata?.email || '';
+      
+      console.log('Admin check - User email:', userEmail);
+      console.log('Admin check - User ID:', user.id);
+      console.log('Admin check - User metadata:', user.user_metadata);
+      
+      // Check if user is admin by email
+      const emailIsAdmin = allowedEmails.includes(userEmail.toLowerCase());
+      
+      // Check if user is admin by role (if you have roles set up)
+      const roleIsAdmin = 
+        allowedRoles.includes(user.user_metadata?.role) ||
+        allowedRoles.includes(user.app_metadata?.role) ||
+        false;
+
+      // Set admin status
+      setIsAdmin(emailIsAdmin || roleIsAdmin);
+      setIsChecking(false);
+
+      // Log the result for debugging
+      console.log('Admin check result:', {
+        email: userEmail,
+        emailIsAdmin,
+        roleIsAdmin,
+        finalIsAdmin: emailIsAdmin || roleIsAdmin
+      });
+    };
+
+    checkAdminStatus();
+  }, [user, loading, allowedEmails, allowedRoles]);
 
   // Show loading state while checking auth
-  if (loading) {
+  if (loading || isChecking) {
     return (
       <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
         <div className="text-center">
@@ -35,18 +84,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
 
   // Check if user is logged in
   if (!user) {
-    return <Navigate to="/login" state={{ from: '/admin/analytics' }} replace />;
+    console.log('No user found, redirecting to login');
+    // Store the intended destination
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  // Check if user is admin
-  const isAdmin = 
-    allowedEmails.includes(user.email || '') ||
-    allowedRoles.includes(user.user_metadata?.role) ||
-    allowedRoles.includes(user.app_metadata?.role);
-
-  // If not admin, show access denied or redirect
+  // If not admin, show access denied
   if (!isAdmin) {
-    // Option 1: Show access denied page (better UX)
+    console.log('User is not admin, showing access denied');
     return (
       <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -55,6 +100,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
           <p className="text-gray-400 mb-6">
             You don't have permission to access this page. This area is restricted to administrators only.
           </p>
+          <div className="text-sm text-gray-500 mb-6">
+            Logged in as: {user.email || user.user_metadata?.email || 'Unknown'}
+          </div>
           <div className="space-y-3">
             <button
               onClick={() => window.history.back()}
@@ -75,12 +123,10 @@ const AdminRoute: React.FC<AdminRouteProps> = ({
         </div>
       </div>
     );
-
-    // Option 2: Silent redirect (uncomment if preferred)
-    // return <Navigate to={redirectTo} replace />;
   }
 
   // User is admin, render children
+  console.log('User is admin, rendering protected content');
   return <>{children}</>;
 };
 
