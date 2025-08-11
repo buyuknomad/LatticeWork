@@ -1,8 +1,9 @@
 // src/pages/MentalModels/index.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Filter, Book, Brain, Lightbulb, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { debounce } from 'lodash'; // Make sure to install lodash if not already installed
 import { 
   MentalModelSummary, 
   MentalModelFilters, 
@@ -15,9 +16,12 @@ import {
 import SEO from '../../components/SEO';
 import CategoryBadge from '../../components/CategoryBadge';
 import { getMentalModels, getMentalModelsCount } from '../../lib/mentalModelsService';
-import { formatCategoryName, debounce } from '../../lib/mentalModelsUtils';
+import { formatCategoryName } from '../../lib/mentalModelsUtils';
 import { analytics } from '../../services/analytics';
 import { GA_EVENTS, GA_CATEGORIES } from '../../constants/analytics';
+
+// ADD THESE IMPORTS
+import { useSearchTracking } from '../../hooks/useModelTracking';
 
 const MentalModels: React.FC = () => {
   const navigate = useNavigate();
@@ -26,14 +30,18 @@ const MentalModels: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredCount, setFilteredCount] = useState(0); // Total count for current filters
+  const [filteredCount, setFilteredCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [searchInput, setSearchInput] = useState(''); // For immediate UI updates
+  const [searchInput, setSearchInput] = useState('');
   const [filters, setFilters] = useState<MentalModelFilters>({
     searchQuery: '',
     selectedCategory: null,
     page: 1
   });
+  const [searchResults, setSearchResults] = useState<MentalModelSummary[]>([]);
+
+  // ADD SEARCH TRACKING
+  const { trackSearch, trackSearchClick } = useSearchTracking();
 
   // Initialize filters from URL parameters on mount
   useEffect(() => {
@@ -51,7 +59,7 @@ const MentalModels: React.FC = () => {
     
     if (searchParam) {
       newFilters.searchQuery = searchParam;
-      setSearchInput(searchParam); // Also update the input field
+      setSearchInput(searchParam);
       hasChanges = true;
     }
     
@@ -66,7 +74,7 @@ const MentalModels: React.FC = () => {
     if (hasChanges) {
       setFilters(newFilters);
     }
-  }, []); // Only run on mount
+  }, []);
 
   // Track page view
   useEffect(() => {
@@ -77,7 +85,7 @@ const MentalModels: React.FC = () => {
     );
   }, []);
 
-  // Update URL when filters change (but not on initial mount)
+  // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     
@@ -96,26 +104,29 @@ const MentalModels: React.FC = () => {
     const newSearch = params.toString();
     const currentSearch = searchParams.toString();
     
-    // Only update URL if it actually changed
     if (newSearch !== currentSearch) {
       setSearchParams(params, { replace: true });
     }
   }, [filters, searchParams, setSearchParams]);
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
+  // TRACK SEARCH WITH DEBOUNCE
+  const handleSearch = useMemo(
+    () => debounce((query: string) => {
+      // Perform the search
       setFilters(prev => ({ ...prev, searchQuery: query, page: 1 }));
-    }, 300),
+      
+      // Track the search after results are loaded
+      // This will be called after fetchModels completes
+    }, 500),
     []
   );
 
-  // Create debounced search tracker
-  const trackSearch = useCallback(
+  // Create debounced search tracker for Google Analytics
+  const trackGoogleSearch = useCallback(
     analytics.createDebouncedTracker(
       GA_CATEGORIES.MENTAL_MODELS,
       GA_EVENTS.MENTAL_MODELS.SEARCH,
-      1000 // 1 second debounce
+      1000
     ),
     []
   );
@@ -130,10 +141,17 @@ const MentalModels: React.FC = () => {
     fetchTotalCount();
   }, []);
 
-  // Handle search input change with debouncing
-  useEffect(() => {
-    debouncedSearch(searchInput);
-  }, [searchInput, debouncedSearch]);
+  // UPDATE SEARCH INPUT HANDLER
+  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchInput(query);
+    handleSearch(query);
+    
+    // Track search for Google Analytics (debounced)
+    if (query) {
+      trackGoogleSearch(query);
+    }
+  };
 
   const fetchModels = async () => {
     setLoading(true);
@@ -142,8 +160,16 @@ const MentalModels: React.FC = () => {
     try {
       const response = await getMentalModels(filters, 20);
       setModels(response.data);
-      setFilteredCount(response.count); // Set the total filtered count
+      setSearchResults(response.data); // Store for search tracking
+      setFilteredCount(response.count);
       setTotalPages(response.totalPages);
+      
+      // Track the search if there's a query
+      if (filters.searchQuery) {
+        trackSearch(filters.searchQuery, response.data, { 
+          category: filters.selectedCategory 
+        });
+      }
     } catch (err) {
       console.error('Error fetching mental models:', err);
       setError('Failed to load mental models. Please try again.');
@@ -161,19 +187,10 @@ const MentalModels: React.FC = () => {
     }
   };
 
-  const handleSearchInputChange = (query: string) => {
-    setSearchInput(query);
-    
-    // Track search (will be debounced by the analytics service)
-    if (query) {
-      trackSearch(query);
-    }
-  };
-
   const handleCategoryChange = (category: string | null) => {
     setFilters(prev => ({ ...prev, selectedCategory: category, page: 1 }));
     
-    // Track category filter
+    // Track category filter for both analytics systems
     analytics.trackEvent(
       GA_CATEGORIES.MENTAL_MODELS,
       GA_EVENTS.MENTAL_MODELS.FILTER_CATEGORY,
@@ -191,27 +208,37 @@ const MentalModels: React.FC = () => {
       `page_${page}`
     );
     
-    // Scroll to top when changing pages
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const clearFilters = () => {
     setSearchInput('');
     setFilters({ searchQuery: '', selectedCategory: null, page: 1 });
+    setSearchResults([]);
   };
 
-  const handleModelClick = (slug: string) => {
-    // Track model view
+  // TRACK MODEL CLICKS
+  const handleModelClick = (model: MentalModelSummary, index: number) => {
+    // Track if this was from search results
+    if (filters.searchQuery) {
+      trackSearchClick(model.slug, index + 1);
+    }
+    
+    // Track for Google Analytics
     analytics.trackEvent(
       GA_CATEGORIES.MENTAL_MODELS,
       GA_EVENTS.MENTAL_MODELS.VIEW_MODEL,
-      slug
+      model.slug
     );
     
-    navigate(`/mental-models/${slug}`);
+    // Navigate with appropriate tracking source
+    const source = filters.searchQuery ? 'library_search' : 'library_browse';
+    navigate(`/mental-models/${model.slug}?source=${source}`, {
+      state: { from: filters.searchQuery ? 'search' : 'browse' }
+    });
   };
 
-  const filteredModels = models; // Current page of models (already filtered by database)
+  const filteredModels = models;
 
   return (
     <>
@@ -241,7 +268,7 @@ const MentalModels: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              {/* PROMINENT Guide Link - Moved to top and enhanced */}
+              {/* Guide Link */}
               <motion.div 
                 className="mb-8"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -251,7 +278,6 @@ const MentalModels: React.FC = () => {
                 <Link 
                   to="/mental-models-guide"
                   onClick={() => {
-                    // Track guide click
                     analytics.trackEvent(
                       GA_CATEGORIES.MENTAL_MODELS,
                       GA_EVENTS.MENTAL_MODELS.CLICK_GUIDE,
@@ -260,18 +286,11 @@ const MentalModels: React.FC = () => {
                   }}
                   className="group relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105"
                 >
-                  {/* Gradient Background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/20 to-[#00FFFF]/20 group-hover:from-[#8B5CF6]/30 group-hover:to-[#00FFFF]/30 transition-all duration-300" />
-                  
-                  {/* Animated Border */}
                   <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] opacity-50 group-hover:opacity-100 transition-opacity duration-300" style={{ padding: '2px', WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude' }} />
-                  
-                  {/* Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-[#8B5CF6]/10 to-[#00FFFF]/10 blur-xl group-hover:blur-2xl transition-all duration-300" />
                   
-                  {/* Content */}
                   <div className="relative flex items-center gap-3">
-                    {/* Animated Icon */}
                     <motion.div
                       className="p-2 bg-white/10 rounded-lg"
                       animate={{ 
@@ -286,7 +305,6 @@ const MentalModels: React.FC = () => {
                       <HelpCircle className="w-6 h-6 text-[#00FFFF]" />
                     </motion.div>
                     
-                    {/* Text Content */}
                     <div className="text-left">
                       <div className="text-xs text-[#8B5CF6] font-semibold uppercase tracking-wider mb-1">
                         New Here?
@@ -299,7 +317,6 @@ const MentalModels: React.FC = () => {
                       </div>
                     </div>
                     
-                    {/* Arrow */}
                     <svg className="w-5 h-5 text-[#00FFFF] group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -340,7 +357,7 @@ const MentalModels: React.FC = () => {
           </div>
         </div>
 
-        {/* Search and Filter Section - Fixed positioning to account for header */}
+        {/* Search and Filter Section */}
         <div className="sticky top-16 z-40 bg-[#1A1A1A]/95 backdrop-blur-sm border-b border-[#333333] py-4 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row gap-4">
@@ -352,10 +369,9 @@ const MentalModels: React.FC = () => {
                     type="text"
                     placeholder="Search mental models..."
                     value={searchInput}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
+                    onChange={onSearchChange}
                     className="w-full pl-12 pr-4 py-3 bg-[#252525] border border-[#333333] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:border-transparent transition-colors"
                   />
-                  {/* Loading indicator for search */}
                   {searchInput !== filters.searchQuery && (
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                       <div className="w-4 h-4 border-2 border-[#00FFFF] border-t-transparent rounded-full animate-spin"></div>
@@ -493,9 +509,8 @@ const MentalModels: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1 }}
                         className="bg-[#252525] rounded-lg p-6 border border-[#333333] hover:border-[#00FFFF]/30 transition-all duration-300 cursor-pointer group"
-                        onClick={() => handleModelClick(model.slug)}
+                        onClick={() => handleModelClick(model, index)}
                       >
-                        {/* Category Badge */}
                         <div className="mb-4">
                           <CategoryBadge 
                             category={model.category} 
@@ -503,17 +518,14 @@ const MentalModels: React.FC = () => {
                           />
                         </div>
 
-                        {/* Model Name */}
                         <h3 className="text-xl font-semibold mb-3 group-hover:text-[#00FFFF] transition-colors">
                           {model.name}
                         </h3>
 
-                        {/* Core Concept */}
                         <p className="text-gray-300 text-sm leading-relaxed mb-4">
                           {model.core_concept}
                         </p>
 
-                        {/* Read More */}
                         <div className="flex items-center text-[#00FFFF] text-sm font-medium group-hover:text-white transition-colors">
                           Read More
                           <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -537,7 +549,6 @@ const MentalModels: React.FC = () => {
                     Previous
                   </button>
                   
-                  {/* Page numbers */}
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     const pageNum = Math.max(1, Math.min(totalPages - 4, filters.page - 2)) + i;
                     if (pageNum > totalPages) return null;
