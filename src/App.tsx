@@ -47,6 +47,12 @@ import AdminAnalytics from './pages/AdminAnalytics';
 // Uncomment if you create the test component
 // import SearchTrackingTest from './components/Analytics/SearchTrackingTest';
 
+// ===== PHASE 5: Import Personalization Components =====
+import PersonalizedDashboard from './components/Personalization/PersonalizedDashboard';
+// Optional: Import other personalization components if you want dedicated routes
+// import RecommendationWidget from './components/Personalization/RecommendationWidget';
+// import LearningPath from './components/Personalization/LearningPath';
+
 // Import Analytics
 import { analytics } from './services/analytics';
 
@@ -129,6 +135,63 @@ function AppContent() {
                 <CheckoutSuccess />
               </ProtectedRoute>
             } />
+            
+            {/* ===== PHASE 5: PERSONALIZATION ROUTES ===== */}
+            {/* Main Personalized Dashboard */}
+            <Route 
+              path="/personalized" 
+              element={
+                <ProtectedRoute>
+                  <PersonalizedDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Alternative URL for better UX */}
+            <Route 
+              path="/my-learning" 
+              element={
+                <ProtectedRoute>
+                  <PersonalizedDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Optional: Dedicated Learning Path Route */}
+            {/* Uncomment if you want a standalone learning path page */}
+            {/* <Route 
+              path="/learning-path" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-[#1A1A1A] pt-20">
+                    <div className="max-w-7xl mx-auto px-4 py-8">
+                      <LearningPath variant="tree" showProgress={true} />
+                    </div>
+                  </div>
+                </ProtectedRoute>
+              } 
+            /> */}
+            
+            {/* Optional: Recommendations Page */}
+            {/* Uncomment if you want a standalone recommendations page */}
+            {/* <Route 
+              path="/recommendations" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-[#1A1A1A] pt-20">
+                    <div className="max-w-7xl mx-auto px-4 py-8">
+                      <h1 className="text-3xl font-bold mb-6 text-white">Personalized Recommendations</h1>
+                      <RecommendationWidget 
+                        title="Recommended for You"
+                        variant="card"
+                        limit={12}
+                        showRefresh={true}
+                      />
+                    </div>
+                  </div>
+                </ProtectedRoute>
+              } 
+            /> */}
             
             {/* Archive routes - Premium feature */}
             <Route path="/archive" element={
@@ -243,6 +306,9 @@ function AppContent() {
                               </a>
                               <a href="/admin/analytics" className="block text-[#00FFFF] hover:underline">
                                 → Admin Analytics Dashboard
+                              </a>
+                              <a href="/personalized" className="block text-[#00FFFF] hover:underline">
+                                → Personalized Dashboard (Phase 5)
                               </a>
                             </div>
                           </div>
