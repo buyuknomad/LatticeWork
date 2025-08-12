@@ -540,24 +540,81 @@ const Dashboard: React.FC = () => {
             <AnimatePresence mode="wait">
               {!isResultsPage && !isLoading && (
                 <>
-                  {/* Subtle Progress Indicator - Only when user has activity */}
+                  {/* Elegant Learning Journey Card */}
                   {user && (
                     <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                      className="flex justify-center mb-6"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="max-w-2xl mx-auto mb-8"
                     >
-                      <button
+                      <motion.button
                         onClick={() => navigate('/personalized')}
-                        className="group inline-flex items-center gap-2 px-4 py-2 bg-[#1A1A1A]/50 rounded-full hover:bg-[#252525]/50 transition-all"
+                        className="group w-full relative overflow-hidden"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                       >
-                        <Brain className="w-4 h-4 text-[#00FFFF] group-hover:scale-110 transition-transform" />
-                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">
-                          View your learning journey
-                        </span>
-                        <Sparkles className="w-4 h-4 text-[#8B5CF6] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
+                        {/* Background gradient that animates on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/5 via-[#8B5CF6]/5 to-[#00FFFF]/5 group-hover:from-[#00FFFF]/10 group-hover:via-[#8B5CF6]/10 group-hover:to-[#00FFFF]/10 transition-all duration-500" />
+                        
+                        {/* Animated border */}
+                        <div className="absolute inset-0 rounded-2xl">
+                          <div className="absolute inset-0 rounded-2xl border border-[#333333]/50 group-hover:border-[#00FFFF]/30 transition-colors duration-300" />
+                          {/* Glow effect on hover */}
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[inset_0_0_20px_rgba(0,255,255,0.1)]" />
+                        </div>
+
+                        {/* Content */}
+                        <div className="relative px-6 py-4 rounded-2xl backdrop-blur-sm">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              {/* Icon with animated background */}
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 to-[#8B5CF6]/20 rounded-xl blur-xl group-hover:blur-2xl transition-all duration-500" />
+                                <div className="relative p-3 bg-gradient-to-br from-[#1A1A1A] to-[#252525] rounded-xl border border-[#333333]/50 group-hover:border-[#00FFFF]/30 transition-colors">
+                                  <Brain className="w-6 h-6 text-[#00FFFF] group-hover:scale-110 transition-transform duration-300" />
+                                </div>
+                              </div>
+                              
+                              {/* Text content */}
+                              <div className="text-left">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="text-white font-semibold group-hover:text-[#00FFFF] transition-colors">
+                                    Your Learning Journey
+                                  </h3>
+                                  {/* New badge with pulse */}
+                                  <span className="px-2 py-0.5 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] text-white text-[10px] font-bold rounded-full animate-pulse">
+                                    NEW
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                                  Track progress, unlock achievements, get personalized recommendations
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Arrow with animation */}
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-5 h-5 text-[#8B5CF6] opacity-50 group-hover:opacity-100 transition-all duration-300 group-hover:rotate-12" />
+                              <div className="text-gray-400 group-hover:text-[#00FFFF] transition-all duration-300 group-hover:translate-x-1">
+                                →
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Progress bar preview (optional - shows if user has activity) */}
+                          <motion.div 
+                            className="mt-3 h-1 bg-[#1A1A1A] rounded-full overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          >
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-[#00FFFF] to-[#8B5CF6]"
+                              initial={{ width: "0%" }}
+                              whileHover={{ width: "60%" }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                            />
+                          </motion.div>
+                        </div>
+                      </motion.button>
                     </motion.div>
                   )}
 
