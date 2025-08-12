@@ -1,15 +1,9 @@
 // src/components/Personalization/index.ts
-// Export all personalization components for easy importing
-
 export { default as PersonalizedDashboard } from './PersonalizedDashboard';
 export { default as RecommendationWidget } from './RecommendationWidget';
 export { default as LearningPath } from './LearningPath';
 
-// Re-export types if needed
+// Export types if needed by other components
 export type { 
-  RecommendationWidgetProps 
-} from './RecommendationWidget';
-
-export type { 
-  LearningPathProps 
-} from './LearningPath';
+  // Add any shared types here if needed
+};
