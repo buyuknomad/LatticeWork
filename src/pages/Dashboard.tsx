@@ -1,5 +1,5 @@
 // src/pages/Dashboard.tsx
-// Updated Dashboard with improved layout - no duplicate sections, better trending placement
+// Final optimized Dashboard with proper layout and optional TrendingModels
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -16,7 +16,8 @@ import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuerySection from '../components/Dashboard/QuerySection';
 import LoadingState from '../components/Dashboard/LoadingState';
 import ResultsSection from '../components/Dashboard/ResultsSection';
-import PersonalizationCard from '../components/Dashboard/PersonalizationCard'; // Import the new PersonalizationCard
+import PersonalizationCard from '../components/Dashboard/PersonalizationCard';
+import { TrendingModels } from '../components/Analytics/TrendingModels'; // Import TrendingModels
 import { 
   LatticeInsightResponse, 
   TrendingQuestion,
@@ -91,7 +92,7 @@ const Dashboard: React.FC = () => {
   const formatCategoryName = (category: string): string => {
     if (!category) return 'None yet';
     return category
-      .split('_')
+      .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
@@ -275,7 +276,7 @@ const Dashboard: React.FC = () => {
           .gte('created_at', twentyFourHoursAgo.toISOString())
           .order('created_at', { ascending: true })
           .limit(1)
-          .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
+          .maybeSingle();
         
         if (firstQueryError) {
           console.warn('Error fetching first query:', firstQueryError);
@@ -355,12 +356,11 @@ const Dashboard: React.FC = () => {
       question.question
     );
     
-    // Update click count in background (no await to prevent delays)
+    // Update click count in background
     supabase
       .from('trending_questions')
       .update({ 
         click_count: (question.click_count || 0) + 1,
-        // Optionally update metadata to mark as "viewed"
         metadata: {
           ...question.metadata,
           lastClickedAt: new Date().toISOString()
@@ -647,86 +647,102 @@ const Dashboard: React.FC = () => {
             <AnimatePresence mode="wait">
               {!isResultsPage && !isLoading && (
                 <>
-                  {/* Show PersonalizationCard if user has explored models, otherwise show basic stats */}
-                  {hasModelViews ? (
-                    <PersonalizationCard className="mb-8" />
-                  ) : (
-                    /* Basic Getting Started Card for New Users */
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-br from-[#252525] to-[#1A1A1A] rounded-lg p-6 mb-8 border border-[#333333]/30"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-white">Your Learning Journey</h2>
-                        <button
-                          onClick={fetchLearningStats}
-                          disabled={statsLoading}
-                          className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-                          title="Refresh stats"
+                  {/* Two-column layout for larger screens */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    {/* Main content area - takes up 2 columns */}
+                    <div className="lg:col-span-2">
+                      {/* Show PersonalizationCard if user has explored models, otherwise show basic stats */}
+                      {hasModelViews ? (
+                        <PersonalizationCard />
+                      ) : (
+                        /* Basic Getting Started Card for New Users */
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-gradient-to-br from-[#252525] to-[#1A1A1A] rounded-lg p-6 border border-[#333333]/30 h-full"
                         >
-                          <RefreshCw className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} />
-                        </button>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <BookOpen className="w-5 h-5 text-[#00FFFF]" />
+                          <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-white">Start Your Learning Journey</h2>
+                            <button
+                              onClick={fetchLearningStats}
+                              disabled={statsLoading}
+                              className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                              title="Refresh stats"
+                            >
+                              <RefreshCw className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} />
+                            </button>
                           </div>
-                          <div className="text-2xl font-bold text-[#00FFFF]">
-                            {learningStats.modelsExplored}
-                          </div>
-                          <div className="text-gray-400 text-sm">Models Explored</div>
-                        </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <BookOpen className="w-5 h-5 text-[#00FFFF]" />
+                              </div>
+                              <div className="text-2xl font-bold text-[#00FFFF]">
+                                {learningStats.modelsExplored}
+                              </div>
+                              <div className="text-gray-400 text-sm">Models Explored</div>
+                            </div>
 
-                        <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <Target className="w-5 h-5 text-[#8B5CF6]" />
-                          </div>
-                          <div className="text-2xl font-bold text-white">
-                            {learningStats.totalViews}
-                          </div>
-                          <div className="text-gray-400 text-sm">Questions Asked</div>
-                        </div>
+                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <Target className="w-5 h-5 text-[#8B5CF6]" />
+                              </div>
+                              <div className="text-2xl font-bold text-white">
+                                {learningStats.totalViews}
+                              </div>
+                              <div className="text-gray-400 text-sm">Total Views</div>
+                            </div>
 
-                        <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <Sparkles className="w-5 h-5 text-[#FFB84D]" />
+                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <Clock className="w-5 h-5 text-[#FFB84D]" />
+                              </div>
+                              <div className="text-2xl font-bold text-white">
+                                {formatDuration(learningStats.totalDuration)}
+                              </div>
+                              <div className="text-gray-400 text-sm">Time Spent</div>
+                            </div>
                           </div>
-                          <div className="text-2xl font-bold text-white">
-                            {learningStats.totalViews}
+
+                          {/* Call to Action Buttons */}
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <motion.button
+                              onClick={() => navigate('/mental-models')}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="flex-1 bg-[#00FFFF] text-black font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#00FFFF]/90 transition-colors"
+                            >
+                              <BookOpen className="w-5 h-5" />
+                              <span>Explore Mental Models</span>
+                            </motion.button>
+                            
+                            <motion.button
+                              onClick={() => navigate('/mental-models-guide')}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="flex-1 bg-[#1A1A1A] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#2A2A2A] transition-colors border border-[#333333]"
+                            >
+                              <Brain className="w-5 h-5" />
+                              <span>Read the Guide</span>
+                            </motion.button>
                           </div>
-                          <div className="text-gray-400 text-sm">Insights Gained</div>
-                        </div>
-                      </div>
+                        </motion.div>
+                      )}
+                    </div>
 
-                      {/* Call to Action Buttons */}
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <motion.button
-                          onClick={() => navigate('/mental-models')}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="flex-1 bg-[#00FFFF] text-black font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#00FFFF]/90 transition-colors"
-                        >
-                          <BookOpen className="w-5 h-5" />
-                          <span>Explore Mental Models</span>
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => navigate('/mental-models-guide')}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="flex-1 bg-[#1A1A1A] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#2A2A2A] transition-colors border border-[#333333]"
-                        >
-                          <Brain className="w-5 h-5" />
-                          <span>Read the Guide</span>
-                        </motion.button>
-                      </div>
-                    </motion.div>
-                  )}
+                    {/* Trending Models Widget - takes up 1 column */}
+                    <div className="lg:col-span-1">
+                      <TrendingModels 
+                        limit={5} 
+                        variant="compact" 
+                        showStats={true}
+                        refreshInterval={60000}
+                      />
+                    </div>
+                  </div>
 
-                  {/* Query Section - now positioned after stats/personalization */}
+                  {/* Query Section - full width below the grid */}
                   <QuerySection
                     query={query}
                     setQuery={setQuery}
