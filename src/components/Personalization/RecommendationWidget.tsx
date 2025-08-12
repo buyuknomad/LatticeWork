@@ -12,7 +12,8 @@ import {
   BookOpen,
   Clock,
   Users,
-  Star
+  Star,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -27,14 +28,14 @@ interface RecommendationItem {
   avg_duration?: number;
   trending_score?: number;
   reason?: string;
-  type?: 'similar' | 'trending' | 'popular' | 'new' | 'collaborative';
+  type?: 'similar' | 'trending' | 'popular' | 'new' | 'collaborative' | 'continue';
 }
 
 interface RecommendationWidgetProps {
   title?: string;
   subtitle?: string;
-  modelSlug?: string; // For "because you viewed X" recommendations
-  category?: string; // For category-based recommendations
+  modelSlug?: string;
+  category?: string;
   limit?: number;
   showRefresh?: boolean;
   variant?: 'compact' | 'detailed' | 'card';
@@ -58,22 +59,25 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
   const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedRec, setSelectedRec] = useState<RecommendationItem | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   const fetchRecommendations = async () => {
     try {
+      setError(null);
       let data: any[] = [];
 
       if (modelSlug) {
         // Get related models based on a specific model
         const { data: modelData, error: modelError } = await supabase
-          .from('mental_models')
+          .from('mental_models_library')  // FIXED: correct table name
           .select('category, related_model_slugs')
-          .eq('slug', modelSlug)
-          .single();
+          .eq('slug', modelSlug)  // FIXED: using slug column
+          .maybeSingle();
 
-        if (modelError) throw modelError;
+        if (modelError) {
+          console.error('Error fetching model data:', modelError);
+        }
 
         if (modelData) {
           // Fetch related models
@@ -81,7 +85,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
           
           if (relatedSlugs.length > 0) {
             const { data: relatedModels, error: relatedError } = await supabase
-              .from('mental_models')
+              .from('mental_models_library')  // FIXED: correct table name
               .select('slug, name, category, core_concept')
               .in('slug', relatedSlugs)
               .limit(limit);
@@ -90,7 +94,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
               data = relatedModels.map(m => ({
                 ...m,
                 reason: 'Related model',
-                type: 'similar'
+                type: 'similar' as const
               }));
             }
           }
@@ -98,7 +102,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
           // If not enough related models, add from same category
           if (data.length < limit) {
             const { data: categoryModels, error: catError } = await supabase
-              .from('mental_models')
+              .from('mental_models_library')  // FIXED: correct table name
               .select('slug, name, category, core_concept')
               .eq('category', modelData.category)
               .neq('slug', modelSlug)
@@ -108,7 +112,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
               data = [...data, ...categoryModels.map(m => ({
                 ...m,
                 reason: 'Same category',
-                type: 'similar'
+                type: 'similar' as const
               }))];
             }
           }
@@ -116,7 +120,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
       } else if (category) {
         // Get models from a specific category
         const { data: categoryModels, error } = await supabase
-          .from('mental_models')
+          .from('mental_models_library')  // FIXED: correct table name
           .select('slug, name, category, core_concept')
           .eq('category', category)
           .limit(limit);
@@ -125,72 +129,139 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
           data = categoryModels.map(m => ({
             ...m,
             reason: 'In this category',
-            type: 'similar'
+            type: 'similar' as const
           }));
         }
       } else if (user?.id) {
         // Get personalized recommendations for the user
-        const { data: recData, error } = await supabase
-          .rpc('get_user_recommendations', {
-            p_user_id: user.id,
-            p_limit: limit
-          });
+        try {
+          const { data: recData, error: recError } = await supabase
+            .rpc('get_user_recommendations', {
+              p_user_id: user.id,
+              p_limit: limit
+            });
 
-        if (!error && recData) {
-          data = recData.map((rec: any) => {
-            let type: RecommendationItem['type'] = 'similar';
-            let reason = 'Recommended';
+          if (recError) {
+            console.error('Error fetching user recommendations:', recError);
+            // Fall back to trending if personalized recommendations fail
+            const { data: trendingData, error: trendingError } = await supabase
+              .rpc('calculate_trending_scores')
+              .limit(limit);
 
-            if (rec.trending_score > 0.7) {
-              type = 'trending';
-              reason = 'Trending now';
-            } else if (rec.view_count > 100) {
-              type = 'popular';
-              reason = 'Popular choice';
-            } else if (rec.view_count === 0) {
-              type = 'new';
-              reason = 'New to explore';
+            if (!trendingError && trendingData) {
+              data = trendingData.map((model: any) => ({
+                slug: model.slug,  // RPC returns 'slug' directly
+                name: model.name,
+                category: model.category,
+                core_concept: model.core_concept,
+                view_count: model.view_count,
+                trending_score: model.trending_score,
+                reason: 'Trending now',
+                type: 'trending' as const
+              }));
             } else {
-              type = 'collaborative';
-              reason = 'Others also liked';
-            }
+              // Final fallback: get random popular models
+              const { data: popularModels } = await supabase
+                .from('mental_models_library')  // FIXED: correct table name
+                .select('slug, name, category, core_concept')
+                .limit(limit);
 
-            return {
-              slug: rec.model_slug,
-              name: rec.model_name,
-              category: rec.category,
-              core_concept: rec.core_concept,
-              view_count: rec.view_count,
-              avg_duration: rec.avg_duration,
-              trending_score: rec.trending_score,
-              reason,
-              type
-            };
-          });
+              if (popularModels) {
+                data = popularModels.map(m => ({
+                  ...m,
+                  reason: 'Popular choice',
+                  type: 'popular' as const
+                }));
+              }
+            }
+          } else if (recData && recData.length > 0) {
+            data = recData.map((rec: any) => {
+              let type: RecommendationItem['type'] = 'similar';
+              let reason = 'Recommended';
+
+              if (rec.trending_score > 0.7) {
+                type = 'trending';
+                reason = 'Trending now';
+              } else if (rec.view_count > 100) {
+                type = 'popular';
+                reason = 'Popular choice';
+              } else if (!rec.view_count || rec.view_count === 0) {
+                type = 'new';
+                reason = 'New to explore';
+              } else {
+                type = 'collaborative';
+                reason = 'Others also liked';
+              }
+
+              return {
+                slug: rec.model_slug,  // RPC returns model_slug, map to slug
+                name: rec.model_name,
+                category: rec.category,
+                core_concept: rec.core_concept,
+                view_count: rec.view_count,
+                avg_duration: rec.avg_duration,
+                trending_score: rec.trending_score,
+                reason,
+                type
+              };
+            });
+          }
+        } catch (rpcError) {
+          console.error('RPC error, falling back to basic recommendations:', rpcError);
+          // Fallback to basic recommendations
+          const { data: fallbackModels } = await supabase
+            .from('mental_models_library')  // FIXED: correct table name
+            .select('slug, name, category, core_concept')
+            .limit(limit);
+
+          if (fallbackModels) {
+            data = fallbackModels.map(m => ({
+              ...m,
+              reason: 'Explore',
+              type: 'new' as const
+            }));
+          }
         }
       } else {
-        // No user, show trending models
-        const { data: trending, error } = await supabase
-          .rpc('calculate_trending_scores')
-          .limit(limit);
+        // No user, show trending or popular models
+        try {
+          const { data: trending, error: trendingError } = await supabase
+            .rpc('calculate_trending_scores')
+            .limit(limit);
 
-        if (!error && trending) {
-          data = trending.map((model: any) => ({
-            slug: model.slug,
-            name: model.name,
-            category: model.category,
-            core_concept: model.core_concept,
-            view_count: model.view_count,
-            trending_score: model.trending_score,
-            reason: 'Trending',
-            type: 'trending'
-          }));
+          if (!trendingError && trending) {
+            data = trending.map((model: any) => ({
+              slug: model.slug,  // RPC returns 'slug' directly
+              name: model.name,
+              category: model.category,
+              core_concept: model.core_concept,
+              view_count: model.view_count,
+              trending_score: model.trending_score,
+              reason: 'Trending',
+              type: 'trending' as const
+            }));
+          }
+        } catch {
+          // If trending function doesn't exist, get random models
+          const { data: randomModels } = await supabase
+            .from('mental_models_library')  // FIXED: correct table name
+            .select('slug, name, category, core_concept')
+            .limit(limit);
+
+          if (randomModels) {
+            data = randomModels.map(m => ({
+              ...m,
+              reason: 'Discover',
+              type: 'new' as const
+            }));
+          }
         }
       }
 
       setRecommendations(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
+      setError('Unable to load recommendations. Please try again later.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -210,7 +281,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
     if (onModelClick) {
       onModelClick(slug);
     } else {
-      navigate(`/mental-models/${slug}`);
+      navigate(`/mental-models/${slug}`);  // FIXED: using slug
     }
   };
 
@@ -224,6 +295,8 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
         return Sparkles;
       case 'collaborative':
         return Star;
+      case 'continue':
+        return Clock;
       default:
         return Brain;
     }
@@ -239,9 +312,19 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
         return 'text-[#10B981]';
       case 'collaborative':
         return 'text-[#EC4899]';
+      case 'continue':
+        return 'text-[#3B82F6]';
       default:
         return 'text-[#00FFFF]';
     }
+  };
+
+  // Format category name for display
+  const formatCategory = (cat: string) => {
+    if (!cat) return 'General';
+    return cat.split('-').map(w => 
+      w.charAt(0).toUpperCase() + w.slice(1)
+    ).join(' ');
   };
 
   if (isLoading) {
@@ -259,11 +342,31 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
     );
   }
 
+  if (error) {
+    return (
+      <div className={`bg-[#252525] rounded-lg p-6 text-center ${className}`}>
+        <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+        <p className="text-gray-400 mb-3">{error}</p>
+        {showRefresh && (
+          <button
+            onClick={handleRefresh}
+            className="px-4 py-2 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors text-sm"
+          >
+            Try Again
+          </button>
+        )}
+      </div>
+    );
+  }
+
   if (recommendations.length === 0) {
     return (
       <div className={`bg-[#252525] rounded-lg p-6 text-center ${className}`}>
         <Brain className="w-12 h-12 text-gray-500 mx-auto mb-3" />
         <p className="text-gray-400">No recommendations available</p>
+        <p className="text-gray-500 text-sm mt-2">
+          {user ? 'Start exploring models to get personalized recommendations' : 'Login to see personalized recommendations'}
+        </p>
         {showRefresh && (
           <button
             onClick={handleRefresh}
@@ -290,6 +393,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="p-2 hover:bg-[#1A1A1A] rounded-lg transition-colors"
+              title="Refresh recommendations"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
@@ -369,17 +473,15 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <BookOpen className="w-3 h-3" />
-                      {rec.category.split('-').map(w => 
-                        w.charAt(0).toUpperCase() + w.slice(1)
-                      ).join(' ')}
+                      {formatCategory(rec.category)}
                     </span>
-                    {rec.view_count !== undefined && (
+                    {rec.view_count !== undefined && rec.view_count > 0 && (
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
                         {rec.view_count} views
                       </span>
                     )}
-                    {rec.avg_duration && (
+                    {rec.avg_duration && rec.avg_duration > 0 && (
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {Math.round(rec.avg_duration)}s avg
@@ -416,6 +518,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="p-2 hover:bg-[#252525] rounded-lg transition-colors"
+            title="Refresh recommendations"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
@@ -461,19 +564,17 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
               {rec.name}
             </h4>
             <p className="text-xs text-gray-400">
-              {rec.category.split('-').map(w => 
-                w.charAt(0).toUpperCase() + w.slice(1)
-              ).join(' ')}
+              {formatCategory(rec.category)}
             </p>
             {(rec.view_count !== undefined || rec.trending_score) && (
               <div className="mt-3 pt-3 border-t border-[#1A1A1A] flex items-center justify-between text-xs text-gray-500">
-                {rec.view_count !== undefined && (
+                {rec.view_count !== undefined && rec.view_count > 0 && (
                   <span className="flex items-center gap-1">
                     <Users className="w-3 h-3" />
                     {rec.view_count}
                   </span>
                 )}
-                {rec.trending_score && (
+                {rec.trending_score && rec.trending_score > 0 && (
                   <span className="flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
                     {Math.round(rec.trending_score * 100)}%
