@@ -88,34 +88,3 @@ const PersonalizationCard: React.FC<PersonalizationCardProps> = ({ className = '
 };
 
 export default PersonalizationCard;
-
-// ===== HOW TO USE THIS COMPONENT =====
-// Add this component to your Dashboard.tsx page, preferably near the top after the header
-// or in the user stats section. Here's an example of how to integrate it:
-
-/*
-// In src/pages/Dashboard.tsx, add this import at the top:
-import PersonalizationCard from '../components/Dashboard/PersonalizationCard';
-
-// Then add the component in your JSX, for example after the UserStats component:
-<div className="container mx-auto px-4 md:px-8 py-8">
-  {user && (
-    <>
-      <UserStats 
-        modelsExplored={learningStats.modelsExplored}
-        totalViews={learningStats.totalViews}
-        favoriteCategory={learningStats.favoriteCategory}
-        totalDuration={learningStats.totalDuration}
-        lastViewed={learningStats.lastViewed}
-        isLoading={statsLoading}
-        onRefresh={fetchLearningStats}
-      />
-      
-      {/* Add the Personalization Card here */}
-      <PersonalizationCard className="mt-6" />
-      
-      {/* Rest of your dashboard content */}
-    </>
-  )}
-</div>
-*/
