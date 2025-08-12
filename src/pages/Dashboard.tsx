@@ -1,5 +1,5 @@
 // src/pages/Dashboard.tsx
-// Final optimized Dashboard with proper layout and optional TrendingModels
+// Minimalist, user-centered dashboard focused on the core experience
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -9,15 +9,13 @@ import { supabase } from '../lib/supabase';
 import EmailVerificationBanner from '../components/EmailVerificationBanner';
 import { analytics } from '../services/analytics';
 import { GA_EVENTS, GA_CATEGORIES } from '../constants/analytics';
-import { BookOpen, Clock, TrendingUp, Target, RefreshCw, Brain, Sparkles } from 'lucide-react';
+import { Sparkles, Brain } from 'lucide-react';
 
 // Import Dashboard components
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuerySection from '../components/Dashboard/QuerySection';
 import LoadingState from '../components/Dashboard/LoadingState';
 import ResultsSection from '../components/Dashboard/ResultsSection';
-import PersonalizationCard from '../components/Dashboard/PersonalizationCard';
-import { TrendingModels } from '../components/Analytics/TrendingModels'; // Import TrendingModels
 import { 
   LatticeInsightResponse, 
   TrendingQuestion,
@@ -40,16 +38,6 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [analysisStartTime, setAnalysisStartTime] = useState<number | null>(null);
-
-  // Learning stats state
-  const [learningStats, setLearningStats] = useState({
-    modelsExplored: 0,
-    totalViews: 0,
-    favoriteCategory: '',
-    totalDuration: 0,
-    lastViewed: null as any
-  });
-  const [statsLoading, setStatsLoading] = useState(true);
 
   // Set page title
   useEffect(() => {
@@ -88,103 +76,11 @@ const Dashboard: React.FC = () => {
     "Why do we consistently underestimate how long things take?"
   ];
 
-  // Helper function to format category names
-  const formatCategoryName = (category: string): string => {
-    if (!category) return 'None yet';
-    return category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
-  // Helper function to format duration
-  const formatDuration = (seconds: number): string => {
-    if (seconds === 0) return '0s';
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-    return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  };
-
-  // Fetch learning stats
-  const fetchLearningStats = useCallback(async () => {
-    if (!user?.id) {
-      console.log('No user ID, skipping stats fetch');
-      return;
-    }
-    
-    try {
-      console.log('Fetching learning stats for:', user.id);
-      setStatsLoading(true);
-      
-      // Direct query to mental_model_views
-      const { data: views, error } = await supabase
-        .from('mental_model_views')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Stats fetch error:', error);
-        return;
-      }
-
-      console.log(`Found ${views?.length || 0} views`);
-
-      if (views && views.length > 0) {
-        // Calculate unique models
-        const uniqueModelSlugs = [...new Set(views.map(v => v.model_slug))];
-        const modelsExplored = uniqueModelSlugs.length;
-
-        // Calculate favorite category
-        const categoryCount: Record<string, number> = {};
-        views.forEach(v => {
-          if (v.category) {
-            categoryCount[v.category] = (categoryCount[v.category] || 0) + 1;
-          }
-        });
-        
-        const favoriteCategory = Object.entries(categoryCount)
-          .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
-        // Calculate total duration
-        const totalDuration = views.reduce((sum, v) => sum + (v.view_duration || 0), 0);
-
-        setLearningStats({
-          modelsExplored,
-          totalViews: views.length,
-          favoriteCategory: formatCategoryName(favoriteCategory),
-          totalDuration,
-          lastViewed: views[0] || null
-        });
-
-        console.log('Stats updated:', { modelsExplored, totalViews: views.length });
-      } else {
-        console.log('No views found for user');
-        setLearningStats({
-          modelsExplored: 0,
-          totalViews: 0,
-          favoriteCategory: '',
-          totalDuration: 0,
-          lastViewed: null
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
-      setStatsLoading(false);
-    }
-  }, [user?.id]);
-
   useEffect(() => {
     if (user?.user_metadata?.tier) {
       setUserTier(user.user_metadata.tier as UserTier);
     }
   }, [user]);
-
-  // Fetch stats on mount and when user changes
-  useEffect(() => {
-    fetchLearningStats();
-  }, [user?.id]);
 
   // Track results view
   useEffect(() => {
@@ -616,9 +512,6 @@ const Dashboard: React.FC = () => {
     navigate('/dashboard');
   };
 
-  // Check if user has any model views to determine whether to show PersonalizationCard
-  const hasModelViews = learningStats.modelsExplored > 0;
-
   return (
     <div className="relative">
       <div className="relative z-10 min-h-screen">
@@ -647,102 +540,28 @@ const Dashboard: React.FC = () => {
             <AnimatePresence mode="wait">
               {!isResultsPage && !isLoading && (
                 <>
-                  {/* Two-column layout for larger screens */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Main content area - takes up 2 columns */}
-                    <div className="lg:col-span-2">
-                      {/* Show PersonalizationCard if user has explored models, otherwise show basic stats */}
-                      {hasModelViews ? (
-                        <PersonalizationCard />
-                      ) : (
-                        /* Basic Getting Started Card for New Users */
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="bg-gradient-to-br from-[#252525] to-[#1A1A1A] rounded-lg p-6 border border-[#333333]/30 h-full"
-                        >
-                          <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-white">Start Your Learning Journey</h2>
-                            <button
-                              onClick={fetchLearningStats}
-                              disabled={statsLoading}
-                              className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-                              title="Refresh stats"
-                            >
-                              <RefreshCw className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} />
-                            </button>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <BookOpen className="w-5 h-5 text-[#00FFFF]" />
-                              </div>
-                              <div className="text-2xl font-bold text-[#00FFFF]">
-                                {learningStats.modelsExplored}
-                              </div>
-                              <div className="text-gray-400 text-sm">Models Explored</div>
-                            </div>
+                  {/* Subtle Progress Indicator - Only when user has activity */}
+                  {user && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="flex justify-center mb-6"
+                    >
+                      <button
+                        onClick={() => navigate('/personalized')}
+                        className="group inline-flex items-center gap-2 px-4 py-2 bg-[#1A1A1A]/50 rounded-full hover:bg-[#252525]/50 transition-all"
+                      >
+                        <Brain className="w-4 h-4 text-[#00FFFF] group-hover:scale-110 transition-transform" />
+                        <span className="text-sm text-gray-400 group-hover:text-white transition-colors">
+                          View your learning journey
+                        </span>
+                        <Sparkles className="w-4 h-4 text-[#8B5CF6] opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    </motion.div>
+                  )}
 
-                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <Target className="w-5 h-5 text-[#8B5CF6]" />
-                              </div>
-                              <div className="text-2xl font-bold text-white">
-                                {learningStats.totalViews}
-                              </div>
-                              <div className="text-gray-400 text-sm">Total Views</div>
-                            </div>
-
-                            <div className="bg-[#1A1A1A]/50 rounded-lg p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <Clock className="w-5 h-5 text-[#FFB84D]" />
-                              </div>
-                              <div className="text-2xl font-bold text-white">
-                                {formatDuration(learningStats.totalDuration)}
-                              </div>
-                              <div className="text-gray-400 text-sm">Time Spent</div>
-                            </div>
-                          </div>
-
-                          {/* Call to Action Buttons */}
-                          <div className="flex flex-col sm:flex-row gap-3">
-                            <motion.button
-                              onClick={() => navigate('/mental-models')}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              className="flex-1 bg-[#00FFFF] text-black font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#00FFFF]/90 transition-colors"
-                            >
-                              <BookOpen className="w-5 h-5" />
-                              <span>Explore Mental Models</span>
-                            </motion.button>
-                            
-                            <motion.button
-                              onClick={() => navigate('/mental-models-guide')}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              className="flex-1 bg-[#1A1A1A] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#2A2A2A] transition-colors border border-[#333333]"
-                            >
-                              <Brain className="w-5 h-5" />
-                              <span>Read the Guide</span>
-                            </motion.button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {/* Trending Models Widget - takes up 1 column */}
-                    <div className="lg:col-span-1">
-                      <TrendingModels 
-                        limit={5} 
-                        variant="compact" 
-                        showStats={true}
-                        refreshInterval={60000}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Query Section - full width below the grid */}
+                  {/* Query Section - The Hero Element */}
                   <QuerySection
                     query={query}
                     setQuery={setQuery}
