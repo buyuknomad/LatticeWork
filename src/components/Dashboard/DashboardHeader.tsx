@@ -1,24 +1,19 @@
 // src/components/Dashboard/DashboardHeader.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Clock, Crown, Sparkles, Archive, TrendingUp } from 'lucide-react';
+import { Settings, Clock, Crown, Sparkles, Archive } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { UserTier } from './types';
 
-// ADD TRENDING WIDGET IMPORT
-import { TrendingModels } from '../Analytics/TrendingModels';
-
 interface DashboardHeaderProps {
   user: User | null;
   displayTier: UserTier;
-  showTrending?: boolean; // Optional prop to control trending display
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   user,
   displayTier,
-  showTrending = true, // Default to showing trending
 }) => {
   const getDisplayName = () => {
     if (!user) return 'User';
@@ -115,103 +110,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           )}
         </motion.div>
-
-        {/* ADD TRENDING MODELS SECTION */}
-        {showTrending && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6"
-          >
-            {/* Main content area - takes 2 columns on large screens */}
-            <div className="lg:col-span-2">
-              {/* Quick Stats or Welcome Message */}
-              <div className="bg-[#1a1a1a] rounded-lg p-6 border border-[#333333]">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#00FFFF]" />
-                  Your Learning Journey
-                </h3>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <motion.div 
-                    className="bg-[#252525] rounded-lg p-4"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <p className="text-2xl font-bold text-white">0</p>
-                    <p className="text-sm text-gray-400">Models Explored</p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="bg-[#252525] rounded-lg p-4"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <p className="text-2xl font-bold text-white">0</p>
-                    <p className="text-sm text-gray-400">Questions Asked</p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="bg-[#252525] rounded-lg p-4"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <p className="text-2xl font-bold text-white">0</p>
-                    <p className="text-sm text-gray-400">Insights Gained</p>
-                  </motion.div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link to="/mental-models">
-                    <motion.button
-                      className="px-4 py-2 bg-[#00FFFF] text-black rounded-lg hover:bg-[#00FFFF]/90 transition-colors font-medium text-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Explore Mental Models
-                    </motion.button>
-                  </Link>
-                  
-                  <Link to="/mental-models-guide">
-                    <motion.button
-                      className="px-4 py-2 bg-[#252525] text-white rounded-lg hover:bg-[#333333] transition-colors border border-[#333333] font-medium text-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Read the Guide
-                    </motion.button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Trending Widget - takes 1 column on large screens */}
-            <div className="lg:col-span-1">
-              <TrendingModels 
-                limit={5} 
-                variant="compact" 
-                showStats={true}
-                refreshInterval={60000}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Alternative layout for mobile - Trending below stats */}
-        {showTrending && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-6 lg:hidden"
-          >
-            <TrendingModels 
-              limit={5} 
-              variant="compact" 
-              showStats={true}
-              refreshInterval={60000}
-            />
-          </motion.div>
-        )}
       </div>
     </div>
   );
