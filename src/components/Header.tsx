@@ -1,7 +1,7 @@
 // src/components/Header.tsx
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Brain, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
@@ -112,6 +112,21 @@ const Header = () => {
               </a>
             )}
             
+            {/* ===== PHASE 5: MY LEARNING LINK ===== */}
+            {user && (
+              <Link 
+                to="/personalized"
+                className="relative flex items-center gap-1.5 text-white hover:text-[#00FFFF] transition-colors font-medium group"
+              >
+                <Brain className="w-4 h-4 group-hover:text-[#00FFFF] transition-colors" />
+                <span>My Learning</span>
+                {/* NEW Badge */}
+                <span className="absolute -top-2 -right-6 px-1.5 py-0.5 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] text-white text-[10px] font-bold rounded-full animate-pulse">
+                  NEW
+                </span>
+              </Link>
+            )}
+            
             {/* Login/Logout Button */}
             <motion.button
               className="bg-[#252525] border border-[#00FFFF]/30 text-[#00FFFF] px-5 py-2 rounded-lg transition-all duration-300 relative group overflow-hidden shadow-sm"
@@ -191,40 +206,55 @@ const Header = () => {
               
               {/* Dashboard Link - Only visible when user is logged in */}
               {user && (
-                <a 
-                  href="/dashboard"
-                  onClick={handleDashboardClick}
-                  className="text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35] cursor-pointer"
-                >
-                  Dashboard
-                </a>
+                <>
+                  <a 
+                    href="/dashboard"
+                    onClick={handleDashboardClick}
+                    className="text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35] cursor-pointer"
+                  >
+                    Dashboard
+                  </a>
+                  
+                  {/* ===== PHASE 5: MY LEARNING LINK (MOBILE) ===== */}
+                  <Link 
+                    to="/personalized"
+                    className="flex items-center justify-between text-white hover:text-[#00FFFF] transition-colors font-medium py-2 px-3 rounded-md hover:bg-[#2A2D35]"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4" />
+                      <span>My Learning Journey</span>
+                    </div>
+                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#8B5CF6] to-[#00FFFF] text-white text-[10px] font-bold rounded-full">
+                      NEW
+                    </span>
+                  </Link>
+                </>
               )}
               
-              <div className="pt-2 flex flex-col space-y-2">
-                {/* Login/Logout Button */}
+              {/* Login/Logout Button */}
+              <button
+                className="bg-[#252525] border border-[#00FFFF]/30 text-[#00FFFF] py-2 px-3 rounded-md text-center transition-colors hover:bg-[#2A2D35]"
+                onClick={() => {
+                  handleAuthClick();
+                  setIsMenuOpen(false);
+                }}
+              >
+                {user ? 'Logout' : 'Login'}
+              </button>
+              
+              {/* Show Get Started button if not logged in */}
+              {!user && (
                 <button
-                  className="bg-[#252525] border border-[#00FFFF]/30 text-[#00FFFF] py-2 px-3 rounded-lg transition-all duration-300 relative overflow-hidden shadow-sm text-center"
+                  className="bg-[#00FFFF] text-[#1A1A1A] py-2 px-3 rounded-md text-center font-medium transition-colors hover:bg-[#00FFFF]/90"
                   onClick={() => {
-                    handleAuthClick();
+                    navigate('/signup');
                     setIsMenuOpen(false);
                   }}
                 >
-                  <span className="relative z-10">{user ? 'Logout' : 'Login'}</span>
+                  Get Started
                 </button>
-                
-                {/* Show Get Started button if not logged in */}
-                {!user && (
-                  <button
-                    className="bg-[#00FFFF] text-[#1A1A1A] py-2 px-3 rounded-lg font-medium transition-all duration-300 text-center"
-                    onClick={() => {
-                      navigate('/signup');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    Get Started
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </motion.div>
         )}
