@@ -83,7 +83,7 @@ const PersonalizedDashboard: React.FC = () => {
         description: 'Spend 30 minutes learning',
         icon: Clock,
         target: 30,
-        progress: userStats.totalTimeSpent,
+        progress: Math.floor(userStats.totalTimeSpent),
         unlocked: userStats.totalTimeSpent >= 30
       },
       {
@@ -245,10 +245,8 @@ const PersonalizedDashboard: React.FC = () => {
           ))];
           const learningStreak = uniqueDates.length;
 
-          // Calculate total time spent
-          const totalTimeSpent = Math.round(
-            views.reduce((sum, v) => sum + (v.view_duration || 0), 0) / 60
-          );
+          // Calculate total time spent (keep as decimal minutes for accurate display)
+          const totalTimeSpent = views.reduce((sum, v) => sum + (v.view_duration || 0), 0) / 60;
 
           // Calculate completion rate
           const completedViews = views.filter(v => v.view_duration && v.view_duration > 30);
@@ -382,6 +380,38 @@ const PersonalizedDashboard: React.FC = () => {
     if (diffInHours < 48) return 'Yesterday';
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return date.toLocaleDateString();
+  };
+
+  // Format time spent into readable format
+  const formatTimeSpent = (minutes: number) => {
+    if (!minutes || minutes === 0) return '0m';
+    
+    const totalMinutes = Math.floor(minutes);
+    const seconds = Math.round((minutes - totalMinutes) * 60);
+    
+    if (totalMinutes >= 60) {
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      if (seconds > 0 && mins === 0) {
+        return `${hours}h ${seconds}s`;
+      } else if (seconds > 0) {
+        return `${hours}h ${mins}m ${seconds}s`;
+      } else if (mins === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${mins}m`;
+      }
+    } else if (totalMinutes > 0) {
+      if (seconds > 0) {
+        return `${totalMinutes}m ${seconds}s`;
+      } else {
+        return `${totalMinutes}m`;
+      }
+    } else if (seconds > 0) {
+      return `${seconds}s`;
+    }
+    
+    return '0m';
   };
 
   if (authLoading || isLoading) {
@@ -552,7 +582,7 @@ const PersonalizedDashboard: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <Clock className="w-8 h-8 text-[#8B5CF6]" />
                   <span className="text-2xl font-bold text-white">
-                    {stats?.totalTimeSpent || 0}m
+                    {formatTimeSpent(stats?.totalTimeSpent || 0)}
                   </span>
                 </div>
                 <h3 className="text-sm text-gray-400">Time Invested</h3>
@@ -728,4 +758,4 @@ const PersonalizedDashboard: React.FC = () => {
   );
 };
 
-export default PersonalizedDashboard; 
+export default PersonalizedDashboard;
