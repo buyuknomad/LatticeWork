@@ -56,213 +56,6 @@ const PersonalizedDashboard: React.FC = () => {
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch user stats
-  const fetchUserStats = async () => {
-    if (!user?.id) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setError(null);
-      
-      // Try to use the database function first
-      try {
-        const { data: statsData, error: statsError } = await supabase
-          .rpc('get_user_learning_stats', { p_user_id: user.id });
-
-        if (!statsError && statsData && statsData.length > 0) {
-          const stat = statsData[0];
-          
-          // Get additional details for the dashboard
-          const { data: views } = await supabase
-            .from('mental_model_views')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(100);
-
-          if (views && views.length > 0) {
-            // Calculate category distribution
-            const categoryCount: Record<string, number> = {};
-            views.forEach(v => {
-              if (v.category) {
-                categoryCount[v.category] = (categoryCount[v.category] || 0) + 1;
-              }
-            });
-
-            const topCategories = Object.entries(categoryCount)
-              .sort(([,a], [,b]) => b - a)
-              .slice(0, 5)
-              .map(([category, count]) => ({
-                category,
-                count,
-                percentage: Math.round((count / views.length) * 100)
-              }));
-
-            // Get recent models - map model_slug to the actual model data
-            const recentModels = await Promise.all(
-              views.slice(0, 5).map(async (view) => {
-                const { data: model } = await supabase
-                  .from('mental_models_library')  // FIXED: correct table name
-                  .select('name, slug')  // Get both name and slug
-                  .eq('slug', view.model_slug)  // FIXED: match by slug column
-                  .maybeSingle();
-                
-                return {
-                  slug: view.model_slug,  // Use the model_slug from views
-                  name: model?.name || 'Unknown Model',
-                  category: view.category || 'uncategorized',
-                  viewedAt: view.created_at
-                };
-              })
-            );
-
-            setStats({
-              totalModelsViewed: stat.total_models_viewed || 0,
-              favoriteCategory: stat.favorite_category || 'none',
-              learningStreak: stat.learning_streak_days || 0,
-              completionRate: stat.completion_rate || 0,
-              totalTimeSpent: stat.total_time_spent_minutes || 0,
-              lastActivityDate: stat.last_activity_date,
-              topCategories,
-              recentModels
-            });
-          } else {
-            // New user with no views
-            setStats({
-              totalModelsViewed: 0,
-              favoriteCategory: 'none',
-              learningStreak: 0,
-              completionRate: 0,
-              totalTimeSpent: 0,
-              lastActivityDate: null,
-              topCategories: [],
-              recentModels: []
-            });
-          }
-        }
-      } catch (rpcError) {
-        console.error('RPC function error, falling back to manual calculation:', rpcError);
-        
-        // Fallback: Manual calculation if function doesn't exist
-        const { data: views, error: viewsError } = await supabase
-          .from('mental_model_views')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (viewsError) throw viewsError;
-
-        if (views && views.length > 0) {
-          // Calculate stats manually
-          const uniqueModels = new Set(views.map(v => v.model_slug));
-          const totalModelsViewed = uniqueModels.size;
-
-          // Calculate category distribution
-          const categoryCount: Record<string, number> = {};
-          views.forEach(v => {
-            if (v.category) {
-              categoryCount[v.category] = (categoryCount[v.category] || 0) + 1;
-            }
-          });
-
-          const topCategories = Object.entries(categoryCount)
-            .sort(([,a], [,b]) => b - a)
-            .slice(0, 5)
-            .map(([category, count]) => ({
-              category,
-              count,
-              percentage: Math.round((count / views.length) * 100)
-            }));
-
-          const favoriteCategory = topCategories[0]?.category || 'none';
-
-          // Calculate learning streak (simple version - consecutive days)
-          const uniqueDates = [...new Set(views.map(v => 
-            new Date(v.created_at).toDateString()
-          ))];
-          const learningStreak = uniqueDates.length;
-
-          // Calculate total time spent
-          const totalTimeSpent = Math.round(
-            views.reduce((sum, v) => sum + (v.view_duration || 0), 0) / 60
-          );
-
-          // Calculate completion rate
-          const completedViews = views.filter(v => v.view_duration && v.view_duration > 30);
-          const completionRate = views.length > 0 
-            ? Math.round((completedViews.length / views.length) * 100)
-            : 0;
-
-          // Get recent models
-          const recentModels = await Promise.all(
-            views.slice(0, 5).map(async (view) => {
-              const { data: model } = await supabase
-                .from('mental_models_library')  // FIXED: correct table name
-                .select('name, slug')
-                .eq('slug', view.model_slug)  // FIXED: match by slug column
-                .maybeSingle();
-              
-              return {
-                slug: view.model_slug,
-                name: model?.name || 'Unknown Model',
-                category: view.category || 'uncategorized',
-                viewedAt: view.created_at
-              };
-            })
-          );
-
-          setStats({
-            totalModelsViewed,
-            favoriteCategory,
-            learningStreak,
-            completionRate,
-            totalTimeSpent,
-            lastActivityDate: views[0].created_at,
-            topCategories,
-            recentModels
-          });
-        } else {
-          // New user with no activity
-          setStats({
-            totalModelsViewed: 0,
-            favoriteCategory: 'none',
-            learningStreak: 0,
-            completionRate: 0,
-            totalTimeSpent: 0,
-            lastActivityDate: null,
-            topCategories: [],
-            recentModels: []
-          });
-        }
-      }
-
-      // Calculate achievements
-      if (stats) {
-        calculateAchievements(stats);
-      }
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
-      setError('Unable to load your learning statistics. Please try again later.');
-      
-      // Set default empty stats
-      setStats({
-        totalModelsViewed: 0,
-        favoriteCategory: 'none',
-        learningStreak: 0,
-        completionRate: 0,
-        totalTimeSpent: 0,
-        lastActivityDate: null,
-        topCategories: [],
-        recentModels: []
-      });
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
   // Calculate achievements based on stats
   const calculateAchievements = (userStats: PersonalizedStats) => {
     const achievementList: Achievement[] = [
@@ -316,9 +109,240 @@ const PersonalizedDashboard: React.FC = () => {
     setAchievements(achievementList);
   };
 
+  // Fetch user stats - FIXED VERSION
+  const fetchUserStats = async () => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setError(null);
+      
+      // Try to use the database function first
+      try {
+        const { data: statsData, error: statsError } = await supabase
+          .rpc('get_user_learning_stats', { p_user_id: user.id });
+
+        if (!statsError && statsData && statsData.length > 0) {
+          const stat = statsData[0];
+          
+          // Get additional details for the dashboard
+          const { data: views } = await supabase
+            .from('mental_model_views')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(100);
+
+          let newStats: PersonalizedStats;
+
+          if (views && views.length > 0) {
+            // Calculate category distribution
+            const categoryCount: Record<string, number> = {};
+            views.forEach(v => {
+              if (v.category) {
+                categoryCount[v.category] = (categoryCount[v.category] || 0) + 1;
+              }
+            });
+
+            const topCategories = Object.entries(categoryCount)
+              .sort(([,a], [,b]) => b - a)
+              .slice(0, 5)
+              .map(([category, count]) => ({
+                category,
+                count,
+                percentage: Math.round((count / views.length) * 100)
+              }));
+
+            // Get recent models
+            const recentModels = await Promise.all(
+              views.slice(0, 5).map(async (view) => {
+                const { data: model } = await supabase
+                  .from('mental_models_library')
+                  .select('name, slug')
+                  .eq('slug', view.model_slug)
+                  .maybeSingle();
+                
+                return {
+                  slug: view.model_slug,
+                  name: model?.name || 'Unknown Model',
+                  category: view.category || 'uncategorized',
+                  viewedAt: view.created_at
+                };
+              })
+            );
+
+            newStats = {
+              totalModelsViewed: stat.total_models_viewed || 0,
+              favoriteCategory: stat.favorite_category || 'none',
+              learningStreak: stat.learning_streak_days || 0,
+              completionRate: stat.completion_rate || 0,
+              totalTimeSpent: stat.total_time_spent_minutes || 0,
+              lastActivityDate: stat.last_activity_date,
+              topCategories,
+              recentModels
+            };
+          } else {
+            // New user with no views
+            newStats = {
+              totalModelsViewed: 0,
+              favoriteCategory: 'none',
+              learningStreak: 0,
+              completionRate: 0,
+              totalTimeSpent: 0,
+              lastActivityDate: null,
+              topCategories: [],
+              recentModels: []
+            };
+          }
+
+          setStats(newStats);
+          // Calculate achievements immediately after setting stats
+          calculateAchievements(newStats);
+        }
+      } catch (rpcError) {
+        console.error('RPC function error, falling back to manual calculation:', rpcError);
+        
+        // Fallback: Manual calculation if function doesn't exist
+        const { data: views, error: viewsError } = await supabase
+          .from('mental_model_views')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (viewsError) throw viewsError;
+
+        let newStats: PersonalizedStats;
+
+        if (views && views.length > 0) {
+          // Calculate stats manually
+          const uniqueModels = new Set(views.map(v => v.model_slug));
+          const totalModelsViewed = uniqueModels.size;
+
+          // Calculate category distribution
+          const categoryCount: Record<string, number> = {};
+          views.forEach(v => {
+            if (v.category) {
+              categoryCount[v.category] = (categoryCount[v.category] || 0) + 1;
+            }
+          });
+
+          const topCategories = Object.entries(categoryCount)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 5)
+            .map(([category, count]) => ({
+              category,
+              count,
+              percentage: Math.round((count / views.length) * 100)
+            }));
+
+          const favoriteCategory = topCategories[0]?.category || 'none';
+
+          // Calculate learning streak
+          const uniqueDates = [...new Set(views.map(v => 
+            new Date(v.created_at).toDateString()
+          ))];
+          const learningStreak = uniqueDates.length;
+
+          // Calculate total time spent
+          const totalTimeSpent = Math.round(
+            views.reduce((sum, v) => sum + (v.view_duration || 0), 0) / 60
+          );
+
+          // Calculate completion rate
+          const completedViews = views.filter(v => v.view_duration && v.view_duration > 30);
+          const completionRate = views.length > 0 
+            ? Math.round((completedViews.length / views.length) * 100)
+            : 0;
+
+          // Get recent models
+          const recentModels = await Promise.all(
+            views.slice(0, 5).map(async (view) => {
+              const { data: model } = await supabase
+                .from('mental_models_library')
+                .select('name, slug')
+                .eq('slug', view.model_slug)
+                .maybeSingle();
+              
+              return {
+                slug: view.model_slug,
+                name: model?.name || 'Unknown Model',
+                category: view.category || 'uncategorized',
+                viewedAt: view.created_at
+              };
+            })
+          );
+
+          newStats = {
+            totalModelsViewed,
+            favoriteCategory,
+            learningStreak,
+            completionRate,
+            totalTimeSpent,
+            lastActivityDate: views[0].created_at,
+            topCategories,
+            recentModels
+          };
+        } else {
+          // New user with no activity
+          newStats = {
+            totalModelsViewed: 0,
+            favoriteCategory: 'none',
+            learningStreak: 0,
+            completionRate: 0,
+            totalTimeSpent: 0,
+            lastActivityDate: null,
+            topCategories: [],
+            recentModels: []
+          };
+        }
+
+        setStats(newStats);
+        // Calculate achievements immediately after setting stats
+        calculateAchievements(newStats);
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+      setError('Unable to load your learning statistics. Please try again later.');
+      
+      // Set default empty stats
+      const emptyStats = {
+        totalModelsViewed: 0,
+        favoriteCategory: 'none',
+        learningStreak: 0,
+        completionRate: 0,
+        totalTimeSpent: 0,
+        lastActivityDate: null,
+        topCategories: [],
+        recentModels: []
+      };
+      setStats(emptyStats);
+      calculateAchievements(emptyStats);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // FIXED useEffect
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && user?.id) {
       fetchUserStats();
+    } else if (!authLoading && !user) {
+      setIsLoading(false);
+      // Set empty achievements for non-logged in users
+      const emptyStats = {
+        totalModelsViewed: 0,
+        favoriteCategory: 'none',
+        learningStreak: 0,
+        completionRate: 0,
+        totalTimeSpent: 0,
+        lastActivityDate: null,
+        topCategories: [],
+        recentModels: []
+      };
+      calculateAchievements(emptyStats);
     }
   }, [user?.id, authLoading]);
 
@@ -631,7 +655,7 @@ const PersonalizedDashboard: React.FC = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      onClick={() => navigate(`/mental-models/${model.slug}`)}  // FIXED: using slug
+                      onClick={() => navigate(`/mental-models/${model.slug}`)}
                       className="flex items-center justify-between p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] cursor-pointer group transition-colors"
                     >
                       <div className="flex items-center gap-3">
