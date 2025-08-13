@@ -589,4 +589,4 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
   );
 };
 
-export default RecommendationWidget;
+export default RecommendationWidget; 
