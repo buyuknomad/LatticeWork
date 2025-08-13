@@ -177,7 +177,7 @@ const PersonalizedDashboard: React.FC = () => {
               totalModelsViewed: stat.total_models_viewed || 0,
               favoriteCategory: stat.favorite_category || 'none',
               learningStreak: stat.learning_streak_days || 0,
-              completionRate: stat.completion_rate || 0,
+              completionRate: parseFloat((stat.completion_rate || 0).toFixed(2)),
               totalTimeSpent: stat.total_time_spent_minutes || 0,
               lastActivityDate: stat.last_activity_date,
               topCategories,
@@ -253,7 +253,7 @@ const PersonalizedDashboard: React.FC = () => {
           // Calculate completion rate
           const completedViews = views.filter(v => v.view_duration && v.view_duration > 30);
           const completionRate = views.length > 0 
-            ? Math.round((completedViews.length / views.length) * 100)
+            ? parseFloat(((completedViews.length / views.length) * 100).toFixed(2))
             : 0;
 
           // Get recent models
@@ -278,7 +278,7 @@ const PersonalizedDashboard: React.FC = () => {
             totalModelsViewed,
             favoriteCategory,
             learningStreak,
-            completionRate,
+            completionRate: parseFloat(completionRate.toFixed(2)),
             totalTimeSpent,
             lastActivityDate: views[0].created_at,
             topCategories,
@@ -582,7 +582,7 @@ const PersonalizedDashboard: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <Target className="w-8 h-8 text-[#10B981]" />
                   <span className="text-2xl font-bold text-white">
-                    {stats?.completionRate || 0}%
+                    {(stats?.completionRate || 0).toFixed(2)}%
                   </span>
                 </div>
                 <h3 className="text-sm text-gray-400">Completion Rate</h3>
@@ -728,4 +728,4 @@ const PersonalizedDashboard: React.FC = () => {
   );
 };
 
-export default PersonalizedDashboard;
+export default PersonalizedDashboard; 
