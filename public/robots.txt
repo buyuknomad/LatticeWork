@@ -1,6 +1,6 @@
 # Robots.txt for https://mindlattice.app
 # Mental Models Library - SEO Optimized
-# Last updated: 2025-08-07
+# Last updated: 2025-08-14
 
 # Allow all web crawlers
 User-agent: *
