@@ -1,0 +1,510 @@
+[
+  {
+    "cb_id": "CB061",
+    "name": "Mere exposure effect",
+    "slug": "mere-exposure-effect",
+    "category": "attention-perception-biases",
+    "core_concept": "The tendency to develop a preference for things merely because we are familiar with them, causing repeated exposure to increase liking even without conscious awareness or positive associations.",
+    "detailed_explanation": "The mere exposure effect, also known as the familiarity principle, reveals a fundamental quirk in how we form preferences: we tend to like things more simply because we've encountered them before. This occurs even when we don't consciously remember the exposures and even when those exposures were neutral or slightly negative. The effect operates below conscious awareness – we don't realize that familiarity is driving our preference. We simply feel that familiar things are somehow \"better\" or more trustworthy. This phenomenon has profound implications for everything from relationships to consumer behavior to political preferences. It helps explain why we gravitate toward familiar brands, why arranged marriages often develop into loving relationships over time, and why political incumbents have electoral advantages. The effect is so robust that it works even with subliminal exposures too brief to consciously perceive. However, there's a limit – too much exposure can lead to boredom or irritation, and the initial valence of the stimulus matters.",
+    "expanded_examples": [
+      {
+        "title": "Marketing Director's Accidental Discovery",
+        "content": "Jennifer Huang, marketing director at TechStart Solutions, was frustrated when her company's limited budget only allowed for a modest advertising campaign – the same simple banner ad appearing on tech websites for three months. She considered it a failure, as the ad generated almost no clicks and minimal direct sales. However, when the company launched a new product six months later, something remarkable happened. Despite no prior advertising for the new product, pre-orders exceeded projections by 400%. Customer surveys revealed that buyers overwhelmingly chose TechStart because the brand \"felt trustworthy\" and \"seemed established,\" even though 78% couldn't recall seeing any specific advertisement. The mere exposure effect from those simple banner ads had unconsciously built brand preference. Competitors who had spent millions on elaborate campaigns saw lower conversion rates because they constantly changed their messaging. Jennifer's \"failed\" campaign had succeeded through pure repetition. This discovery revolutionized their marketing strategy – they now maintain consistent, simple brand exposure across all channels, resulting in a 250% increase in brand recognition and $3.2 million in additional revenue within eighteen months."
+      },
+      {
+        "title": "Neighborhood Integration Success",
+        "content": "When the Ahmed family moved from Somalia to suburban Minneapolis, they faced cold stares and obvious avoidance from neighbors. Rather than confronting prejudice directly, they implemented an unconscious strategy based on mere exposure. Every morning, Mr. Ahmed would sit on his porch reading the newspaper. Mrs. Ahmed walked the same route daily at 4 PM. Their children played in the front yard every evening. They didn't approach anyone or force interactions – they simply made themselves visible and present. After three months of consistent exposure, neighbors began waving. After six months, they were invited to barbecues. After a year, Mr. Ahmed was elected to the neighborhood board. A sociology professor studying the community documented that residents' attitudes shifted from 73% negative to 81% positive purely through repeated exposure, without any significant interactions. The same neighbors who initially supported a petition against refugee resettlement became the family's strongest advocates. The mere exposure effect had transformed fear of the unfamiliar into comfort with the familiar, achieving integration that no diversity training or community program had accomplished."
+      },
+      {
+        "title": "Investment Firm's Costly Preference",
+        "content": "Portfolio manager David Chen at Prosperity Investments consistently outperformed the market, except in one area – international technology stocks. Analysis revealed he systematically overweighted American tech companies he'd heard of, even when foreign competitors had better fundamentals. He owned Apple, Microsoft, and Google in every fund, even when Samsung, Taiwan Semiconductor, or Alibaba offered better value. The mere exposure effect from seeing these American brands daily – on his devices, in news coverage, in everyday life – created an unconscious preference that felt like informed judgment. This bias cost his clients an estimated $47 million in missed gains over five years. When confronted with the data, Chen insisted his choices were based on careful analysis, not familiarity. To test this, the firm conducted a blind evaluation where company names were replaced with codes. Suddenly, Chen's picks shifted dramatically toward foreign stocks he'd previously ignored. The revelation led to a complete overhaul of their evaluation process, with all initial assessments now conducted blind. Returns improved by 23% in the first year after eliminating the mere exposure bias."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when preferences align suspiciously with what you encounter most frequently",
+      "Recognize when you trust familiar options without examining why",
+      "Observe when \"gut feelings\" favor the known over the unknown",
+      "Identify when you can't articulate specific advantages of familiar choices",
+      "Watch for comfort with status quo options despite better alternatives"
+    ],
+    "mitigation_approaches": [
+      "Deliberately seek exposure to unfamiliar options before deciding",
+      "Conduct blind evaluations when possible to eliminate familiarity effects",
+      "Question whether preference stems from quality or mere repetition",
+      "Rotate exposure to different options to level the playing field",
+      "Force articulation of specific advantages beyond \"feels right\"",
+      "Create systematic evaluation criteria that exclude familiarity",
+      "Actively seek out novel experiences and options"
+    ],
+    "common_contexts": [
+      "Brand preferences and consumer choices",
+      "Political incumbency advantages",
+      "Relationship development and social preferences",
+      "Investment and financial decisions",
+      "Hiring and personnel selection",
+      "Music and entertainment preferences",
+      "Food and cuisine choices"
+    ],
+    "reflection_questions": [
+      "How many of your preferences might simply be products of repeated exposure?",
+      "When have you chosen familiar options without comparing alternatives?",
+      "What opportunities have you missed by gravitating toward the familiar?",
+      "How might this bias be influencing your social and professional networks?",
+      "Are your \"instincts\" about quality actually just familiarity in disguise?"
+    ],
+    "related_bias_ids": ["CB058", "CB031", "CB186"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 61,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB062",
+    "name": "Context effect",
+    "slug": "context-effect",
+    "category": "attention-perception-biases",
+    "core_concept": "The phenomenon where our perception and evaluation of stimuli changes depending on the surrounding context, causing identical information to be interpreted differently based on environmental, social, or comparative factors.",
+    "detailed_explanation": "The context effect demonstrates that our brains don't process information in isolation – we automatically and unconsciously use surrounding context as a reference frame for interpretation. This isn't limited to visual perception (where a gray square looks lighter against a dark background) but extends to complex judgments about value, quality, and meaning. The same product seems expensive in a discount store but cheap in a luxury boutique. The same performance seems brilliant among amateurs but mediocre among professionals. The same temperature feels warm after cold exposure but cool after heat. This effect reveals that what we consider \"objective\" judgments are actually highly relative and contextual. Our brains are constantly making comparative evaluations rather than absolute ones. This has profound implications for decision-making, as the context in which options are presented can dramatically alter our choices. Marketers, negotiators, and policymakers exploit this by carefully controlling the context to influence perceptions and decisions.",
+    "expanded_examples": [
+      {
+        "title": "Real Estate Agent's Million-Dollar Strategy",
+        "content": "Lisa Martinez, a struggling real estate agent in San Diego, discovered the context effect accidentally when a scheduling error forced her to show properties in an unusual order. She typically showed homes in ascending price order, but this time showed a overpriced, run-down $850,000 house first, followed by a well-maintained $750,000 home she'd been unable to sell for months. The buyers immediately loved the second house, perceiving it as an incredible value. Lisa realized the context effect was at work – the same house that seemed expensive in isolation looked like a bargain after seeing a worse, pricier option. She systematized this approach, always showing one overpriced \"anchor\" property first. Her sales increased by 175% within six months. She sold 23 properties that had been on the market for over 90 days simply by changing the context in which they were viewed. One couple paid $805,000 for a house they had previously rejected at $780,000, simply because she showed it after a disaster priced at $950,000. The context effect had transformed perception of value, earning Lisa an extra $1.3 million in commissions that year."
+      },
+      {
+        "title": "Hospital's Patient Satisfaction Turnaround",
+        "content": "Memorial General Hospital had the lowest patient satisfaction scores in the region despite having excellent medical outcomes. Chief Administrator Dr. Robert Tran discovered that patients were rating their experience immediately after leaving the intensive care unit, where they received extraordinary care. Everything afterward seemed substandard by comparison. The context effect was making good care seem bad. Dr. Tran restructured the patient journey, ensuring gradual transitions rather than stark contrasts. He also changed when satisfaction surveys were administered – from immediately post-discharge to one week later, allowing home context to reset perceptions. Satisfaction scores jumped from 31st percentile to 84th percentile without any actual change in care quality. The same nurses, same facilities, and same procedures were now rated \"excellent\" instead of \"poor.\" Insurance reimbursements increased by $4.2 million annually due to improved scores. Dr. Tran later consulted for twelve other hospitals, implementing context management strategies that collectively improved patient satisfaction scores by an average of 43 percentage points."
+      },
+      {
+        "title": "Teacher's Grading Revolution",
+        "content": "High school English teacher Michael Rodriguez noticed his grades didn't align with standardized test scores. Students he rated as excellent writers scored average on state exams, while his \"average\" students scored poorly. He discovered he was unconsciously using context-dependent grading – each paper was evaluated relative to others in the batch. When he graded honors classes, even excellent papers seemed average compared to other excellent papers. When grading remedial classes, mediocre work looked good by comparison. To test this, he had another teacher shuffle all his students' papers together and grade them blind. The results were shocking – some honors students he'd given B's deserved A's, while some remedial students he'd given B's deserved D's. The context effect had distorted his evaluation by two full letter grades in some cases. Rodriguez developed a rubric-based system with absolute, not relative, standards. His students' standardized test scores immediately improved by 18 percentile points as his teaching adjusted to match actual rather than context-distorted performance levels. The discovery spread throughout the district, leading to a complete overhaul of grading practices."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when identical options seem different in different settings",
+      "Observe how your evaluation changes based on what you've seen recently",
+      "Recognize when judgments shift based on comparison sets",
+      "Identify when environmental factors affect perception",
+      "Watch for preferences that change with presentation order"
+    ],
+    "mitigation_approaches": [
+      "Evaluate options in multiple contexts before deciding",
+      "Create absolute rather than relative evaluation criteria",
+      "Deliberately reset your reference point between evaluations",
+      "Consider items in isolation, not just in comparison",
+      "Randomize the order in which you evaluate options",
+      "Be aware of anchor effects from initial exposures",
+      "Step away and return with fresh context"
+    ],
+    "common_contexts": [
+      "Pricing and value perception",
+      "Performance evaluations",
+      "Academic grading",
+      "Product comparisons",
+      "Restaurant experiences",
+      "Job interviews",
+      "Real estate valuations"
+    ],
+    "reflection_questions": [
+      "How might different contexts be affecting your current evaluations?",
+      "When have you changed your opinion simply because the context changed?",
+      "What decisions might you make differently if you changed the comparison set?",
+      "How do marketers and negotiators use context to influence your choices?",
+      "Are your standards absolute or do they shift with context?"
+    ],
+    "related_bias_ids": ["CB026", "CB023", "CB029"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 62,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB063",
+    "name": "Cue-dependent forgetting",
+    "slug": "cue-dependent-forgetting",
+    "category": "memory-biases",
+    "core_concept": "The failure to recall information due to the absence of contextual cues that were present during encoding, demonstrating that memory retrieval depends heavily on matching the conditions between learning and recall.",
+    "detailed_explanation": "Cue-dependent forgetting reveals that memories aren't just stored as isolated facts but are interconnected with the environmental, emotional, and sensory context in which they were formed. When we learn something, our brains automatically encode not just the information itself but also peripheral details – the location, our mood, background sounds, even smells. These contextual elements become retrieval cues. When these cues are absent during recall attempts, the memory may be intact but inaccessible, like having a locked file without the password. This phenomenon explains many everyday memory failures. Why you forget what you came to get when you enter a room, why students perform worse on exams in unfamiliar classrooms, or why a song can suddenly unlock a flood of forgotten memories. The effect is particularly strong for episodic memories and weaker for well-learned procedural skills. Understanding cue-dependent forgetting has important implications for education, therapy, and legal testimony.",
+    "expanded_examples": [
+      {
+        "title": "Detective's Cold Case Breakthrough",
+        "content": "Detective Maria Santos had worked the Johnson murder case for three years without progress. Despite interviewing witness Tommy Chen multiple times, he insisted he remembered nothing from that night at the warehouse. Frustrated, Santos decided to recreate the crime scene conditions exactly. She brought Chen back to the abandoned warehouse at 2 AM, the same time as the murder. She played the same music that had been on the radio, even found the same brand of cigarettes that had been smoked that night to recreate the smell. As Chen stood in the warehouse with these cues present, memories flooded back. He suddenly recalled a distinctive tattoo on the shooter's neck, the specific words spoken, even the license plate of the getaway car. The cue-dependent nature of memory had locked away these crucial details when recall was attempted in the sterile interview room. The recovered memories led to an arrest within 48 hours. The suspect, confronted with Chen's detailed testimony, confessed. Santos' technique became standard protocol, with crime scene recreation increasing witness recall by an average of 340% across the department."
+      },
+      {
+        "title": "Student's Medical School Disaster",
+        "content": "Sarah Kim was a brilliant medical student who studied exclusively in her quiet apartment bedroom, using aromatherapy candles and classical music to create the \"perfect\" study environment. She knew the material perfectly during practice tests at home. However, during the crucial Step 1 board exam in a sterile testing center with fluorescent lights and clicking keyboards, her mind went blank. The absence of her encoded contextual cues triggered massive cue-dependent forgetting. She failed the exam by 12 points despite studying 14 hours daily for six months. The failure delayed her residency by a year and cost her a position at her dream hospital. Determined to overcome this, Sarah revolutionized her study approach for the retake. She studied in different locations – libraries, cafés, empty classrooms. She practiced recall under various conditions – with noise, in silence, standing, sitting, even while exercising. She deliberately encoded information with multiple, varied contextual cues. On her second attempt, she scored in the 94th percentile. Her story led her medical school to mandate \"context-varied studying\" in their curriculum, improving first-time pass rates by 27%."
+      },
+      {
+        "title": "Company's Trade Secret Crisis",
+        "content": "TechCorp's senior engineer, James Wright, was the only person who knew the complete formula for their revolutionary battery technology – a trade secret worth $500 million. The formula was too sensitive to write down, so James had memorized it over five years of development in his specialized lab. When a fire destroyed the lab, James was relocated to a temporary facility. Suddenly, he couldn't recall crucial parts of the formula. The different environment – different equipment layout, lighting, even the absence of his usual coffee machine's humming – triggered severe cue-dependent forgetting. TechCorp faced bankruptcy without their core technology. Desperate, they hired memory researchers who meticulously recreated James's original lab environment in virtual reality, down to the smallest details from security footage. As James worked in the VR recreation, the formula gradually returned. It took six weeks and $2 million to fully recover the information. TechCorp now requires all critical knowledge to be encoded in multiple contexts and documented in various forms, having learned that million-dollar secrets can be locked away by something as simple as a different room."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when you can't recall something you \"know you know\"",
+      "Recognize improved memory when returning to familiar environments",
+      "Observe when changing locations triggers forgetfulness",
+      "Identify when emotional states affect recall ability",
+      "Watch for memory that returns with specific sensory cues"
+    ],
+    "mitigation_approaches": [
+      "Study or practice in multiple different environments",
+      "Mentally recreate original learning context during recall",
+      "Use distinctive cues that can be reproduced during retrieval",
+      "Create portable memory cues (objects, scents, sounds)",
+      "Practice retrieval in various contexts",
+      "Link information to multiple diverse cues",
+      "Test yourself in conditions similar to where recall will be needed"
+    ],
+    "common_contexts": [
+      "Academic testing and examinations",
+      "Eyewitness testimony",
+      "Professional presentations",
+      "Password and information recall",
+      "Skill performance in new environments",
+      "Therapy and recovered memories",
+      "Language use in different settings"
+    ],
+    "reflection_questions": [
+      "What important information might be locked away by missing contextual cues?",
+      "How could you better encode memories to ensure reliable retrieval?",
+      "When has returning to an old place unlocked forgotten memories?",
+      "What crucial knowledge are you encoding in only one context?",
+      "How might this explain some of your \"inexplicable\" memory failures?"
+    ],
+    "related_bias_ids": ["CB035", "CB048", "CB005"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 63,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB064",
+    "name": "Frequency illusion",
+    "slug": "frequency-illusion",
+    "category": "attention-perception-biases",
+    "core_concept": "The tendency to notice something everywhere once it's come to our attention, creating the false impression that it's suddenly appearing more frequently when in reality our awareness has simply increased.",
+    "detailed_explanation": "The frequency illusion, also known as the Baader-Meinhof phenomenon, occurs when something we've recently learned about or noticed suddenly seems to appear everywhere. This isn't because the frequency has actually increased – it's because our brains have tagged this information as important and now selectively attend to it. Once something enters our awareness, our perceptual system unconsciously scans for it, making us notice every instance while we previously filtered it out as irrelevant background information. This bias combines selective attention with confirmation bias to create a powerful illusion. It explains why expectant parents suddenly see pregnant women everywhere, why learning a new word makes it seem like everyone's using it, or why buying a certain car model makes that model appear ubiquitous on the roads. The illusion can affect decision-making by making rare things seem common or making us overestimate the importance of recently acquired information.",
+    "expanded_examples": [
+      {
+        "title": "Entrepreneur's Market Misread",
+        "content": "After attending a single blockchain conference, startup founder Alex Thompson became convinced cryptocurrency was taking over the world. Suddenly, he noticed crypto references everywhere – news articles, coffee shop conversations, billboard advertisements. The frequency illusion made him believe he was witnessing a massive shift that everyone else was missing. He pivoted his successful e-commerce platform to become crypto-only, investing $3 million in development. He ignored his advisors' warnings that only 2% of consumers actually used cryptocurrency for purchases. The frequency illusion had made this tiny market segment seem enormous because his heightened awareness noticed every crypto reference while filtering out the 98% of traditional commerce. Within eight months, sales dropped 94%. Alex had to emergency pivot back, but lost 60% of his customer base who'd gone to competitors. The frequency illusion had cost him $4.7 million and nearly destroyed his company. Market research later showed crypto payment mentions had actually decreased during the period Alex thought they were exploding – his brain had simply started noticing what had always been there."
+      },
+      {
+        "title": "Doctor's Diagnostic Tunnel Vision",
+        "content": "Dr. Patricia Lee attended a conference on Lyme disease that emphasized how often it's misdiagnosed. Returning to her practice, she suddenly saw potential Lyme cases everywhere. Every patient with fatigue, joint pain, or headaches triggered her new awareness. Over six months, she ordered Lyme tests for 340 patients – fifteen times her previous rate. She diagnosed 47 cases of Lyme disease in a region where the annual average was 3 cases per practice. The frequency illusion had convinced her of an epidemic that didn't exist. Many patients underwent unnecessary antibiotic treatments, with 12 experiencing severe side effects. When the state health department investigated the unusual spike in diagnoses, they found only 2 actual cases of Lyme disease – the rest were false positives and misinterpretations. Dr. Lee's medical license was suspended for six months. Review of her notes showed she'd ignored obvious alternative diagnoses because the frequency illusion had made Lyme disease seem omnipresent. The investigation found similar patterns in eight other doctors who'd attended the same conference, leading to new guidelines about diagnostic anchoring and mandatory second opinions for unusual disease clusters."
+      },
+      {
+        "title": "Investor's Pattern Obsession",
+        "content": "Day trader Michael Zhang read about the \"death cross\" pattern – when a stock's 50-day moving average crosses below its 200-day average, supposedly predicting a downturn. Suddenly, he saw death crosses everywhere. Every chart seemed to show this pattern forming or completing. The frequency illusion convinced him he'd discovered a hidden market signal others were missing. He restructured his entire portfolio based on death crosses, shorting every stock showing the pattern. In reality, death crosses are common and only predict downturns 51% of the time – barely better than chance. Michael's heightened awareness made him notice every successful death cross while unconsciously ignoring the failures. Over four months, he lost $380,000 as many stocks with death crosses actually increased in value. Analysis of his trades showed he'd actually performed worse than random selection. The frequency illusion had turned a marginally useful indicator into seemingly omnipresent guidance. Michael later discovered that during his obsession period, death crosses were actually 30% less common than the historical average – his brain had manufactured a pattern explosion that existed only in his perception."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when something \"suddenly\" seems everywhere after you learn about it",
+      "Recognize the suspicious timing of awareness followed by frequency",
+      "Question whether occurrence has actually increased or just your noticing",
+      "Observe selective attention to recently acquired information",
+      "Identify when new knowledge makes you feel like you're seeing patterns others miss"
+    ],
+    "mitigation_approaches": [
+      "Track actual frequency data rather than relying on impressions",
+      "Note when you first became aware of something before judging frequency",
+      "Seek base rate information about actual occurrence",
+      "Ask others if they've noticed increased frequency",
+      "Deliberately look for counter-examples",
+      "Wait before making decisions based on perceived pattern increases",
+      "Maintain awareness that attention creates illusion of frequency"
+    ],
+    "common_contexts": [
+      "Medical diagnosis patterns",
+      "Investment trend identification",
+      "Consumer behavior interpretation",
+      "Social media trend perception",
+      "Language and vocabulary",
+      "Fashion and style trends",
+      "Problem and risk assessment"
+    ],
+    "reflection_questions": [
+      "What patterns am I seeing everywhere that might just be selective attention?",
+      "When did I first notice this \"trend\" and was it really less common before?",
+      "Am I making important decisions based on frequency illusions?",
+      "What have I been filtering out while focusing on my new awareness?",
+      "How can I distinguish between actual trends and perceptual illusions?"
+    ],
+    "related_bias_ids": ["CB031", "CB059", "CB086"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 64,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB065",
+    "name": "Empathy gap",
+    "slug": "empathy-gap",
+    "category": "emotional-biases",
+    "core_concept": "The tendency to underestimate the influence of visceral drives and emotional states on our own and others' behavior, failing to accurately predict preferences and decisions across different emotional or physical states.",
+    "detailed_explanation": "The empathy gap reveals a fundamental limitation in our ability to mentally simulate different emotional or physical states. When we're in a \"cold\" state (calm, rational, satisfied), we can't accurately imagine how we'll behave in a \"hot\" state (angry, aroused, hungry, in pain). Conversely, when in a hot state, we can't imagine returning to rational coldness. This isn't just poor imagination – our current state fundamentally biases our predictions. We assume our current feelings and decision-making processes will remain stable, underestimating how dramatically visceral states alter our priorities and choices. This bias affects both intrapersonal predictions (about our future selves) and interpersonal understanding (empathy for others in different states). It explains why we make promises we can't keep, why addiction is so hard to understand from the outside, and why well-fed people can't comprehend the decisions of the desperately hungry. The gap creates systematic errors in planning, policy-making, and human understanding.",
+    "expanded_examples": [
+      {
+        "title": "CEO's Burnout Blindness",
+        "content": "Jennifer Walsh, CEO of StartupTech, built her company culture on intense dedication, having worked 100-hour weeks for years while loving every minute. She couldn't understand why her employees complained about 60-hour weeks. \"I did double that and thrived,\" she told her board. The empathy gap prevented her from remembering that during her startup phase, she was 25, childless, and fueled by founder's equity and passion. Now 38, even she was secretly exhausted but couldn't admit it. She instituted a \"dedication initiative\" requiring minimum 70-hour weeks, convinced that anyone not willing \"wasn't StartupTech material.\" Within six months, 73% of her engineering team quit, including three irreplaceable senior architects. Projects fell behind, and a competitor poached her entire machine learning team by offering work-life balance. Only when Jennifer herself collapsed from exhaustion, requiring hospitalization, did she understand. In her depleted state, she finally comprehended what her employees had experienced. The empathy gap had cost her company $12 million in recruitment, training, and lost productivity. She restructured to a 40-hour standard week, but the damage was done – StartupTech never recovered its innovation edge and was acquired for 30% of its peak valuation."
+      },
+      {
+        "title": "Judge's Harsh Sentences",
+        "content": "Circuit Judge Robert Harrison prided himself on tough sentencing for drug offenses. Having never experienced addiction or poverty, he couldn't comprehend why defendants repeatedly returned to drugs despite harsh consequences. The empathy gap made addiction seem like simple weakness rather than compulsive behavior. He routinely gave maximum sentences, believing fear would deter future use. Then Harrison required shoulder surgery and was prescribed opioids. Within weeks, he experienced withdrawal when trying to stop – anxiety, pain, overwhelming cravings. For the first time, he viscerally understood addiction's grip. Reviewing his past cases in this new state, he was horrified. He'd sent non-violent addicts to prison for decades, destroying families and perpetuating cycles of addiction. One defendant had committed suicide in prison; another's children ended up in foster care. The empathy gap had turned him into what he now saw as a cruel judge. Harrison became an advocate for treatment over incarceration, but couldn't undo the hundreds of lives his lack of empathy had destroyed. Studies of his sentencing showed his average sentence dropped from 87 months to 18 months post-surgery, with treatment mandates replacing pure punishment."
+      },
+      {
+        "title": "Marriage Counselor's Personal Crisis",
+        "content": "Dr. David Chen was a renowned marriage counselor who specialized in infidelity recovery. In his calm, professional state, he couldn't understand why betrayed spouses couldn't \"simply forgive and move forward\" after apologies. He pushed clients toward quick reconciliation, minimizing their pain as \"overdramatic.\" His success rate was surprisingly high because couples felt pressured to report progress. Then Dr. Chen discovered his own wife's affair. The visceral pain – rage, humiliation, physical nausea – overwhelmed him. He couldn't eat, sleep, or function. The empathy gap had prevented him from understanding this primal emotional state from his cold, clinical perspective. He realized he'd been re-traumatizing clients for fifteen years by pushing them through pain he hadn't understood. Several former clients had attempted suicide after his \"get over it\" approach. His practice imploded as word spread, and his reputation was destroyed. The personal crisis led to divorce and bankruptcy, but also to a complete reformation of his therapeutic approach. He now teaches other therapists about the empathy gap's danger in clinical practice, warning that intellectual understanding without emotional experience can lead to harmful treatment."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when you dismiss others' struggles you haven't experienced",
+      "Recognize poor predictions about your own future behavior in different states",
+      "Identify when you can't understand \"irrational\" decisions of others",
+      "Observe promise-making in calm states you can't keep in stressed states",
+      "Watch for judgment of others in situations you've never faced"
+    ],
+    "mitigation_approaches": [
+      "Vividly imagine specific scenarios rather than abstract states",
+      "Consult people currently experiencing the state you're trying to understand",
+      "Make important decisions in multiple emotional states",
+      "Build in larger margins for error when predicting across states",
+      "Document your experiences in various states for future reference",
+      "Practice perspective-taking exercises regularly",
+      "Acknowledge the limits of your empathetic imagination"
+    ],
+    "common_contexts": [
+      "Addiction and recovery",
+      "Policy-making about poverty or crisis",
+      "Relationship conflicts and understanding",
+      "Medical decisions and pain management",
+      "Parenting and child behavior",
+      "Consumer behavior prediction",
+      "Criminal justice and sentencing"
+    ],
+    "reflection_questions": [
+      "What struggles do I dismiss because I haven't experienced them?",
+      "When have I made promises in a calm state I couldn't keep when stressed?",
+      "How might my current emotional state be biasing my future predictions?",
+      "What populations do I judge without understanding their visceral reality?",
+      "How could experiencing different states improve my empathy and decisions?"
+    ],
+    "related_bias_ids": ["CB170", "CB165", "CB171"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 65,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB066",
+    "name": "Omission bias",
+    "slug": "omission-bias",
+    "category": "decision-behavior-biases",
+    "core_concept": "The tendency to judge harmful actions as worse than equally harmful inactions, favoring harm through omission over harm through commission even when outcomes are identical or when action would cause less overall harm.",
+    "detailed_explanation": "Omission bias reveals our asymmetric moral judgment of action versus inaction. We tend to feel more responsible, guilty, and blameworthy for bad outcomes we directly cause through action than for equivalent or worse outcomes we allow through inaction. This bias affects not just moral judgment but actual decision-making – we often choose to do nothing even when action would minimize harm, because we fear the greater psychological burden of active harm. The bias likely evolved because actions require intention and energy, making them feel more causal and deliberate than passive allowance. The implications are profound for medical decisions, public policy, parenting, and business ethics. Parents who don't vaccinate children due to tiny vaccine risks while accepting larger disease risks, investors who hold losing stocks rather than actively selling, or managers who let problems fester rather than make tough decisions – all demonstrate omission bias. The bias can paradoxically lead to greater harm through our attempt to avoid feeling directly responsible for harm.",
+    "expanded_examples": [
+      {
+        "title": "Parent's Vaccination Tragedy",
+        "content": "Susan Mitchell researched vaccines obsessively after reading about rare adverse reactions. The statistics were clear: serious vaccine reactions occurred in 1 in a million cases, while measles caused serious complications in 1 in 1,000 cases. But Susan couldn't shake the feeling that actively vaccinating and causing a reaction would be worse than her child naturally contracting a disease. The omission bias made the act of injection feel more morally heavy than the inaction of avoiding vaccines. She joined anti-vaccine groups that reinforced this bias, sharing stories of vaccine injuries while ignoring disease casualties. When her unvaccinated 4-year-old son contracted measles during an outbreak, he developed encephalitis, suffering permanent brain damage that left him unable to walk or speak clearly. The outcome was 1,000 times more likely than a vaccine injury, but Susan had felt less culpable for a \"natural\" disease than she would have for an \"inflicted\" vaccine reaction. Her tragedy became a cautionary tale in her community, but not before seven other families following her example saw their children hospitalized. The omission bias had transformed Susan's attempt to avoid harm into a choice that destroyed her son's future."
+      },
+      {
+        "title": "CEO's Company Collapse",
+        "content": "Marcus Torres, CEO of RetailChain Inc., saw clear signs of needed layoffs in 2019. Market analysis showed that cutting 20% of staff would save the company. But Marcus couldn't bring himself to actively fire 2,000 employees. The omission bias made him feel that actively causing unemployment was worse than letting economic forces take their course. He chose inaction, hoping things would improve. Instead, mounting losses made the company unsustainable. In 2021, RetailChain declared bankruptcy, and all 10,000 employees lost their jobs. The omission bias had led Marcus to allow five times more job losses through inaction than he would have caused through action. Worse, the fired employees would have received severance packages and job placement help in 2019; the bankruptcy left everyone with nothing. Marcus later testified that he'd known layoffs were necessary but couldn't bear being the direct cause of suffering. His inaction caused far more suffering, but the psychological burden had felt lighter. The bankruptcy wiped out $500 million in pension funds and triggered a regional economic crisis. Marcus's successor found documents showing he'd had seventeen different restructuring plans that would have saved the company, all abandoned due to requiring active harm."
+      },
+      {
+        "title": "Emergency Room's Protocol Failure",
+        "content": "Dr. Amanda Foster developed St. Mary's Hospital's cardiac emergency protocols. She had to choose between two approaches: Protocol A required aggressive intervention that would save 95 lives per 100 but directly cause 2 deaths through complications. Protocol B was conservative, saving only 85 lives per 100, with 15 dying from lack of intervention. The omission bias made the 2 deaths from action feel worse than 15 deaths from inaction. Dr. Foster chose Protocol B, unable to bear actively causing any deaths. Over five years, approximately 150 additional people died who would have lived under Protocol A. Each death was recorded as \"natural causes\" rather than \"medical intervention,\" making them psychologically easier to accept. Only when a new administrator analyzed outcomes across hospitals did the tragedy become clear. Hospitals using aggressive protocols had far better survival rates. Dr. Foster was devastated to realize her omission bias had cost 150 lives in her attempt to avoid causing 20. She became an advocate for evidence-based protocols that remove individual moral burden from medical decisions. St. Mary's switched protocols, but faced lawsuits from families who learned their loved ones died from systematic inaction."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice reluctance to act even when action would reduce overall harm",
+      "Recognize feeling more responsible for action outcomes than inaction outcomes",
+      "Identify when fear of commission overrides logical analysis",
+      "Observe preference for \"natural\" bad outcomes over \"caused\" better outcomes",
+      "Watch for decision paralysis when all options involve some active harm"
+    ],
+    "mitigation_approaches": [
+      "Focus on total outcomes rather than action/inaction distinction",
+      "Reframe inaction as an active choice with consequences",
+      "Use utilitarian calculations to compare total harm",
+      "Consider what you'd want others to choose if you were affected",
+      "Delegate decisions when omission bias clouds judgment",
+      "Create policies that pre-commit to action when beneficial",
+      "Remember that allowing preventable harm is also a moral choice"
+    ],
+    "common_contexts": [
+      "Medical treatment decisions",
+      "Vaccination choices",
+      "Business layoffs and restructuring",
+      "Investment decisions",
+      "Safety regulations",
+      "Parenting interventions",
+      "End-of-life care"
+    ],
+    "reflection_questions": [
+      "When have you allowed greater harm through inaction to avoid causing lesser harm?",
+      "How does the action/inaction distinction affect your moral judgments?",
+      "What preventable problems persist because you won't actively address them?",
+      "Do you judge others' harmful actions more harshly than harmful inactions?",
+      "How could reframing inaction as choice change your decisions?"
+    ],
+    "related_bias_ids": ["CB186", "CB091"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 66,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB067",
+    "name": "Base rate fallacy",
+    "slug": "base-rate-fallacy",
+    "category": "probability-judgment-biases",
+    "core_concept": "The tendency to ignore general probability information (base rates) in favor of specific but less relevant information, leading to poor probability judgments and decision-making.",
+    "detailed_explanation": "The base rate fallacy occurs when we neglect statistical base rate information in favor of individuating information that seems more relevant but is actually less diagnostic. When told someone is shy and likes puzzles, we might guess they're a mathematician rather than a salesperson, ignoring that there are far more salespeople than mathematicians in the population. Our brains prefer concrete, specific information over abstract statistics, even when the statistics are more informative. We focus on how well information fits our stereotypes (representativeness) while ignoring prior probabilities. This fallacy has serious implications for medical diagnosis, legal decisions, risk assessment, and everyday judgments. It explains why people fear rare but vivid dangers while ignoring common risks, why stereotypes override statistical reality, and why specific anecdotes outweigh comprehensive data. The fallacy is particularly dangerous when base rates are extreme – rare diseases, uncommon events, or unusual circumstances – where ignoring base rates leads to dramatically wrong conclusions.",
+    "expanded_examples": [
+      {
+        "title": "Medical Testing Disaster",
+        "content": "Dr. Sarah Kim implemented a revolutionary cancer screening program at Regional Medical Center. The test was 99% accurate – it correctly identified 99% of cancer cases and correctly cleared 99% of healthy patients. With such accuracy, she convinced the hospital to screen all 10,000 employees. Twenty tested positive. Dr. Kim told them they almost certainly had cancer, given the 99% accuracy. But she'd committed the base rate fallacy. The base rate for this cancer in the general population was only 0.1% (10 in 10,000). Of 10,000 people, 10 would have cancer (99% correctly identified = 10 positive tests) and 9,990 would be healthy (1% false positive rate = 100 positive tests). So of 110 positive tests, only 10 actually indicated cancer – a 91% false positive rate despite 99% test accuracy. But Dr. Kim had already told 20 people they had cancer. Eighteen healthy employees underwent invasive biopsies, three had unnecessary surgeries, and one attempted suicide after the diagnosis. The hospital faced $15 million in lawsuits. Dr. Kim's medical license was suspended for ignoring base rates. The case became mandatory study in medical schools, demonstrating how the base rate fallacy can turn accurate tests into dangerous weapons."
+      },
+      {
+        "title": "Venture Capitalist's Pattern Blindness",
+        "content": "Top-tier venture capitalist James Park prided himself on identifying founder characteristics that predicted success. His analysis showed successful founders were often college dropouts, worked at previous startups, and had technical backgrounds. When evaluating pitches, he heavily weighted these factors. But he ignored base rates: while 30% of successful founders were dropouts, 99% of dropouts who started companies failed. The base rate fallacy made him confuse \"many successful founders are dropouts\" with \"dropouts are likely to succeed.\" Over three years, James invested $50 million in 40 companies led by dropout founders with startup experience. Only one succeeded – a 2.5% success rate compared to the industry average of 10%. Meanwhile, he passed on fifteen companies led by MBA graduates because they didn't fit his pattern. Twelve of those became unicorns. His base rate fallacy cost his fund $2 billion in missed returns. Analysis revealed that while dropout founders were overrepresented in successes, the vast majority of dropouts still failed. By focusing on specific characteristics while ignoring base rates, James had selected from a pool with a 1% success rate instead of the MBA pool with a 15% rate."
+      },
+      {
+        "title": "Security System's Fatal Flaw",
+        "content": "Airport security director Tom Anderson installed an AI-powered threat detection system that was 99.9% accurate at identifying potential terrorists based on behavioral patterns. In testing, it seemed perfect. But Tom ignored base rates. Of 10 million annual passengers, perhaps 10 might be actual threats (0.0001%). With 99.9% accuracy, the system would catch all 10 threats but also flag 0.1% of innocent passengers – 10,000 false positives. So 99.99% of people flagged would be innocent. The base rate fallacy made Tom believe anyone flagged was likely dangerous. Security treated flagged passengers as serious threats, with aggressive detentions and interrogations. Within six months, the airport faced 3,000 lawsuits for false imprisonment, racial profiling, and civil rights violations. One flagged passenger, a diabetic having a medical emergency, died after being restrained instead of receiving medical attention – security was certain his symptoms indicated threat behavior. The airport paid $200 million in settlements. The system was abandoned, and Tom was criminally charged for implementing a system where he knew 9,999 of every 10,000 alerts would be false but treated them as real threats anyway."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when specific details overshadow statistical information",
+      "Recognize when vivid examples outweigh probability data",
+      "Identify decisions based on stereotypes rather than base rates",
+      "Observe fear of rare but memorable events over common risks",
+      "Watch for confidence in predictions that ignore prior probabilities"
+    ],
+    "mitigation_approaches": [
+      "Always ask \"what's the base rate?\" before making probability judgments",
+      "Convert problems to frequency formats (X out of Y) rather than percentages",
+      "Consider population sizes when evaluating conditional probabilities",
+      "Use Bayes' theorem for important probability calculations",
+      "Visualize problems with concrete numbers rather than abstract probabilities",
+      "Seek statistical data before relying on intuition",
+      "Remember that specific features don't override mathematical reality"
+    ],
+    "common_contexts": [
+      "Medical diagnosis and screening",
+      "Criminal profiling and legal decisions",
+      "Risk assessment and insurance",
+      "Hiring and personnel decisions",
+      "Investment analysis",
+      "Marketing predictions",
+      "Security screening"
+    ],
+    "reflection_questions": [
+      "When do you ignore statistics in favor of compelling specifics?",
+      "How often do you consider base rates when making predictions?",
+      "What rare events do you overestimate while ignoring common risks?",
+      "When have stereotypes led you to ignore statistical reality?",
+      "How could incorporating base rates improve your decision-making?"
+    ],
+    "related_bias_ids": ["CB031", "CB064", "CB117"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 67,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB068",
+    "name": "Anchoring",
+    "slug": "anchoring-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB023 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB023 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB023",
+    "order_index": 68,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB069",
+    "name": "Conservatism",
+    "slug": "conservatism",
+    "category": "attention-perception-biases",
+    "core_concept": "The tendency to insufficiently revise beliefs when presented with new evidence, maintaining prior views and underweighting new information even when it should substantially change our conclusions.",
+    "detailed_explanation": "Conservatism bias represents the flip side of overreaction – instead of jumping to conclusions, we fail to jump far enough. When presented with new evidence that should significantly update our beliefs, we make insufficient adjustments, clinging to our priors more than Bayesian reasoning would prescribe. This isn't stubborn refusal to change but rather systematic under-adjustment. We might acknowledge new information and even update our beliefs in the right direction, but the magnitude of change is too small. If evidence suggests we should revise our belief from 30% to 70% probability, we might only move to 45%. This bias likely exists because belief revision is cognitively costly and emotionally uncomfortable. Prior beliefs feel safer and require less mental effort to maintain. The bias is particularly strong when new information is complex, statistical, or challenges fundamental assumptions. It helps explain why scientific paradigms change slowly, why investors are slow to recognize market shifts, and why people maintain outdated views despite mounting contrary evidence.",
+    "expanded_examples": [
+      {
+        "title": "Investment Fund's Slow Bleed",
+        "content": "Portfolio manager Richard Chang had built his career on retail stocks, maintaining 60% of his fund in traditional retail for twenty years. When e-commerce data started showing massive shifts in 2010, Richard acknowledged the trend but made minimal adjustments. Each quarter's data showing accelerating online sales caused him to reduce retail holdings by only 1-2%, when the evidence justified 10-15% reductions. His conservatism bias made him treat revolutionary change as incremental evolution. By 2015, while his fund still held 45% in retail, competitors had reduced to 10%. He watched traditional retailers collapse one by one – Toys\"R\"Us, Sears, JCPenney – each bankruptcy surprising him despite clear warning signs he'd acknowledged but underweighted. His insufficient belief revision cost investors $800 million in losses. When asked why he didn't adjust faster, Richard showed notebooks full of accurate observations about e-commerce growth, but each note ended with \"adjusting holdings by 2%.\" The conservatism bias had made him intellectually recognize change while emotionally maintaining prior beliefs. His fund never recovered, closing in 2018 after 70% losses. Analysis showed that if he'd updated beliefs proportionally to evidence, the fund would have gained 300% instead."
+      },
+      {
+        "title": "Doctor's Diagnostic Delay",
+        "content": "Dr. Michelle Wong treated patient David Miller for apparent acid reflux for eighteen months. Each visit, David reported worsening symptoms that didn't match typical reflux patterns. Dr. Wong noted these discrepancies but made only minor adjustments – trying slightly different medications, marginally adjusting doses. The mounting evidence clearly indicated something more serious, but her conservatism bias caused insufficient belief revision. She moved from 90% confident in reflux to only 75%, when the evidence justified dropping to 30%. Each test result that didn't support reflux caused tiny doubt increments rather than major reassessment. Only when David collapsed and was rushed to emergency surgery was stage 3 esophageal cancer discovered. Had Dr. Wong updated her diagnosis proportionally to the evidence six months earlier, David would have had 80% survival odds. The delayed diagnosis, caused by conservatism bias, reduced his chances to 15%. David died fourteen months later. Review of Dr. Wong's notes showed she'd documented seventeen different symptoms inconsistent with reflux, each followed by minimal diagnostic adjustment. The case became a teaching example of how conservatism bias can be as deadly as overconfidence, killing through insufficient updating rather than excessive certainty."
+      },
+      {
+        "title": "Company's Market Position Erosion",
+        "content": "TechGiant Corp had dominated enterprise software for two decades. When cloud-based competitors emerged in 2008, CEO Barbara Thompson acknowledged the threat but exhibited severe conservatism bias in response. Each quarter showing customers switching to cloud solutions, she'd approve minimal strategy adjustments – 5% more cloud investment when 50% was needed. Board presentations showed she accurately tracked the threat's growth but consistently underweighted its implications. Her belief in TechGiant's dominance moved from 95% confidence to 85% when evidence justified 40%. She approved incremental changes when transformation was required. By 2015, TechGiant had lost 60% market share. Barbara's conservatism bias had treated an existential threat as a minor challenge. When finally replaced, her successor found detailed reports she'd commissioned showing cloud would dominate within five years – reports she'd read, acknowledged, but insufficiently incorporated into strategy. The company required a $30 billion restructuring, laid off 40,000 employees, and never regained market leadership. Competitors who'd updated beliefs proportionally to evidence grew 10x while TechGiant shrank. Barbara later admitted she'd seen all the evidence but couldn't make her beliefs move fast enough to match reality."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice minimal belief changes despite significant new evidence",
+      "Recognize treating revolutionary information as incremental",
+      "Identify when updates are in the right direction but insufficient magnitude",
+      "Observe clinging to prior beliefs despite mounting contrary evidence",
+      "Watch for acknowledging evidence intellectually but not emotionally"
+    ],
+    "mitigation_approaches": [
+      "Quantify belief changes and check if they match evidence strength",
+      "Use Bayesian calculations to determine appropriate update magnitude",
+      "Seek outside perspectives on how much beliefs should change",
+      "Create \"belief update audits\" comparing evidence to actual changes",
+      "Force larger experimental updates to test their validity",
+      "Set triggers for mandatory major reassessments",
+      "Practice making proportional updates in low-stakes situations"
+    ],
+    "common_contexts": [
+      "Medical diagnosis updating",
+      "Investment strategy adaptation",
+      "Scientific paradigm shifts",
+      "Business model evolution",
+      "Political opinion formation",
+      "Technology adoption",
+      "Risk assessment revision"
+    ],
+    "reflection_questions": [
+      "Where are you making insufficient updates despite mounting evidence?",
+      "What beliefs have you adjusted too slowly in retrospect?",
+      "How can you calibrate the magnitude of belief updates to evidence?",
+      "What prior beliefs might be constraining necessary changes?",
+      "When has conservatism bias caused you to miss important transitions?"
+    ],
+    "related_bias_ids": ["CB023", "CB031", "CB186"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 69,
+    "batch_number": 7
+  },
+  {
+    "cb_id": "CB070",
+    "name": "Contrast effect",
+    "slug": "contrast-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB026 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB026 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB026",
+    "order_index": 70,
+    "batch_number": 7
+  }
+]
