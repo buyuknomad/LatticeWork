@@ -1,0 +1,250 @@
+[
+  {
+    "cb_id": "CB071",
+    "name": "Distinction bias",
+    "slug": "distinction-bias-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB027 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB027 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB027",
+    "order_index": 71,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB072",
+    "name": "Focusing effect",
+    "slug": "focusing-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB028 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB028 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB028",
+    "order_index": 72,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB073",
+    "name": "Framing effect",
+    "slug": "framing-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB029 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB029 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB029",
+    "order_index": 73,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB074",
+    "name": "Weber-Fechner law",
+    "slug": "weber-fechner-law-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB030 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB030 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB030",
+    "order_index": 74,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB076",
+    "name": "Bizarreness effect",
+    "slug": "bizarreness-effect",
+    "category": "attention-perception-biases",
+    "core_concept": "Unusual, weird, or distinctive information is remembered better than ordinary information. This memory advantage occurs because bizarreness attracts additional attention during encoding and creates distinctive memory traces that stand out during retrieval attempts.",
+    "detailed_explanation": "The bizarreness effect demonstrates our cognitive system's preferential treatment of unusual information. When we encounter something that violates our expectations or seems incongruous with normal experience, our brains automatically allocate more processing resources to understand and encode it. This isn't merely about novelty – it's specifically about weirdness, absurdity, or unexpected combinations that create cognitive dissonance. The effect likely evolved as an adaptive mechanism, as unusual events in our ancestral environment often signaled important changes or threats requiring immediate attention and long-term memory storage. This bias operates through multiple mechanisms. Bizarre information triggers deeper semantic processing as we try to make sense of the unusual content. It also creates more elaborate memory traces through increased associations and mental imagery. The distinctiveness makes bizarre items less susceptible to interference from other memories. However, this preferential encoding comes with costs. While we remember bizarre elements exceptionally well, we often forget the mundane but important information presented alongside them. In modern contexts, this creates vulnerabilities where attention-grabbing bizarre elements can overshadow critical details in education, communication, and decision-making.",
+    "expanded_examples": [
+      {
+        "title": "Medical Instruction Catastrophe",
+        "content": "Dr. Rachel Foster, chief of emergency medicine at St. Mary's Hospital, designed a new training program for residents featuring memorable, bizarre mnemonics for drug interactions. She created elaborate stories like \"The purple elephant on cocaine\" to remember contraindications for certain cardiac medications. The bizarreness effect worked perfectly – residents could recite every weird mnemonic months later. However, they consistently forgot the actual dosages, administration routes, and timing protocols that were taught alongside the bizarre memory aids. During a mass casualty event following a highway pile-up, three residents made critical medication errors. They remembered the bizarre warnings perfectly but forgot standard dosing protocols. One patient suffered permanent kidney damage from incorrect dosing, another experienced preventable cardiac complications. The subsequent investigation revealed that across six months, the bizarre mnemonics had displaced fundamental medical knowledge in 78% of residents. The hospital faced $4.2 million in malpractice settlements. Dr. Foster's program was discontinued, and she was removed from her teaching position. The hospital reformed its training to emphasize straightforward, repeated practice over memorable but distracting mnemonics."
+      },
+      {
+        "title": "Marketing Campaign Backfire",
+        "content": "TechNova Software spent $3 million on a product launch featuring bizarre advertisements – office workers riding giant hamsters through spreadsheets, keyboards growing tentacles, and monitors transforming into portals. The bizarreness effect worked spectacularly for brand recall. Three months later, 89% of surveyed consumers remembered the ads vividly, describing the surreal imagery in detail. However, only 12% could name the actual product being advertised – a enterprise resource planning (ERP) software suite. Worse, just 3% understood the software's core features or benefits. The bizarre imagery had completely overshadowed the product message. While competitors ran conventional ads explaining features and benefits, TechNova's sales plummeted 34%. The sales team reported that prospects remembered the \"crazy hamster company\" but had no idea what problems the software solved. The bizarre campaign became a Harvard Business School case study in marketing failure. The CFO calculated that the focus on bizarreness over substance cost the company $18 million in lost sales. The entire marketing leadership team was replaced, and TechNova spent another $5 million on damage control, creating straightforward educational content to explain what their product actually did."
+      },
+      {
+        "title": "Witness Testimony Disaster",
+        "content": "During the trial of Marcus Webb for armed robbery, witness Sandra Kim provided testimony about the crime she'd observed. The perpetrator had worn a bizarre outfit – a neon green suit with a rubber horse mask – that made him unforgettable. The bizarreness effect ensured Sandra remembered every detail of the outfit, describing it perfectly even eight months after the crime. However, she failed to remember crucial details: the perpetrator's height, build, gait, or the tattoo visible on his wrist. She couldn't recall the weapon type, the exact time, or the direction of escape. The defense attorney demonstrated that while Sandra's memory of the bizarre mask was perfect, her identification of Marcus was based solely on police suggestion, not actual memory. Other witnesses similarly remembered only the bizarre elements. The prosecutor's case, built primarily on eyewitness testimony, collapsed. Marcus was acquitted despite substantial circumstantial evidence. Six months later, the real perpetrator was caught in another state – he was six inches shorter than Marcus and had distinctive scarring Sandra should have noticed. The bizarreness effect had caused witnesses to encode irrelevant costume details while missing identifying features that could have prevented a wrongful prosecution."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice when unusual details dominate memory while routine information fades",
+      "Recognize distraction by weird elements in presentations or communications",
+      "Identify when bizarre examples overshadow core concepts in learning",
+      "Observe preference for creating unusual mnemonics over understanding fundamentals",
+      "Spot marketing that emphasizes weirdness over product information",
+      "Detect when strange events overshadow important concurrent happenings"
+    ],
+    "mitigation_approaches": [
+      "Balance bizarre memory aids with repeated exposure to fundamental information",
+      "Test recall of normal information, not just memorable unusual elements",
+      "Create separate study sessions for core content without bizarre distractions",
+      "In communications, ensure important information isn't paired with bizarre elements",
+      "When witnessing events, consciously note ordinary but identifying details",
+      "Review whether bizarre elements in presentations serve learning objectives",
+      "Practice retrieving mundane but critical information regularly"
+    ],
+    "common_contexts": [
+      "Educational settings and training programs",
+      "Advertising and marketing campaigns",
+      "Eyewitness testimony and memory",
+      "Public health communications",
+      "Safety training and protocols",
+      "Product design and user experience",
+      "Entertainment and media consumption",
+      "Legal proceedings and investigations"
+    ],
+    "reflection_questions": [
+      "What important information might I be forgetting while remembering bizarre details?",
+      "Am I using unusual memory techniques at the expense of understanding?",
+      "Do the bizarre elements in my communications distract from key messages?",
+      "When recalling events, am I overemphasizing weird aspects while forgetting crucial details?",
+      "How can I balance memorability with substantive information retention?"
+    ],
+    "related_bias_ids": ["CB055", "CB041", "CB079"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 76,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB077",
+    "name": "Humor effect",
+    "slug": "humor-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB041 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB041 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB041",
+    "order_index": 77,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB078",
+    "name": "Von Restorff effect",
+    "slug": "von-restorff-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB055 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB055 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB055",
+    "order_index": 78,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB079",
+    "name": "Picture superiority effect",
+    "slug": "picture-superiority-effect",
+    "category": "attention-perception-biases",
+    "core_concept": "Visual information and images are remembered more readily than words or verbal information. This robust memory advantage reflects how pictures access dual coding pathways, activating both visual and verbal memory systems for stronger encoding.",
+    "detailed_explanation": "The picture superiority effect represents one of the most reliable findings in cognitive psychology. Images are not just remembered better than words – they're remembered dramatically better, often showing 50-60% superior recall rates. This isn't simply because pictures are more interesting or attention-grabbing. The effect stems from fundamental differences in how our brains process visual versus verbal information. Pictures automatically engage both the visual-spatial processing system and the verbal-semantic system (as we internally name what we see), creating redundant memory traces. Words, conversely, primarily engage only the verbal system unless we deliberately create mental imagery. Evolutionarily, this makes perfect sense – our ancestors survived by remembering visual information about predators, food sources, and landscapes, not abstract symbols. The visual system evolved over millions of years, while written language is only thousands of years old. In modern contexts, this creates both opportunities and challenges. While we can leverage visual information for better learning and communication, our bias toward pictures can lead us to overvalue visual information even when verbal information might be more accurate, nuanced, or complete. The effect is so powerful that it can override logical thinking, making us trust photographic evidence even when we know images can be manipulated.",
+    "expanded_examples": [
+      {
+        "title": "Medical Diagnosis Revolution Failure",
+        "content": "Dr. Michael Chen, head of radiology at Central Medical Center, pioneered a new diagnostic training system based entirely on visual pattern recognition. Residents spent hundreds of hours viewing medical images – X-rays, MRIs, CT scans – with minimal verbal instruction. The picture superiority effect seemed to validate this approach: residents could identify visual patterns with 94% accuracy after training. However, they couldn't explain their diagnoses verbally or document clinical reasoning. When the state medical board conducted surprise competency evaluations, 67% of residents failed the written portions despite perfect image recognition scores. Worse, when unusual cases presented with normal-appearing images but abnormal patient histories and lab results, residents missed critical diagnoses. Three patients suffered delayed cancer diagnoses because residents relied solely on visual information, ignoring verbal patient histories suggesting malignancy. One malpractice case resulted in a $8.7 million settlement when a resident identified correct visual patterns but couldn't communicate findings to the surgical team, leading to wrong-site surgery. The program was suspended, and Dr. Chen's visual-only methodology was abandoned. The hospital had to retrain two entire cohorts of residents, costing $3.2 million and delaying graduation by a year."
+      },
+      {
+        "title": "Financial Report Manipulation Scandal",
+        "content": "DataFlow Analytics, a publicly-traded software company, discovered that investors responded more strongly to infographics than numerical data. CFO Patricia Williams began emphasizing colorful charts showing revenue \"growth trajectories\" while burying actual numbers in dense text. The picture superiority effect worked perfectly – investors remembered the optimistic visual trends while forgetting concerning numerical details. Stock price rose 340% over eighteen months based on compelling visualizations. However, the SEC investigation revealed that while the graphs showed upward trends, actual revenue had declined 23%. The visuals used misleading scales, cherry-picked timeframes, and creative categorizations. Investors had literally looked at pictures of growth while the company collapsed. When the fraud was exposed, stock price dropped 89% in three days, wiping out $4.8 billion in market value. Class-action lawsuits resulted in $890 million in settlements. Patricia was sentenced to 7 years in federal prison, and new regulations required standardized scaling in financial visualizations. Post-scandal analysis showed that 92% of investors remembered the graphs perfectly but only 8% had read the actual financial statements. The picture superiority effect had enabled one of the decade's largest accounting frauds."
+      },
+      {
+        "title": "Emergency Evacuation Tragedy",
+        "content": "Following a fire code update, Westfield Shopping Complex replaced written evacuation instructions with pictographic signs. The picture superiority effect suggested people would remember visual evacuation routes better than written directions. During routine drills, shoppers following picture-based signs evacuated 40% faster than with text instructions. Management celebrated the successful implementation. However, when an actual fire broke out in the food court, the limitations became tragically apparent. The pictographs showed simple arrows and running figures but couldn't convey critical conditional information: which exits to avoid based on fire location, assembly points for different zones, or special procedures for helping disabled individuals. Security camera footage showed confused crowds following pictographic arrows directly toward the fire zone because the images couldn't communicate \"use this exit UNLESS fire is in food court.\" Seventeen people suffered smoke inhalation injuries, and two died when they became trapped following visual signs into a blocked exit. The pictographs had shown the exit but couldn't indicate it was under construction. Lawsuits totaled $43 million. Investigation revealed that while everyone remembered the pictures perfectly, they lacked crucial contextual information that only text could provide. Building codes were revised to require both visual and textual emergency information."
+      }
+    ],
+    "recognition_strategies": [
+      "Notice overreliance on visual information when text might be more precise",
+      "Recognize when compelling images overshadow important written details",
+      "Identify situations where visual memory dominates despite verbal information being more complete",
+      "Observe preference for infographics even when data tables would be clearer",
+      "Spot decisions based primarily on photographic evidence without context",
+      "Detect when visual communication lacks nuance that text could provide"
+    ],
+    "mitigation_approaches": [
+      "Complement visual information with detailed verbal explanations",
+      "Force yourself to articulate visual information in words to ensure understanding",
+      "Read text carefully even when pictures are available",
+      "Question whether visual representations might be misleading or incomplete",
+      "Create verbal summaries of visual information for important decisions",
+      "Verify that pictures align with numerical or textual data",
+      "Use multiple representation formats for critical information"
+    ],
+    "common_contexts": [
+      "Educational materials and textbooks",
+      "Medical imaging and diagnosis",
+      "Financial reports and data visualization",
+      "Safety instructions and warnings",
+      "News media and journalism",
+      "Legal evidence and testimony",
+      "Marketing and advertising",
+      "User interface design"
+    ],
+    "reflection_questions": [
+      "Am I overvaluing visual information at the expense of verbal details?",
+      "Do I verify that compelling visualizations match underlying data?",
+      "When teaching or communicating, do I provide verbal context for visual information?",
+      "Have I been misled by memorable images while ignoring written warnings?",
+      "How can I balance the power of visual memory with the precision of verbal information?"
+    ],
+    "related_bias_ids": ["CB076", "CB062", "CB052"],
+    "is_duplicate": false,
+    "duplicate_of_id": null,
+    "order_index": 79,
+    "batch_number": 8
+  },
+  {
+    "cb_id": "CB080",
+    "name": "Self-relevance effect",
+    "slug": "self-relevance-effect-duplicate",
+    "category": "attention-perception-biases",
+    "core_concept": "See CB047 for full description",
+    "detailed_explanation": "This is a duplicate entry. Please refer to CB047 for the complete bias information.",
+    "expanded_examples": [],
+    "recognition_strategies": [],
+    "mitigation_approaches": [],
+    "common_contexts": [],
+    "reflection_questions": [],
+    "related_bias_ids": [],
+    "is_duplicate": true,
+    "duplicate_of_id": "CB047",
+    "order_index": 80,
+    "batch_number": 8
+  }
+]
